@@ -77,7 +77,7 @@
   },
   {
     "id": "fqxby98w",
-    "name": "全职剑修",
+    "name": "ผู้ฝึกกระบี่เต็มเวลา",
     "url": "https://www.kuaikanmanhua.com/web/topic/17649/?cps=undefined",
     "contains": "",
     "enabled": true,
@@ -85,7 +85,8 @@
       "mode": "peak"
     },
     "by": "boom",
-    "added": "2026-10-01T11:45:38Z"
+    "added": "2026-10-01T11:45:38Z",
+    "autoslow": true
   },
   {
     "id": "turkyr24",
