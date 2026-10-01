@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ตัวจัดการแจ้งเตือนการ์ตูน</title>
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--tx:#1d2330;--mut:#6b7280;--pri:#5865f2;--bd:#e3e6ee;--red:#e5484d;--ok:#2e9e5b}
+@media(prefers-color-scheme:dark){:root{--bg:#14161c;--card:#1d2028;--tx:#e8eaf0;--mut:#9aa1b0;--bd:#2c303b}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,"Noto Sans Thai",sans-serif}
+main{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:8px 0 16px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:14px}
+label{display:block;font-size:13px;color:var(--mut);margin:8px 0 3px}
+input[type=text],input[type=password],input[type=url]{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:transparent;color:var(--tx);font:inherit}
+button{padding:9px 14px;border:0;border-radius:10px;background:var(--pri);color:#fff;font:inherit;cursor:pointer}
+button.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd)}
+button.del{background:transparent;color:var(--red);border:1px solid var(--bd);padding:6px 10px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.item{display:flex;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--bd)}
+.item:first-child{border-top:0}.grow{flex:1;min-width:0}
+.name{font-weight:600}.sub{font-size:13px;color:var(--mut);overflow-wrap:anywhere}
+.badge{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--bd)}
+.new{background:var(--ok);color:#fff}.err{color:var(--red)}
+#msg{position:sticky;top:8px;z-index:5;padding:10px 14px;border-radius:10px;background:var(--ok);color:#fff;display:none;margin-bottom:10px}
+#msg.bad{background:var(--red)}
+details summary{cursor:pointer;color:var(--mut)}
+</style>
+</head>
+<body>
+<main>
+<h1>📚 ตัวจัดการแจ้งเตือนการ์ตูน</h1>
+<div id="msg"></div>
+
+<div class="card" id="setup">
+  <details id="setupBox"><summary><b>ตั้งค่าเชื่อม GitHub</b> (ทำครั้งเดียว)</summary>
+    <label>ชื่อ repo (รูปแบบ ชื่อผู้ใช้/ชื่อrepo)</label>
+    <input type="text" id="repo" placeholder="somchai/manga-notifier">
+    <label>GitHub Token (สิทธิ์ Contents + Actions แบบ read/write เฉพาะ repo นี้)</label>
+    <input type="password" id="token" placeholder="github_pat_...">
+    <p class="sub">เก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น ไม่ส่งไปที่อื่นนอกจาก GitHub</p>
+    <button id="save">บันทึกและโหลดรายการ</button>
+  </details>
+</div>
+
+<div class="card">
+  <b>เพิ่มเรื่องใหม่</b>
+  <label>ชื่อเรื่อง</label><input type="text" id="n" placeholder="เช่น ฉันเลเวลอัปคนเดียว">
+  <label>ลิงก์หน้าเรื่อง (หน้าที่มีรายการตอนทั้งหมด)</label><input type="url" id="u" placeholder="https://...">
+  <details><summary>ตัวเลือกเพิ่มเติม</summary>
+    <label>ลิงก์ตอนต้องมีคำว่า (ไม่บังคับ ใช้เมื่อเว็บมีลิงก์อื่นปนเยอะ เช่น /chapter/)</label>
+    <input type="text" id="c">
+  </details>
+  <p><button id="add">+ เพิ่มเรื่องนี้</button></p>
+</div>
+
+<div class="card">
+  <div class="row"><b class="grow">เรื่องที่ติดตาม <span id="cnt" class="badge">0</span></b>
+    <button class="ghost" id="run">▶ ตรวจเดี๋ยวนี้</button>
+    <button class="ghost" id="reload">รีเฟรช</button></div>
+  <div id="list"></div>
+</div>
+<p class="sub">ระบบตรวจอัตโนมัติทุก ~15 นาที เรื่องที่เพิ่มใหม่จะ "จำตอนล่าสุดไว้" ก่อน แล้วแจ้งเตือนเมื่อมีตอนใหม่กว่านั้น</p>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+let series=[],state={},sha=null;
+const cfg=()=>{try{return JSON.parse(localStorage.getItem('mn')||'{}')}catch(e){return{}}};
+const api=(p,o={})=>fetch('https://api.github.com/repos/'+cfg().repo+p,{...o,headers:{Authorization:'Bearer '+cfg().token,Accept:'application/vnd.github+json',...(o.headers||{})}});
+const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,'')),c=>c.charCodeAt(0)));
+const b64e=s=>{let b=new TextEncoder().encode(s),r='';b.forEach(x=>r+=String.fromCharCode(x));return btoa(r)};
+function say(t,bad){const m=$('msg');m.textContent=t;m.className=bad?'bad':'';m.style.display='block';clearTimeout(say.t);say.t=setTimeout(()=>m.style.display='none',4000)}
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+async function load(){
+  if(!cfg().repo||!cfg().token){$('setupBox').open=true;return}
+  try{
+    const r=await api('/contents/series.json');if(!r.ok)throw new Error('โหลดไม่ได้ ('+r.status+') ตรวจชื่อ repo/token');
+    const j=await r.json();sha=j.sha;series=JSON.parse(b64d(j.content));
+    const s=await api('/contents/state.json');state=s.ok?JSON.parse(b64d((await s.json()).content)):{};
+    render();
+  }catch(e){say(e.message,1);$('setupBox').open=true}
+}
+async function saveSeries(msg){
+  const r=await api('/contents/series.json',{method:'PUT',body:JSON.stringify({message:msg,sha,content:b64e(JSON.stringify(series,null,2))})});
+  if(!r.ok){say('บันทึกไม่สำเร็จ ('+r.status+')',1);await load();return false}
+  sha=(await r.json()).content.sha;render();return true;
+}
+function ago(iso){if(!iso)return'';const m=(Date.now()-new Date(iso))/6e4;return m<60?Math.round(m)+' นาทีที่แล้ว':m<1440?Math.round(m/60)+' ชม.ที่แล้ว':Math.round(m/1440)+' วันที่แล้ว'}
+function render(){
+  $('cnt').textContent=series.length;
+  $('list').innerHTML=series.length?'':'<p class="sub">ยังไม่มีเรื่องที่ติดตาม</p>';
+  series.forEach((s,i)=>{
+    const st=state[s.id]||{};
+    const info=st.number!=null?`ตอนล่าสุด <b>${st.number}</b> · ตรวจเมื่อ ${ago(st.checked)}`:'<i>รอตรวจครั้งแรก</i>';
+    const fresh=st.updated&&(Date.now()-new Date(st.updated))<864e5?' <span class="badge new">ใหม่</span>':'';
+    const e=st.fails?`<div class="sub err">ตรวจไม่ได้ ${st.fails} ครั้ง: ${esc(st.error||'')}</div>`:'';
+    const d=document.createElement('div');d.className='item';
+    d.innerHTML=`<input type="checkbox" ${s.enabled!==false?'checked':''} title="เปิด/ปิดแจ้งเตือน">
+      <div class="grow"><div class="name">${esc(s.name)}${fresh}</div>
+      <div class="sub">${info} · <a href="${esc(s.url)}" target="_blank" rel="noopener">เปิดเว็บ</a></div>${e}</div>
+      <button class="del">ลบ</button>`;
+    d.querySelector('input').onchange=ev=>{s.enabled=ev.target.checked;saveSeries('toggle '+s.name)};
+    d.querySelector('.del').onclick=()=>{if(confirm('ลบ "'+s.name+'" ?')){series.splice(i,1);saveSeries('remove '+s.name)}};
+    $('list').appendChild(d);
+  });
+}
+$('save').onclick=()=>{localStorage.setItem('mn',JSON.stringify({repo:$('repo').value.trim(),token:$('token').value.trim()}));load()};
+$('add').onclick=async()=>{
+  const name=$('n').value.trim(),url=$('u').value.trim();
+  if(!name||!/^https?:\/\//.test(url))return say('กรอกชื่อและลิงก์ (ขึ้นต้น https://) ให้ครบ',1);
+  series.push({id:Date.now().toString(36),name,url,contains:$('c').value.trim(),enabled:true});
+  if(await saveSeries('add '+name)){$('n').value=$('u').value=$('c').value='';say('เพิ่มแล้ว — จะเริ่มตรวจรอบถัดไป หรือกด "ตรวจเดี๋ยวนี้"')}
+};
+$('run').onclick=async()=>{const r=await api('/actions/workflows/check.yml/dispatches',{method:'POST',body:JSON.stringify({ref:'main'})});
+  say(r.ok?'สั่งตรวจแล้ว รอ ~1 นาที แล้วกดรีเฟรช':'สั่งไม่สำเร็จ ('+r.status+') เช็คสิทธิ์ Actions ของ token / ชื่อ branch',!r.ok)};
+$('reload').onclick=load;
+$('repo').value=cfg().repo||'';$('token').value=cfg().token||'';load();
+</script>
+</body>
+</html>
