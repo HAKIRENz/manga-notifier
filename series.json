@@ -296,5 +296,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T11:56:44Z"
+  },
+  {
+    "id": "o5rbbnyn",
+    "name": "จ้าวสายฟ้าเกิดใหม่ในฐานะสตรีมเมอร์",
+    "url": "https://en-thunderscans.com/comics/reincarnated-streamer/",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T11:57:00Z"
   }
 ]
