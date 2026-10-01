@@ -266,6 +266,12 @@ function ago(iso){const t=T(iso);if(!t)return"";const s=(Date.now()-t)/1e3;
   const d=h/24;if(d<30)return Math.round(d)+" วันที่แล้ว";return new Date(t).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})}
 const fullTime=iso=>T(iso)?new Date(T(iso)).toLocaleString("th-TH",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
 const dur=ms=>{const d=ms/864e5;if(d>=1.5)return"~"+Math.round(d)+" วัน";const h=ms/36e5;return h>=1?"~"+Math.round(h)+" ชม.":"~"+Math.max(1,Math.round(ms/6e4))+" นาที"};
+const fmtEvery=m=>{m=+m||30;return m%1440===0?"ทุก "+m/1440+" วัน":m%60===0?"ทุก "+m/60+" ชม.":"ทุก "+m+" นาที"};
+function intervalPicker(id,m){m=+m||30;const u=m%1440===0?1440:m%60===0?60:1;
+  return'<div class="row"><input type="number" id="'+id+'N" min="1" step="1" value="'+m/u+'" inputmode="numeric" style="flex:1"><select id="'+id+'U" style="flex:1">'+[[1,"นาที"],[60,"ชั่วโมง"],[1440,"วัน"]].map(([v,t])=>'<option value="'+v+'"'+(v===u?" selected":"")+">"+t+"</option>").join("")+"</select></div>"+
+  '<div class="chips" style="padding-top:6px">'+[10,30,60,180,720,1440].map(x=>'<button type="button" class="chip" data-act="ivq" data-t="'+id+'" data-m="'+x+'">'+fmtEvery(x).replace("ทุก ","")+"</button>").join("")+"</div>"}
+function readInterval(id){const n=parseFloat($("#"+id+"N").value),u=+$("#"+id+"U").value;const m=Math.round(n*u);
+  if(!(m>=10&&m<=10080))throw new Error("ความถี่ต้องอยู่ระหว่างทุก 10 นาที ถึงทุก 7 วัน");return m}
 const randPw=()=>Array.from(crypto.getRandomValues(new Uint8Array(10)),b=>"abcdefghjkmnpqrstuvwxyz23456789"[b%31]).join("");
 function toast(msg,type="info",ms){
   const el=document.createElement("div");el.className="toast "+type;
@@ -295,7 +301,7 @@ const derivedRepo=(()=>{const h=location.hostname,p=location.pathname.split("/")
 let API=(new URLSearchParams(location.search).get("api")||LS.get("mw_api","")||"").replace(/\/+$/,"");
 let S=LS.get("mw_session",null);              // {token,user:{name,role}}
 let D={series:[],state:{},log:[],followers:{},config:{},pending:0};
-let STATUS=null,ME=null,REQS=null,AUDIT=null,USERS=null,PREV=null;
+let STATUS=null,ME=null,REQS=null,AUDIT=null,USERS=null,PREV=null,SUBS=null;
 let R=LS.get("mw_read",{});                     // อ่านถึงตอนไหน (เก็บในเครื่องนี้)
 const P=Object.assign({tab:"library",view:"list",sort:"recent",theme:"auto",notify:false},LS.get("mw_prefs",{}));
 const UI={filter:"all",q:"",feed:"all",pending:new Set(),loaded:false,sheetId:null,installEvt:null};
@@ -350,7 +356,7 @@ async function loadStatus(){
   try{
     if(API)STATUS=await api("/api/status");
     else if(derivedRepo){const r=await fetch("https://api.github.com/repos/"+derivedRepo+"/actions/workflows/check.yml/runs?per_page=15");
-      if(r.ok){const j=await r.json();STATUS={runs:(j.workflow_runs||[]).map(x=>({at:x.created_at,event:x.event,status:x.status,conclusion:x.conclusion,url:x.html_url,secs:x.updated_at&&x.run_started_at?(T(x.updated_at)-T(x.run_started_at))/1e3:null})),every:15}}}
+      if(r.ok){const j=await r.json();STATUS={runs:(j.workflow_runs||[]).map(x=>({at:x.created_at,event:x.event,status:x.status,conclusion:x.conclusion,url:x.html_url,secs:x.updated_at&&x.run_started_at?(T(x.updated_at)-T(x.run_started_at))/1e3:null})),every:10}}}
   }catch(e){}
   if(!STATUS)STATUS={runs:[],unknown:true};
   renderHealth();if(P.tab==="system")render();
@@ -391,12 +397,12 @@ function health(){
   const bad=D.series.filter(s=>s.enabled!==false&&ST(s.id).error).length;
   const failedMsgs=(D.log||[]).filter(e=>e.status==="failed"&&!e.resent&&Date.now()-T(e.at)<864e5).length;
   if(!STATUS)return{c:"",t:"กำลังตรวจสอบ…",icon:"⏳",k:"n"};
-  if(!runs.length)return{c:"",t:STATUS.unknown?"ยังไม่ทราบสถานะ":"ยังไม่มีข้อมูลการรัน",icon:"❔",k:"n",sub:STATUS.unknown?"เชื่อมต่อหลังบ้านเพื่อดูสถานะการรัน":"ระบบจะเริ่มตรวจภายใน 15 นาทีหลังตั้งค่า"};
+  if(!runs.length)return{c:"",t:STATUS.unknown?"ยังไม่ทราบสถานะ":"ยังไม่มีข้อมูลการรัน",icon:"❔",k:"n",sub:STATUS.unknown?"เชื่อมต่อหลังบ้านเพื่อดูสถานะการรัน":"ระบบจะเริ่มตรวจภายใน 10 นาทีหลังตั้งค่า"};
   if(last.conclusion==="failure")return{c:"r",t:"รอบตรวจล่าสุดล้มเหลว",icon:"🛑",k:"r",sub:"กดดูรายละเอียดจากรายการรอบตรวจด้านล่าง"};
   if(sched&&Date.now()-T(sched.at)>75*6e4)return{c:"y",t:"ระบบไม่ได้รันตามเวลา",icon:"⏰",k:"y",sub:"GitHub อาจหน่วงหรือปิดการรันอัตโนมัติ — เข้า GitHub → Actions เพื่อเปิดใหม่"};
   if(failedMsgs)return{c:"y",t:"ส่ง Discord ไม่สำเร็จ "+failedMsgs+" ข้อความ",icon:"📭",k:"y",sub:"ดูในแท็บอัปเดต แล้วกดส่งซ้ำได้"};
   if(bad)return{c:"y",t:"ระบบปกติ · "+bad+" เรื่องอ่านไม่ได้",icon:"🟡",k:"y",sub:"ดูรายชื่อเรื่องที่มีปัญหาด้านล่าง"};
-  return{c:"g",t:"ระบบทำงานปกติ",icon:"🟢",k:"g",sub:"ตรวจอัตโนมัติทุก ~15 นาที"};
+  return{c:"g",t:"ระบบทำงานปกติ",icon:"🟢",k:"g",sub:"ระบบรันทุก ~10 นาที แต่ละเรื่องตรวจตามความถี่ที่ตั้งไว้"};
 }
 function renderHealth(){const h=health();$("#hdot").className="dot "+h.c;
   const last=STATUS&&STATUS.runs&&STATUS.runs[0];$("#htxt").textContent=h.k==="g"&&last?"ตรวจล่าสุด "+ago(last.at):h.t}
@@ -414,7 +420,14 @@ function render(){
   document.title=(unread?"("+unread+") ":"")+"Manga Watch";
   const v=$("#view");
   if(!UI.loaded){v.innerHTML='<div class="list" style="margin-top:12px">'+'<div class="card s"><div class="cv"></div><div><div class="sk" style="width:60%"></div><div class="sk"></div><div class="sk" style="width:40%"></div></div></div>'.repeat(3)+"</div>";return}
+  // เก็บค่าที่กำลังพิมพ์ไว้ ไม่ให้หายตอนหน้ารีเฟรชข้อมูลเอง
+  const keyOf=e=>e.id?"#"+e.id:e.dataset.subid!=null?'[data-subid="'+CSS.escape(e.dataset.subid)+'"]':null;
+  const keep={},act=document.activeElement,actKey=act&&v.contains(act)?keyOf(act):null,sel=actKey&&act.selectionStart!=null?[act.selectionStart,act.selectionEnd]:null;
+  v.querySelectorAll("input,textarea,select").forEach(e=>{const k=keyOf(e);if(k&&e.type!=="checkbox"&&e.id!=="q"&&e.id!=="sort")keep[k]=e.value});
   ({library:renderLibrary,feed:renderFeed,requests:renderRequests,system:renderSystem}[P.tab])(v);
+  for(const k in keep){const e=v.querySelector(k);if(e&&!UI.clearForm)e.value=keep[k]}
+  UI.clearForm=false;
+  if(actKey&&actKey!=="#q"){const e=v.querySelector(actKey);if(e){e.focus();if(sel)try{e.setSelectionRange(sel[0],sel[1])}catch(x){}}}
 }
 
 /* ================================================================ library */
@@ -462,9 +475,9 @@ function listCard(s){
   const mine=ME&&(ME.series||[]).includes(s.id),fol=(D.followers[s.id]||[]).length,id=esc(s.id);
   let h='<article class="card s'+(off?" off":"")+(pend?" pending":"")+'" data-id="'+id+'"><button class="cv" data-act="open" data-id="'+id+'" aria-label="รายละเอียด">'+cover(st.cover,s.name)+'</button><div style="min-width:0">';
   h+='<div class="r1"><button class="nm" data-act="open" data-id="'+id+'">'+esc(s.name)+"</button>"+(b?'<span class="pill new">ค้าง '+b+" ตอน</span>":"")+(off?'<span class="pill off">ปิดแจ้งเตือน</span>':"")+(st.error?'<span class="pill err">⚠ อ่านไม่ได้</span>':"")+"</div>";
-  h+='<div class="meta">'+esc(host(s.url))+(st.checked?" · ตรวจ "+ago(st.checked):"")+(fol?" · 🔔 "+fol+" คนติดตาม":"")+"</div>";
+  h+='<div class="meta">'+esc(host(s.url))+" · ⏱ "+fmtEvery(s.interval||30)+(st.checked?" · ตรวจ "+ago(st.checked):"")+(fol?" · 🔔 "+fol+" คนติดตาม":"")+"</div>";
   if(st.label==null){
-    h+='<div class="meta" style="margin-top:8px">'+(st.error?"":pend?"⏳ กำลังตรวจครั้งแรก…":"⏳ รอตรวจครั้งแรก (ภายใน ~15 นาที)")+"</div>"+(st.error?"":'<div class="sk" style="width:65%"></div>');
+    h+='<div class="meta" style="margin-top:8px">'+(st.error?"":pend?"⏳ กำลังตรวจครั้งแรก…":"⏳ รอตรวจครั้งแรก (ภายใน ~10 นาที)")+"</div>"+(st.error?"":'<div class="sk" style="width:65%"></div>');
   }else{
     h+='<div class="latest"><span class="lb">ตอนล่าสุด</span><b>'+esc(st.label)+"</b>"+(st.prev_label&&T(st.updated)>Date.now()-3*864e5?'<span class="chg">▲ จาก '+esc(st.prev_label)+"</span>":"")+'<span class="t">'+esc(st.title||"")+(st.updated?" · "+ago(st.updated):"")+"</span></div>";
     const a=num(st.label),r=num(R[s.id]),pct=a&&r!=null?Math.max(4,Math.min(100,r/a*100)):100;
@@ -505,13 +518,20 @@ function openDetail(id,keep){
   h+='<div class="facts">'+
     '<div class="fact"><div class="k">ออกตอนใหม่ล่าสุด</div><div class="v">'+(st.updated?ago(st.updated):"ยังไม่มี")+'</div><div class="k">'+(st.updated?esc(fullTime(st.updated)):"ตั้งแต่เริ่มติดตาม")+"</div></div>"+
     '<div class="fact"><div class="k">ความถี่การออก</div><div class="v">'+(avg?"ทุก "+dur(avg):"ข้อมูลยังไม่พอ")+'</div><div class="k">'+(avg?"เฉลี่ยจาก "+hist.length+" ตอนล่าสุด":"ต้องมีตอนใหม่อย่างน้อย 2 ครั้ง")+"</div></div>"+
-    '<div class="fact"><div class="k">ตรวจล่าสุด</div><div class="v">'+(st.checked?ago(st.checked):"-")+'</div><div class="k">ตรวจทุก '+(every<60?every+" นาที":every/60+" ชม.")+"</div></div>"+
+    '<div class="fact"><div class="k">ตรวจล่าสุด</div><div class="v">'+(st.checked?ago(st.checked):"-")+'</div><div class="k">ตรวจ'+fmtEvery(every)+"</div></div>"+
     '<div class="fact"><div class="k">ตรวจครั้งถัดไป</div><div class="v">'+(s.enabled===false?"ปิดอยู่":nextAt&&nextAt>Date.now()?ago(new Date(nextAt).toISOString()):"รอบถัดไป")+'</div><div class="k">GitHub อาจช้าเล็กน้อย</div></div>'+
     "</div>";
   if(st.error)h+='<div class="err" style="margin-top:12px">⚠ '+esc(st.error)+"</div>";
   h+='<h2 class="sec">🔔 แจ้งเตือนเข้า Discord</h2><div class="card box" style="padding:12px 14px"><div class="line"><div>'+(fol.length?"<b>"+fol.length+" คน</b>ติดตาม: "+fol.map(esc).join(", "):'<span class="mut">ยังไม่มีใครกดติดตาม</span>')+"</div>";
   h+=S?'<button class="btn sm'+(mine?" g on":"")+'" data-act="follow" data-id="'+eid+'">'+(mine?"🔔 ติดตามอยู่":"🔔 แท็กฉันด้วย")+"</button>":'<button class="btn g sm" data-act="account">ล็อกอินเพื่อติดตาม</button>';
-  h+="</div>"+(S&&ME&&!ME.discord&&mine?'<div class="hint warn">ยังไม่ได้ใส่ Discord ID — บอทจะแท็กไม่ได้ ใส่ได้ที่แท็บระบบ → โปรไฟล์ของฉัน</div>':"")+"</div>";
+  let own="";
+  if(isOwner()){
+    if(SUBS==null){loadSubs();own+='<div class="hint">กำลังโหลดรายชื่อแท็ก…</div>'}
+    else{const names=Object.keys(SUBS.users).sort((a,b)=>a.localeCompare(b,"th"));
+      own+='<div class="hint" style="margin-top:8px">👑 เลือกคนที่จะให้บอทแท็กเมื่อเรื่องนี้มีตอนใหม่</div>'+(names.length?'<div style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px">'+names.map(n=>{const u=SUBS.users[n],ok=/^\d{15,22}$/.test(u.discord||"");
+        return'<label style="display:flex;gap:6px;align-items:center;font-size:14px"><input type="checkbox" data-act="subtoggle" data-n="'+esc(n)+'" data-sid="'+eid+'"'+((u.series||[]).includes(id)?" checked":"")+">"+esc(n)+(ok?"":' <span class="pill err">ไม่มี ID</span>')+"</label>"}).join("")+"</div>":'<div class="hint">ยังไม่มีรายชื่อ — เพิ่มได้ที่แท็บระบบ → 📣 รายชื่อแท็ก Discord</div>')}
+  }
+  h+="</div>"+own+(S&&ME&&!ME.discord&&mine?'<div class="hint warn">ยังไม่ได้ใส่ Discord ID — บอทจะแท็กไม่ได้ ใส่ได้ที่แท็บระบบ → โปรไฟล์ของฉัน</div>':"")+"</div>";
   h+='<h2 class="sec">🕘 ประวัติตอนใหม่ <span class="cnt soft">'+hist.length+"</span></h2>";
   h+=hist.length?'<div class="card box" style="padding:6px 14px"><ul class="rows">'+hist.map(x=>'<li><span class="chg">'+esc(x.prev||"?")+" → "+esc(x.label)+'</span><a class="grow" href="'+esc(safeUrl(x.url)||s.url)+'" target="_blank" rel="noopener">'+esc(x.title||"ตอน "+x.label)+'</a><time title="'+esc(fullTime(x.at))+'">'+ago(x.at)+"</time></li>").join("")+"</ul></div>":'<p class="mut small">ยังไม่พบตอนใหม่ตั้งแต่เริ่มติดตาม'+(st.first_label?" (เริ่มที่ตอน "+esc(st.first_label)+(st.since?" · "+ago(st.since):"")+")":"")+"</p>";
   if(msgs.length)h+='<h2 class="sec">📨 ข้อความ Discord ของเรื่องนี้</h2><div class="card box" style="padding:6px 14px"><ul class="rows">'+msgs.map(e=>"<li><span>"+(e.status==="sent"?"✅":"❌")+'</span><span class="grow">'+esc((e.embed&&e.embed.title)||e.kind)+(e.mentions&&e.mentions.length?' <span class="mut small">แท็ก '+e.mentions.map(esc).join(", ")+"</span>":"")+"</span><time>"+ago(e.at)+"</time></li>").join("")+"</ul></div>";
@@ -519,9 +539,10 @@ function openDetail(id,keep){
     h+='<h2 class="sec">🛠 จัดการ (ผู้ดูแล)</h2><div class="card box f">'+
       '<label for="eName">ชื่อเรื่อง</label><input type="text" id="eName" maxlength="80" value="'+esc(s.name)+'">'+
       '<div class="row"><div><label for="eContains">ลิงก์ตอนต้องมีคำว่า</label><input type="text" id="eContains" value="'+esc(s.contains||"")+'" placeholder="เช่น /chapter/"></div>'+
-      '<div><label for="eInterval">ตรวจบ่อยแค่ไหน</label><select id="eInterval">'+[15,30,60,180,720].map(m=>'<option value="'+m+'"'+(every===m?" selected":"")+">"+(m<60?"ทุก "+m+" นาที":"ทุก "+m/60+" ชม.")+"</option>").join("")+"</select></div></div>"+
+      '</div><label>ตรวจบ่อยแค่ไหน (อย่างน้อย 10 นาที)</label>'+intervalPicker("eIv",every)+
       '<div class="acts"><button class="btn" data-act="save" data-id="'+eid+'">บันทึก</button><button class="btn g" data-act="check" data-id="'+eid+'">↻ ตรวจตอนนี้</button>'+
-      '<button class="btn g" data-act="toggle" data-id="'+eid+'">'+(s.enabled===false?"▶ เปิดแจ้งเตือน":"⏸ ปิดแจ้งเตือน")+'</button><span style="flex:1"></span><button class="btn g danger" data-act="del" data-id="'+eid+'">ลบเรื่องนี้</button></div></div>';
+      '<button class="btn g" data-act="toggle" data-id="'+eid+'">'+(s.enabled===false?"▶ เปิดแจ้งเตือน":"⏸ ปิดแจ้งเตือน")+'</button><span style="flex:1"></span><button class="btn g danger" data-act="del" data-id="'+eid+'">ลบเรื่องนี้</button></div>'+
+      (isOwner()?'<div class="acts" style="border-top:1px dashed var(--line);padding-top:10px"><button class="btn g" data-act="testseries" data-id="'+eid+'">🧪 ทดสอบส่งเข้า Discord</button><span class="hint" style="margin:0">ตรวจเว็บตอนนี้แล้วส่งข้อความบอกตอนล่าสุด + แท็กคนที่ติดตาม</span></div>':"")+"</div>";
   }
   h+="</div>";
   openSheet(h,id,"detail",keep);
@@ -533,7 +554,7 @@ function openAdd(pre){
     '<div id="aPv"></div>'+
     '<label for="aName">ชื่อเรื่อง</label><input type="text" id="aName" maxlength="80" placeholder="ดึงให้อัตโนมัติ หรือพิมพ์เอง" value="'+esc(pre.name||"")+'">'+
     '<details style="margin-top:10px"><summary class="small mut" style="cursor:pointer">ตัวเลือกเพิ่มเติม</summary><div class="row"><div><label for="aContains">ลิงก์ตอนต้องมีคำว่า</label><input type="text" id="aContains" placeholder="เช่น /chapter/"></div>'+
-    '<div><label for="aInterval">ตรวจบ่อยแค่ไหน</label><select id="aInterval"><option value="15">ทุก 15 นาที</option><option value="30" selected>ทุก 30 นาที</option><option value="60">ทุก 1 ชม.</option><option value="180">ทุก 3 ชม.</option><option value="720">ทุก 12 ชม.</option></select></div></div></details>'+
+    '</div><label>ตรวจบ่อยแค่ไหน (อย่างน้อย 10 นาที)</label>'+intervalPicker("aIv",30)+'</details>'+
     '<div class="acts" style="margin-top:16px"><button class="btn" data-act="doadd"'+(pre.rid?' data-rid="'+esc(pre.rid)+'"':"")+">"+(pre.rid?"✓ อนุมัติและเพิ่ม":"＋ เพิ่มเรื่องนี้")+'</button><button class="btn g" data-act="close">ยกเลิก</button></div></div>',null,"add");
   const u=$("#aUrl");let t;
   const go=()=>{clearTimeout(t);t=setTimeout(()=>preview(u.value.trim()),550)};
@@ -557,7 +578,8 @@ async function preview(url){
   }catch(e){if(my!==pvSeq||!$("#aPv"))return;$("#aPv").innerHTML='<div class="hint warn">⚠ ดูตัวอย่างไม่ได้: '+esc(e.message)+" — ยังเพิ่มได้ ระบบจะลองตรวจจาก GitHub อีกที</div>"}
 }
 async function doAdd(btn){
-  const url=$("#aUrl").value.trim(),name=$("#aName").value.trim(),contains=$("#aContains").value.trim(),interval=+$("#aInterval").value,rid=btn.dataset.rid;
+  const url=$("#aUrl").value.trim(),name=$("#aName").value.trim(),contains=$("#aContains").value.trim(),rid=btn.dataset.rid;
+  let interval;try{interval=readInterval("aIv")}catch(e){return toast(e.message,"bad")}
   if(!/^https?:\/\/\S+\.\S+/i.test(url)){$("#aUrl").focus();return toast("ใส่ลิงก์ที่ขึ้นต้นด้วย https://","bad")}
   if(!name){$("#aName").focus();return toast("ใส่ชื่อเรื่อง","bad")}
   await busy(btn,async()=>{
@@ -629,10 +651,10 @@ function renderRequests(v){
 }
 
 /* ================================================================ system */
-const ACT_TH={"series.add":"เพิ่มเรื่อง","series.edit":"แก้ไขเรื่อง","series.delete":"ลบเรื่อง",check:"สั่งตรวจ",resend:"ส่งซ้ำ",test:"ทดสอบ Discord","request.reject":"ปฏิเสธคำขอ","user.add":"สร้างผู้ใช้","user.edit":"แก้ไขผู้ใช้","user.delete":"ลบผู้ใช้",config:"ตั้งค่า"};
+const ACT_TH={"series.add":"เพิ่มเรื่อง","series.edit":"แก้ไขเรื่อง","series.delete":"ลบเรื่อง",check:"สั่งตรวจ",resend:"ส่งซ้ำ",test:"ทดสอบส่งข้อความ","request.reject":"ปฏิเสธคำขอ","user.add":"สร้างผู้ใช้","user.edit":"แก้ไขผู้ใช้","user.delete":"ลบผู้ใช้",config:"ตั้งค่า","subs.edit":"แก้รายชื่อแท็ก","subs.delete":"ลบรายชื่อแท็ก"};
 function renderSystem(v){
   const hl=health(),runs=(STATUS&&STATUS.runs)||[],sched=runs.find(r=>r.event==="schedule");
-  const next=sched?T(sched.at)+15*6e4:0,lastMsg=(D.log||[])[0],bad=D.series.filter(s=>ST(s.id).error);
+  const next=sched?T(sched.at)+10*6e4:0,lastMsg=(D.log||[])[0],bad=D.series.filter(s=>ST(s.id).error);
   let h='<div class="card hero" style="margin-top:10px"><div class="ic '+hl.k+'">'+hl.icon+'</div><div style="flex:1;min-width:200px"><div class="h">'+esc(hl.t)+'</div><div class="small mut">'+esc(hl.sub||"")+"</div></div>"+(isMod()?'<button class="btn" data-act="checkall">▶ ตรวจทุกเรื่องตอนนี้</button>':"")+"</div>";
   h+='<div class="facts">'+
     '<div class="fact"><div class="k">รอบตรวจล่าสุด</div><div class="v">'+(runs[0]?ago(runs[0].at):"-")+'</div><div class="k">'+(runs[0]?(runs[0].status!=="completed"?"⏳ กำลังรัน":runs[0].conclusion==="success"?"✓ สำเร็จ":"✗ "+esc(runs[0].conclusion||"")):"")+"</div></div>"+
@@ -661,6 +683,15 @@ function renderSystem(v){
   }
   h+="</div>";
   if(isOwner()){
+    h+='<div class="card box f" style="margin-top:14px"><h3>📣 รายชื่อแท็ก Discord</h3><p class="small mut" style="margin:0 0 6px">ใส่ Discord ID ของใครก็ได้ (ไม่ต้องมีบัญชีในเว็บ) แล้วเลือกเรื่องที่จะให้บอทแท็กคนนั้นในหน้ารายละเอียดเรื่อง · บัญชีที่กด 🔔 ติดตามเองก็อยู่ในรายการนี้</p>';
+    if(SUBS==null){h+='<p class="mut">กำลังโหลด…</p>';loadSubs()}
+    else{const names=Object.keys(SUBS.users).sort((a,b)=>a.localeCompare(b,"th"));
+      h+='<ul class="rows">'+names.map(n=>{const u=SUBS.users[n];return'<li><span class="av" style="background:hsl('+hash(n)%360+' 55% 50%)">'+esc(initial(n))+'</span><span class="grow"><b>'+esc(n)+'</b> <span class="small mut">ติดตาม '+(u.series||[]).length+' เรื่อง</span></span><input type="text" class="sel" style="width:190px" inputmode="numeric" placeholder="Discord ID" data-subid="'+esc(n)+'" value="'+esc(u.discord||"")+'"><button class="btn g sm" data-act="subsave" data-n="'+esc(n)+'">บันทึก</button><button class="btn t sm danger" data-act="subdel" data-n="'+esc(n)+'">ลบ</button></li>'}).join("")+(names.length?"":'<li class="mut small">ยังไม่มีรายชื่อ</li>')+"</ul>";
+      h+='<div class="row" style="margin-top:8px"><div><label for="sbName">ชื่อ (ใช้แสดงในเว็บ)</label><input type="text" id="sbName" maxlength="30" autocomplete="off"></div><div><label for="sbId">Discord User ID</label><input type="text" id="sbId" inputmode="numeric" placeholder="เช่น 123456789012345678"></div></div>'+
+        '<div class="acts"><button class="btn" data-act="subadd">＋ เพิ่มคนที่จะแท็ก</button></div><div class="hint">หา ID ของเพื่อน: Discord → ตั้งค่า → ขั้นสูง → เปิด Developer Mode → คลิกขวาที่ชื่อเพื่อน → Copy User ID</div>'}
+    h+="</div>";
+  }
+  if(isOwner()){
     h+='<div class="card box f" style="margin-top:14px"><h3>👥 ผู้ใช้และยศ</h3><p class="small mut" style="margin:0 0 6px"><b>ผู้ดูแล</b>: เพิ่ม/แก้/ลบ/เปิดปิดเรื่อง อนุมัติคำขอ สั่งตรวจ ส่งซ้ำ · <b>สมาชิก</b>: กดติดตามให้บอทแท็กใน Discord · ไม่มีใครเห็น Token/Webhook หรือแก้ระบบได้นอกจากคุณ</p>';
     if(USERS==null){h+='<p class="mut">กำลังโหลด…</p>';loadUsers()}
     else h+='<ul class="rows">'+USERS.map(u=>'<li><span class="av" style="background:hsl('+hash(u.name)%360+' 55% 50%)">'+esc(initial(u.name))+'</span><span class="grow"><b>'+esc(u.name)+'</b> <span class="small mut">'+(u.created?"สร้าง "+ago(u.created):"")+'</span></span><select class="sel" data-act="role" data-u="'+esc(u.name)+'" aria-label="ยศ"><option value="mod"'+(u.role==="mod"?" selected":"")+'>ผู้ดูแล</option><option value="member"'+(u.role==="member"?" selected":"")+'>สมาชิก</option></select><button class="btn t sm" data-act="resetpw" data-u="'+esc(u.name)+'">รีเซ็ตรหัส</button><button class="btn t sm danger" data-act="deluser" data-u="'+esc(u.name)+'">ลบ</button></li>').join("")+(USERS.length?"":'<li class="mut small">ยังไม่มีผู้ใช้อื่น</li>')+"</ul>";
@@ -676,6 +707,7 @@ function renderSystem(v){
   }
   v.innerHTML=h;
 }
+async function loadSubs(){try{SUBS=await api("/api/subs");SUBS.users=SUBS.users||{}}catch(e){SUBS={users:{}};toast(e.message,"bad")}render();if(UI.sheetId&&UI.sheetKind==="detail")openDetail(UI.sheetId,true)}
 async function loadUsers(){try{USERS=await api("/api/users")}catch(e){USERS=[];toast(e.message,"bad")}render()}
 async function loadAudit(){try{AUDIT=await api("/api/audit")}catch(e){AUDIT=[]}render()}
 
@@ -699,7 +731,7 @@ async function doLogin(btn){
     render();await loadMe();if(isMod())loadReqs();
   });
 }
-function logout(reason){S=null;ME=null;USERS=AUDIT=REQS=null;LS.del("mw_session");if(UI.filter==="mine")UI.filter="all";render();toast(typeof reason==="string"?reason:"ออกจากระบบแล้ว","info",6000)}
+function logout(reason){S=null;ME=null;USERS=AUDIT=REQS=SUBS=null;LS.del("mw_session");if(UI.filter==="mine")UI.filter="all";render();toast(typeof reason==="string"?reason:"ออกจากระบบแล้ว","info",6000)}
 
 /* ================================================================ actions */
 function arm(btn,label,fn){
@@ -753,7 +785,7 @@ const ACT={
     const fresh=D.series.filter(s=>before[s.id]&&ST(s.id).label!==before[s.id]),bad=D.series.filter(s=>ST(s.id).error).length;
     toast("ตรวจเสร็จ: "+(fresh.length?fresh.length+" เรื่องมีตอนใหม่ 🎉":"ยังไม่มีตอนใหม่")+(bad?" · "+bad+" เรื่องอ่านไม่ได้":""),"ok",6000)}),
   save:el=>busy(el,async()=>{const id=el.dataset.id;
-    const r=await api("/api/series/"+id,{method:"PATCH",body:{name:$("#eName").value,contains:$("#eContains").value,interval:+$("#eInterval").value}});
+    const r=await api("/api/series/"+id,{method:"PATCH",body:{name:$("#eName").value,contains:$("#eContains").value,interval:readInterval("eIv")}});
     Object.assign(SER(id),r.item);render();openDetail(id,true);toast("บันทึกแล้ว","ok",2200)}),
   toggle:el=>busy(el,async()=>{const id=el.dataset.id,s=SER(id),on=s.enabled===false;
     const r=await api("/api/series/"+id,{method:"PATCH",body:{enabled:on}});Object.assign(s,r.item);render();openDetail(id,true);
@@ -778,10 +810,27 @@ const ACT={
     if(e)toast(e.status==="sent"?"ส่งแล้ว! ดูใน Discord ว่ามีข้อความ “ทดสอบแจ้งเตือนสำเร็จ”":"ส่งไม่สำเร็จ ("+(e.error||"")+") — ตรวจ Secret DISCORD_WEBHOOK_URL ใน GitHub",e.status==="sent"?"ok":"bad",9000);
     else{const m=runMsg(c)||["ยังไม่เห็นผล ลองกดรีเฟรชอีกครั้ง","info"];toast(m[0],m[1])}}),
   genpw:()=>{$("#nuPw").value=randPw()},
+  testseries:el=>busy(el,async()=>{const id=el.dataset.id,s=SER(id);const r=await api("/api/test",{method:"POST",body:{sid:id}});
+    toast("กำลังตรวจ “"+s.name+"” แล้วส่งข้อความทดสอบ… (ประมาณ 1 นาที)");const c=await waitRun(r.since);await loadData();
+    const e=(D.log||[]).find(x=>x.kind==="test"&&x.sid===id&&T(x.at)>=T(r.since)-6e4),st=ST(id);
+    if(e)toast(e.status==="sent"?"ส่งแล้ว! “"+s.name+"” ตอนล่าสุดคือตอน "+(st.label??"?")+(e.mentions&&e.mentions.length?" · แท็ก "+e.mentions.join(", "):""):"ส่งไม่สำเร็จ ("+(e.error||"")+") — ตรวจ Secret DISCORD_WEBHOOK_URL",e.status==="sent"?"ok":"bad",9000);
+    else{const m=runMsg(c)||["ยังไม่เห็นผล — workflow อาจยังเป็นเวอร์ชันเก่า ลองอัปโหลด check.yml ใหม่","info"];toast(m[0],m[1])}}),
+  ivq:el=>{const m=+el.dataset.m,u=m%1440===0?1440:m%60===0?60:1;$("#"+el.dataset.t+"N").value=m/u;$("#"+el.dataset.t+"U").value=u;buzz()},
+  subsave:el=>busy(el,async()=>{const n=el.dataset.n,inp=document.querySelector('[data-subid="'+CSS.escape(n)+'"]');
+    const r=await api("/api/subs/"+encodeURIComponent(n),{method:"PUT",body:{discord:inp.value.trim()}});SUBS.users[n]=r.user;toast("บันทึก Discord ID ของ "+n+" แล้ว","ok");AUDIT=null}),
+  subdel:el=>arm(el,"ยืนยันลบ?",()=>busy(el,async()=>{const n=el.dataset.n;await api("/api/subs/"+encodeURIComponent(n),{method:"DELETE"});delete SUBS.users[n];AUDIT=null;await loadData();toast("ลบ "+n+" ออกจากรายชื่อแท็กแล้ว","ok")})),
+  subadd:el=>busy(el,async()=>{const n=$("#sbName").value.trim(),id=$("#sbId").value.trim();if(!n)return toast("ใส่ชื่อ","bad");
+    if(SUBS.users[n])return toast("มีชื่อนี้แล้ว แก้ ID ในรายการได้เลย","bad");
+    const r=await api("/api/subs/"+encodeURIComponent(n),{method:"PUT",body:{discord:id,series:[]}});SUBS.users[n]=r.user;AUDIT=null;UI.clearForm=true;render();toast("เพิ่ม "+n+" แล้ว — เลือกเรื่องที่ให้แท็กได้ในหน้ารายละเอียดเรื่อง","ok",6000)}),
+  subtoggle:async el=>{const n=el.dataset.n,sid=el.dataset.sid,u=SUBS.users[n]||{series:[]},on=el.checked;
+    const next=on?[...new Set([...(u.series||[]),sid])]:(u.series||[]).filter(x=>x!==sid);
+    try{const r=await api("/api/subs/"+encodeURIComponent(n),{method:"PUT",body:{series:next}});SUBS.users[n]=r.user;
+      const f=D.followers[sid]||[];D.followers[sid]=on?[...f.filter(x=>x!==n),n]:f.filter(x=>x!==n);if(S&&n===S.user.name&&ME)ME.series=next;
+      toast((on?"จะแท็ก ":"เลิกแท็ก ")+n+" ในเรื่องนี้","ok",2500);render();openDetail(sid,true)}catch(e){el.checked=!on;toast(e.message,"bad")}},
   adduser:el=>busy(el,async()=>{const name=$("#nuName").value.trim(),role=$("#nuRole").value,password=$("#nuPw").value;
     await api("/api/users",{method:"POST",body:{name,role,password}});
     openSheet('<div class="pad"><h2 style="margin:0">สร้างบัญชีแล้ว 🎉</h2><p class="mut small">ส่งข้อความนี้ให้ '+esc(name)+' ได้เลย</p><div class="card box" style="white-space:pre-wrap;user-select:all" id="cred">'+esc("เข้า "+location.origin+location.pathname+"\nชื่อผู้ใช้: "+name+"\nรหัสผ่าน: "+password)+'</div><div class="acts"><button class="btn" data-act="copy" data-src="cred">คัดลอก</button><button class="btn g" data-act="close">ปิด</button></div></div>',null,"cred");
-    USERS=null;AUDIT=null;render()}),
+    USERS=null;AUDIT=null;UI.clearForm=true;render()}),
   resetpw:el=>{const u=el.dataset.u,pw=randPw();
     arm(el,"ยืนยันรีเซ็ต?",()=>busy(el,async()=>{await api("/api/users/"+encodeURIComponent(u),{method:"PATCH",body:{password:pw}});AUDIT=null;
       openSheet('<div class="pad"><h2 style="margin:0">รหัสใหม่ของ '+esc(u)+'</h2><p class="mut small">ส่งให้เจ้าของบัญชี (แสดงครั้งเดียว) เครื่องที่ล็อกอินไว้จะถูกออกจากระบบ</p><div class="card box" id="cred" style="font:600 22px ui-monospace,monospace;text-align:center;letter-spacing:2px;user-select:all">'+esc(pw)+'</div><div class="acts"><button class="btn" data-act="copy" data-src="cred">คัดลอก</button><button class="btn g" data-act="close">ปิด</button></div></div>',null,"cred")}))},
@@ -796,6 +845,7 @@ document.addEventListener("change",async e=>{
   const el=e.target;
   if(el.id==="sort"){P.sort=el.value;savePrefs();render();return}
   if(el.dataset.act==="notify")return ACT.notify(el);
+  if(el.dataset.act==="subtoggle")return ACT.subtoggle(el);
   if(el.dataset.act==="role"){const u=el.dataset.u;try{await api("/api/users/"+encodeURIComponent(u),{method:"PATCH",body:{role:el.value}});toast("เปลี่ยนยศ "+u+" เป็น"+(el.value==="mod"?"ผู้ดูแล":"สมาชิก")+"แล้ว","ok");AUDIT=null;USERS=null;render()}catch(x){toast(x.message,"bad");USERS=null;render()}}
 });
 document.addEventListener("input",e=>{if(e.target.id==="q"){UI.q=e.target.value;const pos=e.target.selectionStart;render();const q=$("#q");if(q){q.focus();try{q.setSelectionRange(pos,pos)}catch(x){}}}});

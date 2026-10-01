@@ -450,6 +450,31 @@ def subscribers(subs, sid):
     return out
 
 
+def test_series_payload(s, st, now, mentions):
+    lines = []
+    if st.get("label") is not None:
+        lines.append("ตอนล่าสุดตอนนี้: **ตอนที่ %s**" % st["label"])
+        if st.get("title"):
+            lines.append(st["title"])
+        if st.get("prev_label") and st.get("updated"):
+            lines.append("ออกล่าสุด: ตอน %s → %s" % (st["prev_label"], st["label"]))
+    else:
+        lines.append("ยังไม่มีข้อมูลตอนล่าสุด")
+    if st.get("error"):
+        lines.append("⚠️ อ่านเว็บไม่ได้: " + st["error"])
+    lines.append("แท็ก: " + (", ".join(n for n, _ in mentions) if mentions else "ยังไม่มีคนติดตาม"))
+    e = {"title": "🧪 ทดสอบ — %s" % s["name"], "description": "\n".join(lines),
+         "url": st.get("url") or s["url"], "color": 0x9B59B6,
+         "footer": {"text": urllib.parse.urlparse(s["url"]).netloc + " · ข้อความทดสอบจากเจ้าของ"},
+         "timestamp": now.isoformat()}
+    if st.get("cover"):
+        e["thumbnail"] = {"url": st["cover"]}
+    p = {"embeds": [e], "allowed_mentions": {"parse": [], "users": [d for _, d in mentions]}}
+    if mentions:
+        p["content"] = " ".join("<@%s>" % d for _, d in mentions)
+    return p
+
+
 def new_chapter_payload(s, st, now, mentions):
     prev = st.get("prev_label")
     desc = []
@@ -541,7 +566,8 @@ def main():
     state = load_json("state.json", {})
     subs = load_json("subs.json", {})
     cfg = load_json("config.json", {})
-    only = os.environ.get("ONLY", "").strip()
+    test_sid = os.environ.get("TEST_SERIES", "").strip()
+    only = test_sid or os.environ.get("ONLY", "").strip()
     force = os.environ.get("FORCE") == "1" or bool(only)
     found = []        # (series, state) ที่มีตอนใหม่
     problems = []     # ข้อความเตือนเว็บมีปัญหา
@@ -631,6 +657,15 @@ def main():
         st["notified"] = "sent" if ok else "failed"
     for s, embed in problems:
         notifier.send("problem", {"embeds": [embed]}, sid=s["id"], name=s["name"])
+
+    # ทดสอบส่งข้อความของเรื่องเดียว (เจ้าของกดจากหน้าเว็บ): บอกตอนล่าสุดตอนนี้
+    if test_sid:
+        s = next((x for x in series if x["id"] == test_sid), None)
+        if s:
+            st = state.get(test_sid, {})
+            mentions = subscribers(subs, test_sid)
+            notifier.send("test", test_series_payload(s, st, now, mentions), sid=test_sid, name=s["name"],
+                          label=st.get("label"), mentions=[n for n, _ in mentions])
 
     # ล้างสถานะของเรื่องที่ถูกลบออกจากรายการ
     ids = {s["id"] for s in series}
