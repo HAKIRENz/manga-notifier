@@ -22,6 +22,26 @@
  "_meta": {
   "heartbeat": "2026-10-01"
  },
+ "afxbxwrf": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"13111-vG+1nmqoWXbU3W4CgazFbPvYmR4\"",
+   "lm": null
+  },
+  "checked": "2026-10-01T07:53:56+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260513/usYnQhLQn.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "14",
+  "label": "14",
+  "mode": "count",
+  "number": 14.0,
+  "since": "2026-10-01T07:53:56+00:00",
+  "title": "共14篇正文",
+  "tried": "2026-10-01T07:53:56+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27690/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A52%3A25%3A328&cps=undefined"
+ },
  "example-1": {
   "blocked_until": "",
   "blocks": 0,
