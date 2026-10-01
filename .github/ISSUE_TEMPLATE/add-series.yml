@@ -1,0 +1,29 @@
+name: เพิ่มเรื่องการ์ตูน
+description: ขอให้ระบบติดตามเรื่องใหม่ (เฉพาะคนที่อยู่ในรายชื่อ friends.txt)
+title: "[เพิ่มเรื่อง] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        กรอกชื่อเรื่องกับลิงก์หน้าเรื่อง แล้วกด **Submit new issue** ระบบจะเพิ่มให้อัตโนมัติภายใน 1-2 นาที
+        (ต้องมีชื่อ GitHub ของคุณอยู่ในรายชื่อที่เจ้าของอนุญาตไว้)
+  - type: input
+    id: name
+    attributes:
+      label: ชื่อเรื่อง
+      placeholder: เช่น ฉันเลเวลอัปคนเดียว
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: ลิงก์หน้าเรื่อง
+      description: หน้าที่มีรายการตอนทั้งหมด (ไม่ใช่ลิงก์ของตอนใดตอนหนึ่ง)
+      placeholder: https://...
+    validations:
+      required: true
+  - type: input
+    id: contains
+    attributes:
+      label: ลิงก์ตอนต้องมีคำว่า (ไม่บังคับ)
+      description: ใส่เมื่อหน้าเว็บมีลิงก์อื่นปนเยอะ เช่น /chapter/
