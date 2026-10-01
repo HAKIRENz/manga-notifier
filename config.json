@@ -3,7 +3,7 @@
   "tz_offset": 7,
   "digest": {
     "enabled": true,
-    "hour": 22,
+    "hour": 23,
     "send_empty": true
   }
 }
