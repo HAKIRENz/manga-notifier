@@ -765,6 +765,11 @@ def main():
     cfg = load_json("config.json", {})
     if not isinstance(state.get("_meta"), dict):
         state["_meta"] = {}
+    main_state = load_json("state_main.json", {})       # กันข้อมูลหาย: เรื่องที่ไม่มีสถานะ ใช้ของ main ถ้ามี
+    if isinstance(main_state, dict):
+        for s in series:
+            if s["id"] not in state and isinstance(main_state.get(s["id"]), dict):
+                state[s["id"]] = main_state[s["id"]]
     test_sid = os.environ.get("TEST_SERIES", "").strip()
     only = test_sid or os.environ.get("ONLY", "").strip()
     force = os.environ.get("FORCE") == "1" or bool(only)

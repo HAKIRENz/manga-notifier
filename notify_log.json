@@ -1,1 +1,54 @@
-[]
+[
+ {
+  "id": "1a0f6a6da6ccfcd",
+  "at": "2026-10-01T08:48:42+00:00",
+  "kind": "test",
+  "status": "sent",
+  "payload": {
+   "embeds": [
+    {
+     "title": "🧪 ทดสอบ — 师尊：这个冲师逆徒才不是圣子",
+     "description": "ตอนล่าสุดตอนนี้: **ตอนที่ 206**\n共206篇正文\nแท็ก: Admin",
+     "url": "https://www.kuaikanmanhua.com/web/topic/19109/?cps=undefined",
+     "color": 10181046,
+     "footer": {
+      "text": "www.kuaikanmanhua.com · ข้อความทดสอบจากเจ้าของ"
+     },
+     "timestamp": "2026-10-01T08:48:42.141064+00:00",
+     "thumbnail": {
+      "url": "https://tn1-f2.kkmh.com/image/230612/tGmiLLXMV.webp-w750.jpg"
+     }
+    }
+   ],
+   "allowed_mentions": {
+    "parse": [],
+    "users": [
+     "634739101274472452"
+    ]
+   },
+   "content": "<@634739101274472452>"
+  },
+  "sid": "0ahhxsog",
+  "name": "师尊：这个冲师逆徒才不是圣子",
+  "label": "206",
+  "mentions": [
+   "Admin"
+  ]
+ },
+ {
+  "id": "1a0f6530124210c",
+  "at": "2026-10-01T07:17:09+00:00",
+  "kind": "test",
+  "status": "sent",
+  "payload": {
+   "embeds": [
+    {
+     "title": "✅ ทดสอบแจ้งเตือนสำเร็จ",
+     "description": "ถ้าเห็นข้อความนี้ แปลว่า Discord เชื่อมกับระบบแล้ว",
+     "color": 3055195,
+     "timestamp": "2026-10-01T07:17:09.901131+00:00"
+    }
+   ]
+  }
+ }
+]

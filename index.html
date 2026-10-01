@@ -446,7 +446,7 @@ let R=LS.get("mw_read",{});                     // อ่านถึงตอ�
 const P=Object.assign({tab:"library",view:"list",sort:"recent",theme:"auto",notify:false},LS.get("mw_prefs",{}));
 const UI={lastLoad:0,filter:"all",q:"",feed:"all",pending:new Set(),loaded:false,sheetId:null,installEvt:null};
 const savePrefs=()=>LS.set("mw_prefs",P);
-const rank=()=>({member:1,mod:2,owner:3}[S&&S.user&&S.user.role]||0);
+const rank=()=>API?({member:1,mod:2,owner:3}[S&&S.user&&S.user.role]||0):0;   // ไม่มีหลังบ้าน = ดูอย่างเดียว
 const isMod=()=>rank()>=2,isOwner=()=>rank()>=3;
 const ST=id=>D.state[id]||{};
 const SER=id=>D.series.find(s=>s.id===id);
@@ -498,7 +498,7 @@ async function loadStatus(){
   try{
     if(API)STATUS=await api("/api/status");
     else if(derivedRepo){const r=await fetch("https://api.github.com/repos/"+derivedRepo+"/actions/workflows/check.yml/runs?per_page=15");
-      if(r.ok){const j=await r.json();STATUS={runs:(j.workflow_runs||[]).map(x=>({at:x.created_at,event:x.event,status:x.status,conclusion:x.conclusion,url:x.html_url,secs:x.updated_at&&x.run_started_at?(T(x.updated_at)-T(x.run_started_at))/1e3:null})),every:10}}}
+      if(r.ok){const j=await r.json();STATUS={runs:(j.workflow_runs||[]).map(x=>({at:x.created_at,event:x.event,title:x.display_title,status:x.status,conclusion:x.conclusion,url:x.html_url,secs:x.updated_at&&x.run_started_at?(T(x.updated_at)-T(x.run_started_at))/1e3:null})),every:10}}}
   }catch(e){}
   if(!STATUS)STATUS={runs:[],unknown:true};
   UI.lastStatus=Date.now();
