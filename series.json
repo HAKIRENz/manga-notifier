@@ -428,5 +428,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T11:59:53Z"
+  },
+  {
+    "id": "84aw1jm1",
+    "name": "นักรบระดับ SSS ขอหวนคืนมาเป็นราชา",
+    "url": "https://ac.qq.com/Comic/ComicInfo/id/657529",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T12:00:08Z"
   }
 ]
