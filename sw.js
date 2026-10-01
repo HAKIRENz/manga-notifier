@@ -1,5 +1,5 @@
 // Service worker: ให้ติดตั้งเป็นแอปได้ และเปิดหน้าได้แม้เน็ตหลุด (ข้อมูลยังโหลดสดเสมอ)
-const CACHE = "mw-shell-v3";
+const CACHE = "mw-shell-v4";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon.svg", "icon-192.png"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", (e) => {

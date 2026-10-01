@@ -7,11 +7,17 @@
   FORCE=1              ตรวจทุกเรื่องทันที ข้ามเวลารอบ (ยังเคารพการพักเมื่อเว็บบล็อก)
   TEST=1               ส่งข้อความทดสอบเข้า Discord แล้วจบ
   RESEND=<log id>      ส่งข้อความเดิมจากบันทึกซ้ำ แล้วจบ
+  TEST_SERIES=<id>     ตรวจเรื่องนี้แล้วส่งข้อความทดสอบบอกตอนล่าสุด
+  AUTO=1               รอบที่ Cloudflare สั่ง (ทุก 5 นาที เมื่อมีเรื่องถึงเวลา)
+  ALERT=token:<เวลา>   Cloudflare แจ้งว่า GitHub Token ใกล้หมดอายุ
+  EVENT=<ชนิด>         github.event_name (schedule = รอบสำรองของ GitHub)
 
 ไฟล์ข้อมูล:
   series.json      รายการเรื่อง (แก้ผ่านหน้าเว็บ)
   state.json       สถานะล่าสุดของแต่ละเรื่อง (ระบบเขียน)
   notify_log.json  บันทึกทุกข้อความที่ส่งเข้า Discord พร้อมผลสำเร็จ/ล้มเหลว (ระบบเขียน)
+  public_log.json  บันทึกฉบับย่อสำหรับหน้าเว็บ (ไม่มี Discord ID) (ระบบเขียน)
+  * state.json / notify_log.json / public_log.json เก็บใน branch "data" (ไม่ทำให้หน้าเว็บ build ใหม่ทุกรอบ)
   subs.json        ใครติดตามเรื่องไหน + Discord ID สำหรับแท็ก (หน้าเว็บเขียน)
   config.json      ตั้งค่าสรุปประจำวัน ฯลฯ (หน้าเว็บเขียน)
 """
@@ -36,7 +42,6 @@ CH_RE = re.compile(r"(?:(?<![a-z])(?:chapter|chap|ch|episode|ep)|ตอนที
 LEAD_RE = re.compile(r"^\s*(?:第\s*)?(\d+(?:\.\d+)?)")
 TAIL_RE = re.compile(r"[/\-_]" + NUM + r"/?$")
 FAIL_NOTIFY_AT = 6
-DEFAULT_INTERVAL_MIN = 30   # ตรวจแต่ละเรื่องทุกกี่นาที (ตั้งต่อเรื่องได้ด้วยฟิลด์ interval)
 HISTORY_KEEP = 8
 
 
@@ -229,14 +234,6 @@ def url_num(href):
 
 
 COUNT_RE = re.compile(r"(?:共|全|ทั้งหมด)\s*(\d{1,5})\s*(?:篇正文|话|話|章|集|回|ตอน)")
-
-
-def _pick_max(cands):
-    best = None
-    for n, h, t in cands:
-        if best is None or n > best[0]:
-            best = (n, h, t)
-    return best
 
 
 def _pick_max(cands):
@@ -435,9 +432,64 @@ class Notifier:
         print(("ส่งแล้ว" if ok else "ส่งไม่สำเร็จ: " + err), kind, meta.get("name", ""))
         return ok
 
+    def retry_failed(self):
+        """ส่งซ้ำอัตโนมัติ: ข้อความที่ส่งไม่สำเร็จใน 24 ชม. ลองใหม่ได้ 3 ครั้ง ห่างกันอย่างน้อย 10 นาที"""
+        if not self.webhook:
+            return
+        for e in self.log[:80]:
+            if e.get("status") != "failed" or e.get("kind") not in ("new", "problem", "alert", "digest"):
+                continue
+            if e.get("resent") or e.get("retries", 0) >= 3:
+                continue
+            try:
+                at = datetime.datetime.fromisoformat(e.get("retry_at") or e["at"])
+                born = datetime.datetime.fromisoformat(e["at"])
+            except (KeyError, ValueError):
+                continue
+            if (self.now - born).total_seconds() > 86400 or (self.now - at).total_seconds() < 600:
+                continue
+            ok, err = post_discord(self.webhook, e["payload"])
+            e["retries"] = e.get("retries", 0) + 1
+            e["retry_at"] = self.now.isoformat(timespec="seconds")
+            if ok:
+                e["status"], e["late"] = "sent", e["retry_at"]
+                e.pop("error", None)
+            else:
+                e["error"] = err
+            print("ส่งซ้ำอัตโนมัติ", e.get("name", e.get("kind")), "สำเร็จ" if ok else err)
+
     def save(self):
         with open("notify_log.json", "w", encoding="utf-8") as f:
             json.dump(self.log[:LOG_KEEP], f, ensure_ascii=False, indent=1)
+        with open("public_log.json", "w", encoding="utf-8") as f:
+            json.dump([public_entry(e) for e in self.log[:80]], f, ensure_ascii=False, separators=(",", ":"))
+
+
+def public_entry(e):
+    """ฉบับย่อสำหรับหน้าเว็บ: ไม่มี Discord ID (มีแค่ชื่อคนที่ถูกแท็ก)"""
+    em = ((e.get("payload") or {}).get("embeds") or [{}])[0]
+    out = {k: e.get(k) for k in ("id", "at", "kind", "status", "error", "sid", "name", "label", "prev", "mentions",
+                                 "count", "ref", "resent", "late", "retries") if e.get(k) not in (None, "", [])}
+    out["embed"] = {k: v for k, v in {
+        "title": em.get("title"), "description": em.get("description"), "url": em.get("url"), "color": em.get("color"),
+        "thumb": (em.get("thumbnail") or {}).get("url"), "footer": (em.get("footer") or {}).get("text")}.items() if v is not None}
+    return out
+
+
+def owner_ping(cfg):
+    """🚨 แท็กเจ้าของในข้อความปัญหาระบบ (ตั้งในหน้าเว็บ แท็บระบบ)"""
+    a = cfg.get("alert") or {}
+    did = str(a.get("discord") or "")
+    return did if a.get("enabled", True) and DISCORD_ID.match(did) else ""
+
+
+def alert_payload(cfg, embed):
+    p = {"embeds": [embed], "allowed_mentions": {"parse": []}}
+    did = owner_ping(cfg)
+    if did:
+        p["content"] = "🚨 <@%s>" % did
+        p["allowed_mentions"]["users"] = [did]
+    return p
 
 
 def subscribers(subs, sid):
@@ -475,14 +527,27 @@ def test_series_payload(s, st, now, mentions):
     return p
 
 
+def new_chapters(prev, label):
+    """📦 ออกหลายตอนพร้อมกัน: 102 → 105 = ['103','104','105'] (เฉพาะเลขจำนวนเต็ม ห่างกัน 2-10 ตอน)"""
+    a, b = to_num(str(prev or "")), to_num(str(label or ""))
+    if a is None or b is None or not a.is_integer() or not b.is_integer() or not 2 <= b - a <= 10:
+        return []
+    return [fmt(x) for x in range(int(a) + 1, int(b) + 1)]
+
+
 def new_chapter_payload(s, st, now, mentions):
     prev = st.get("prev_label")
+    many = new_chapters(prev, st["label"])
     desc = []
     if st.get("title"):
         desc.append(st["title"])
+    if many:
+        desc.append("ตอนใหม่ %d ตอน: **%s**" % (len(many), ", ".join(many)))
     if prev:
-        desc.append("ตอนก่อนหน้า **%s** → ตอนใหม่ **%s**" % (prev, st["label"]))
-    e = {"title": "📖 %s — ตอนที่ %s ออกแล้ว!" % (s["name"], st["label"]),
+        desc.append("ตอนก่อนหน้า **%s** → ตอนล่าสุด **%s**" % (prev, st["label"]))
+    title = ("📦 %s — ออกใหม่ %d ตอน! (%s–%s)" % (s["name"], len(many), many[0], many[-1]) if many
+             else "📖 %s — ตอนที่ %s ออกแล้ว!" % (s["name"], st["label"]))
+    e = {"title": title,
          "description": "\n".join(desc), "url": st.get("url") or s["url"], "color": 0x5865F2,
          "footer": {"text": urllib.parse.urlparse(s["url"]).netloc}, "timestamp": now.isoformat()}
     if st.get("cover"):
@@ -535,25 +600,136 @@ def maybe_digest(cfg, series, state, notifier, now):
     notifier.send("digest", payload, count=n)
 
 
-def is_due(s, st, now, cfg):
-    """ถึงเวลาตรวจเรื่องนี้หรือยัง: โหมด 'ตั้งเวลาเอง' (times) หรือโหมด 'ทุก ๆ X นาที' (interval)"""
-    if not st.get("tried"):
+# ---------- ตารางเวลาตรวจ (ต้องตรงกับ planOf/dueAt ใน worker.js และ index.html) ----------
+# โหมด:
+#   peak   ⭐ ช่วงออกตอนหลัก: เฝ้าถี่ในช่วงที่ตั้งใน config.peak (ค่าเริ่มต้น 22:50-00:30, 04:50-06:30 ทุก 5 นาที) นอกช่วงทุก 6 ชม.
+#   every  ⏱ ทุก ๆ X นาที (sched.min)
+#   custom 🕘 กำหนดเอง: sched.slots = ["20:00" (ตรวจครั้งเดียว), "19:50-21:00" (ช่วงเฝ้า)], sched.tz = โซนเวลา (ชม.), sched.off = นอกช่วงทุกกี่นาที
+PEAK_DEFAULT = {"windows": ["22:50-00:30", "04:50-06:30"], "every": 5, "off": 360}
+SLOT_RE = re.compile(r"^([01]\d|2[0-3]):([0-5]\d)(?:-([01]\d|2[0-3]):([0-5]\d))?$")
+DORMANT_DAYS = 30          # 💤 ไม่มีตอนใหม่เกินนี้ → ตรวจห่างลงเอง
+DORMANT_BASE = 720         # ตอนหลับ: นอกช่วงอย่างน้อยทุก 12 ชม. (ยังตรวจตอนเริ่มช่วงเฝ้า)
+RETRY_FAILS = 3            # อ่านเว็บพลาด → ลองใหม่รอบถัดไป (ทุก ~5 นาที) ได้กี่ครั้ง
+
+
+def _clamp(v, lo, hi, d):
+    try:
+        v = int(float(v))
+    except (TypeError, ValueError):
+        return d
+    return max(lo, min(hi, v))
+
+
+def sched_of(s):
+    sc = s.get("sched")
+    if isinstance(sc, dict) and sc.get("mode") in ("peak", "every", "custom"):
+        return sc
+    if s.get("times"):                       # ข้อมูลรุ่นเก่า: ตั้งเวลาเอง → กำหนดเอง
+        return {"mode": "custom", "slots": s["times"], "off": 1440}
+    return {"mode": "peak"}                  # รุ่นเก่า (ทุก ๆ X นาที) และเรื่องใหม่ → ช่วงออกตอนหลัก
+
+
+def plan_of(s, st, cfg, now):
+    sc, c = sched_of(s), cfg or {}
+    pk = dict(PEAK_DEFAULT, **(c.get("peak") or {}))
+    tz, slots, step, base = float(c.get("tz_offset", 7)), [], 0, 360
+    if sc["mode"] == "every":
+        base = _clamp(sc.get("min"), 10, 10080, 360)
+    elif sc["mode"] == "custom":
+        tz = float(sc.get("tz", tz))
+        slots, step, base = sc.get("slots") or [], _clamp(sc.get("every"), 5, 60, 5), _clamp(sc.get("off"), 10, 10080, 360)
+    else:
+        slots, step, base = pk.get("windows") or [], _clamp(pk.get("every"), 5, 60, 5), _clamp(pk.get("off"), 10, 10080, 360)
+    wins, pts = [], []
+    for x in slots:
+        m = SLOT_RE.match(str(x))
+        if not m:
+            continue
+        a = int(m.group(1)) * 60 + int(m.group(2))
+        pts.append(a)
+        if m.group(3) is not None:
+            wins.append((a, int(m.group(3)) * 60 + int(m.group(4))))
+    dormant = False
+    if s.get("autoslow", True) is not False and st:
+        last = st.get("updated") or st.get("since")
+        try:
+            if last and (now - datetime.datetime.fromisoformat(last)).total_seconds() > DORMANT_DAYS * 86400:
+                dormant, step, base = True, 0, max(base, DORMANT_BASE)
+        except ValueError:
+            pass
+    return {"tz": tz, "wins": wins, "pts": pts, "step": step if wins else 0, "base": base, "dormant": dormant}
+
+
+def due_at(p, tried_ts, fails, now_ts):
+    """tried_ts/now_ts เป็นวินาที epoch (tried_ts=0 = ยังไม่เคยตรวจ)"""
+    if not tried_ts:
         return True
-    tried = datetime.datetime.fromisoformat(st["tried"])
-    times = [t for t in (s.get("times") or []) if re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", str(t))]
-    if times:
-        tz = datetime.timezone(datetime.timedelta(hours=float(cfg.get("tz_offset", 7))))
-        local = now.astimezone(tz)
-        for back in (0, 1):                                  # วันนี้ + เมื่อวาน (เผื่อรอบข้ามเที่ยงคืน)
-            day = (local - datetime.timedelta(days=back)).date()
-            for hm in times:
-                h, m = map(int, hm.split(":"))
-                at = datetime.datetime(day.year, day.month, day.day, h, m, tzinfo=tz)
-                if tried < at <= now:
-                    return True
-        return False
-    every = int(s.get("interval") or DEFAULT_INTERVAL_MIN)
-    return (now - tried).total_seconds() >= every * 60 - 120
+    el = (now_ts - tried_ts) / 60
+    if 1 <= fails <= RETRY_FAILS and el >= 4:
+        return True                                         # เพิ่งอ่านพลาด → ลองใหม่เร็ว ๆ
+    if el >= p["base"] - 2:
+        return True                                         # ครบรอบปกติ
+    lm = now_ts / 60 + p["tz"] * 60                         # นาทีตามเวลาท้องถิ่นของตาราง
+    mod = int(lm // 1) % 1440
+    if p["step"] and el >= p["step"] - 1.5:
+        for a, b in p["wins"]:
+            if (a <= mod <= b) if a <= b else (mod >= a or mod <= b):
+                return True                                 # อยู่ในช่วงเฝ้า
+    for pt in p["pts"]:                                     # เวลาที่ตั้ง/เวลาเริ่มช่วงเฝ้า ที่ผ่านมาแล้วแต่ยังไม่ได้ตรวจ
+        occ = (int(lm // 1) - (mod - pt) % 1440 - p["tz"] * 60) * 60
+        if tried_ts < occ:
+            return True
+    return False
+
+
+def is_due(s, st, now, cfg):
+    tried = st.get("tried")
+    try:
+        t = datetime.datetime.fromisoformat(tried).timestamp() if tried else 0
+    except ValueError:
+        t = 0
+    return due_at(plan_of(s, st, cfg, now), t, int(st.get("fails") or 0), now.timestamp())
+
+
+def parse_iso(v):
+    try:
+        d = datetime.datetime.fromisoformat(str(v).replace("Z", "+00:00"))
+        return d if d.tzinfo else d.replace(tzinfo=datetime.timezone.utc)
+    except (TypeError, ValueError):
+        return None
+
+
+def system_alerts(cfg, series, state, notifier, now, event, alert):
+    """🚨 แจ้งเจ้าของเมื่อระบบมีปัญหา (กันส่งซ้ำด้วย _meta)"""
+    meta = state.setdefault("_meta", {})
+    # Cloudflare แจ้งว่า Token ใกล้หมดอายุ (Worker ส่งมาวันละครั้ง)
+    if alert.startswith("token:"):
+        exp = parse_iso(alert[6:])
+        if exp:
+            days = max(0, (exp - now).total_seconds() / 86400)
+            notifier.send("alert", alert_payload(cfg, {
+                "title": "⏳ GitHub Token จะหมดอายุในอีก %s วัน" % (int(days) if days >= 1 else "ไม่ถึง 1"),
+                "description": "หมดอายุ %s (เวลาไทย)\nถ้าหมดอายุ ระบบจะหยุดตรวจทั้งหมด\n"
+                               "วิธีต่ออายุ: GitHub → Settings → Developer settings → Fine-grained tokens → "
+                               "กด Regenerate → ไปวางแทนค่า GITHUB_TOKEN ใน Cloudflare (Settings → Variables and Secrets)"
+                               % exp.astimezone(datetime.timezone(datetime.timedelta(hours=7))).strftime("%d/%m/%Y %H:%M"),
+                "color": 0xE67E22}), name="GitHub Token")
+    # รอบสำรองของ GitHub เจอเรื่องที่ควรตรวจไปนานแล้วแต่ไม่มีใครสั่ง → Cloudflare Cron ไม่ทำงาน
+    if event == "schedule" and meta.get("last_auto"):
+        past = now - datetime.timedelta(minutes=20)
+        late = [s for s in series if s.get("enabled", True)
+                and not (state.get(s["id"], {}).get("blocked_until", "") > now.isoformat())
+                and is_due(s, state.get(s["id"], {}), past, cfg)]
+        last = parse_iso(meta.get("alert_cron"))
+        if late and (not last or (now - last).total_seconds() > 12 * 3600):
+            meta["alert_cron"] = now.isoformat(timespec="seconds")
+            la = parse_iso(meta["last_auto"])
+            notifier.send("alert", alert_payload(cfg, {
+                "title": "⚠️ Cloudflare ไม่ได้สั่งตรวจตามเวลา",
+                "description": "สั่งตรวจครั้งล่าสุด %s ชม.ที่แล้ว ตอนนี้ใช้รอบสำรองของ GitHub (ทุก ~30 นาที) ไปก่อน\n"
+                               "สาเหตุที่พบบ่อย: GitHub Token หมดอายุ หรือ Cron Trigger ใน Cloudflare ถูกลบ"
+                               % (round((now - la).total_seconds() / 3600, 1) if la else "?"),
+                "color": 0xE67E22}), name="Cloudflare")
 
 
 def main():
@@ -578,7 +754,7 @@ def main():
             print("ไม่พบข้อความ", resend, file=sys.stderr)
             return
         meta = {k: orig.get(k) for k in ("sid", "name", "label", "prev", "mentions")}
-        ok = notifier.send("resend", orig["payload"], ref=resend, **meta)
+        notifier.send("resend", orig["payload"], ref=resend, **meta)
         orig["resent"] = now.isoformat(timespec="seconds")
         notifier.save()
         return
@@ -587,11 +763,21 @@ def main():
     state = load_json("state.json", {})
     subs = load_json("subs.json", {})
     cfg = load_json("config.json", {})
+    if not isinstance(state.get("_meta"), dict):
+        state["_meta"] = {}
     test_sid = os.environ.get("TEST_SERIES", "").strip()
     only = test_sid or os.environ.get("ONLY", "").strip()
     force = os.environ.get("FORCE") == "1" or bool(only)
+    auto = os.environ.get("AUTO") == "1"
+    event = os.environ.get("EVENT", "")
+    if auto:
+        state["_meta"]["last_auto"] = now.isoformat(timespec="seconds")
     found = []        # (series, state) ที่มีตอนใหม่
     problems = []     # ข้อความเตือนเว็บมีปัญหา
+
+    if not only:
+        notifier.retry_failed()                        # ส่งซ้ำข้อความที่พลาดรอบก่อน
+        system_alerts(cfg, series, state, notifier, now, event, os.environ.get("ALERT", "").strip())
 
     last_hit = {}   # โดเมน -> เวลาที่ยิงล่าสุด (เว้นระยะระหว่างคำขอ)
     order = list(series)
@@ -611,7 +797,7 @@ def main():
         if wait > 0 and not only:
             time.sleep(wait)
         last_hit[dom] = time.time()
-        st["tried"] = now.isoformat(timespec="seconds")
+        st["tried"] = datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds")
         cache = st.setdefault("cache", {})
         need_cover = not st.get("cover")
         if need_cover:
@@ -619,7 +805,7 @@ def main():
         try:
             cur = latest(s, cache, need_cover)
         except NotModified:
-            st["fails"], st["checked"] = 0, now.isoformat(timespec="seconds")
+            st["fails"], st["checked"] = 0, st["tried"]
             continue
         except Blocked as e:
             st["blocks"] = st.get("blocks", 0) + 1
@@ -644,7 +830,7 @@ def main():
 
         st["blocks"], st["blocked_until"] = 0, ""
         st["fails"], st["error"] = 0, ""
-        st["checked"] = now.isoformat(timespec="seconds")
+        st["checked"] = st["tried"]
         if cur.get("cover"):
             st["cover"] = cur["cover"]
         old = st.get("number")
@@ -662,8 +848,11 @@ def main():
             prev_label = st.get("label") or fmt(old)
             st.update(prev_number=old, prev_label=prev_label, number=cur["number"], label=cur["label"],
                       url=cur["url"], title=cur["title"], updated=now.isoformat(timespec="seconds"))
-            st["history"] = ([{"prev": prev_label, "label": cur["label"], "title": cur["title"],
-                               "url": cur["url"], "at": st["updated"]}] + st.get("history", []))[:HISTORY_KEEP]
+            h = {"prev": prev_label, "label": cur["label"], "title": cur["title"], "url": cur["url"], "at": st["updated"]}
+            many = new_chapters(prev_label, cur["label"])
+            if many:
+                h["count"] = len(many)
+            st["history"] = ([h] + st.get("history", []))[:HISTORY_KEEP]
             found.append((s, st))
         elif cur["number"] == old and st.get("label") != cur["label"]:
             st["label"] = cur["label"]                  # ปรับป้ายเลขตอนให้ตรงสูตรใหม่
@@ -671,11 +860,13 @@ def main():
     # ส่งแจ้งเตือน: ตอนใหม่ทีละข้อความ (เพื่อแท็กเฉพาะคนที่ติดตามเรื่องนั้น)
     for s, st in found:
         mentions = subscribers(subs, s["id"])
+        many = new_chapters(st.get("prev_label"), st["label"])
         ok = notifier.send("new", new_chapter_payload(s, st, now, mentions), sid=s["id"], name=s["name"],
-                           label=st["label"], prev=st.get("prev_label"), mentions=[n for n, _ in mentions])
+                           label=st["label"], prev=st.get("prev_label"), mentions=[n for n, _ in mentions],
+                           count=len(many) or None)
         st["notified"] = "sent" if ok else "failed"
     for s, embed in problems:
-        notifier.send("problem", {"embeds": [embed]}, sid=s["id"], name=s["name"])
+        notifier.send("problem", alert_payload(cfg, embed), sid=s["id"], name=s["name"])
 
     # ทดสอบส่งข้อความของเรื่องเดียว (เจ้าของกดจากหน้าเว็บ): บอกตอนล่าสุดตอนนี้
     if test_sid:
@@ -690,9 +881,6 @@ def main():
     ids = {s["id"] for s in series}
     for k in [k for k in state if k not in ids and k != "_meta"]:
         del state[k]
-    meta = state.get("_meta") if isinstance(state.get("_meta"), dict) else {}
-    meta["heartbeat"] = now.strftime("%Y-%m-%d")    # ให้มี commit วันละครั้ง กัน GitHub ปิด schedule
-    state["_meta"] = meta
     if not only:
         maybe_digest(cfg, series, state, notifier, now)
 

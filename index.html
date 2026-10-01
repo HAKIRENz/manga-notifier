@@ -200,6 +200,30 @@ h2.sec{font-size:15px;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
 .tchip{display:inline-flex;align-items:center;gap:4px;background:var(--priS);color:var(--pri);border-radius:99px;padding:4px 6px 4px 11px;font-weight:600;font-size:14px}
 .tchip button{border:0;background:transparent;color:inherit;padding:0 4px;font-size:15px;line-height:1}
 .line{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:7px 0}
+/* ---------- ตั้งเวลาตรวจ ---------- */
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mode{border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:11px 10px;text-align:left;display:flex;flex-direction:column;gap:3px;position:relative;transition:transform .12s,border-color .15s,background .15s;color:var(--tx)}
+.mode:active{transform:scale(.97)}
+.mode .mi{font-size:21px;line-height:1}.mode .mt{display:flex;flex-direction:column;min-width:0}.mode b{font-size:14px}.mode .mt span{font-size:12px;color:var(--mut);line-height:1.35}
+.mode[aria-pressed=true]{border-color:var(--pri);background:var(--priS);box-shadow:0 0 0 3px var(--priS)}
+.mode .rec{position:absolute;top:7px;right:8px;font-size:10px;font-style:normal;background:var(--ok);color:#fff;border-radius:99px;padding:1px 7px;font-weight:700}
+@media(max-width:520px){.modes{grid-template-columns:1fr}.mode{flex-direction:row;align-items:center;gap:12px;padding:10px 12px}.mode .rec{top:50%;transform:translateY(-50%);right:10px}}
+.spb{margin-top:10px;padding:12px;border-radius:13px;background:var(--card);border:1px solid var(--line)}
+.spb .seg{flex-wrap:wrap}
+.chips.wrap{flex-wrap:wrap;overflow:visible;padding-bottom:0}
+.chip.sug{margin-top:8px;white-space:normal;text-align:left;background:var(--warnS);border-color:transparent}
+.cust{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:var(--mut)}
+.f .cust input{width:64px;padding:5px 8px}
+.slots{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;min-height:8px}
+.addrow{align-items:center;flex-wrap:wrap}.f .addrow>input{flex:1 1 92px;min-width:0}.addrow>span{flex:none}.addrow>.btn{flex:0 0 auto}
+.f label.chk{display:flex;gap:8px;align-items:flex-start;color:var(--tx);font-size:14px;margin:12px 0 0;cursor:pointer}
+.chk input{margin-top:4px}
+.sum{margin-top:12px;font-size:14px;padding:11px 12px;border-radius:13px;background:var(--bg2)}
+.tl{position:relative;height:28px;border-radius:8px;background:var(--card);margin-top:8px;overflow:hidden;border:1px solid var(--line)}
+.tl .w{position:absolute;top:0;bottom:0;background:var(--priS)}
+.tl .k{position:absolute;top:6px;bottom:6px;width:2px;margin-left:-1px;background:var(--pri);border-radius:2px;opacity:.85}
+.tl .nw{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--bad)}
+.tll{display:flex;justify-content:space-between;font-size:11px;color:var(--mut);margin-top:2px}
 
 /* ---------- sheet ---------- */
 .sheet{position:fixed;inset:0;z-index:40;background:#0008;display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s}
@@ -268,31 +292,126 @@ function ago(iso){const t=T(iso);if(!t)return"";const s=(Date.now()-t)/1e3;
   const d=h/24;if(d<30)return Math.round(d)+" วันที่แล้ว";return new Date(t).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})}
 const fullTime=iso=>T(iso)?new Date(T(iso)).toLocaleString("th-TH",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
 const dur=ms=>{const d=ms/864e5;if(d>=1.5)return"~"+Math.round(d)+" วัน";const h=ms/36e5;return h>=1?"~"+Math.round(h)+" ชม.":"~"+Math.max(1,Math.round(ms/6e4))+" นาที"};
-const fmtEvery=m=>{m=+m||30;return m%1440===0?"ทุก "+m/1440+" วัน":m%60===0?"ทุก "+m/60+" ชม.":"ทุก "+m+" นาที"};
-function intervalPicker(id,m){m=+m||30;const u=m%1440===0?1440:m%60===0?60:1;
-  return'<div class="row"><input type="number" id="'+id+'N" min="1" step="1" value="'+m/u+'" inputmode="numeric" style="flex:1"><select id="'+id+'U" style="flex:1">'+[[1,"นาที"],[60,"ชั่วโมง"],[1440,"วัน"]].map(([v,t])=>'<option value="'+v+'"'+(v===u?" selected":"")+">"+t+"</option>").join("")+"</select></div>"+
-  '<div class="chips" style="padding-top:6px">'+[10,30,60,180,720,1440].map(x=>'<button type="button" class="chip" data-act="ivq" data-t="'+id+'" data-m="'+x+'">'+fmtEvery(x).replace("ทุก ","")+"</button>").join("")+"</div>"}
-const TZ_OFF=7*60;   // เวลาไทย
-const fmtSched=s=>(s.times&&s.times.length)?"เวลา "+s.times.join(", "):fmtEvery(s.interval||30);
+/* ---------- ตารางเวลาตรวจ (สูตรเดียวกับ check.py / worker.js) ---------- */
+const PEAK_DEFAULT={windows:["22:50-00:30","04:50-06:30"],every:5,off:360};
+const SLOT_RE=/^([01]\d|2[0-3]):([0-5]\d)(?:-([01]\d|2[0-3]):([0-5]\d))?$/;
+const clampI=(v,lo,hi,d)=>{const n=Math.trunc(+v);return Number.isFinite(n)&&v!==null&&v!==""?Math.max(lo,Math.min(hi,n)):d};
+function schedOf(s){const sc=s&&s.sched;if(sc&&["peak","every","custom"].includes(sc.mode))return sc;if(s&&s.times&&s.times.length)return{mode:"custom",slots:s.times,off:1440};return{mode:"peak"}}
+function planOf(s,st,cfg,nowMs){
+  const sc=schedOf(s),c=cfg||{},pk=Object.assign({},PEAK_DEFAULT,c.peak||{});
+  let tz=+(c.tz_offset??7),slots=[],step=0,base=360;
+  if(sc.mode==="every")base=clampI(sc.min,10,10080,360);
+  else if(sc.mode==="custom"){tz=+(sc.tz??tz);slots=sc.slots||[];step=clampI(sc.every,5,60,5);base=clampI(sc.off,10,10080,360)}
+  else{slots=pk.windows||[];step=clampI(pk.every,5,60,5);base=clampI(pk.off,10,10080,360)}
+  const wins=[],pts=[];
+  for(const x of slots){const m=SLOT_RE.exec(String(x));if(!m)continue;const a=+m[1]*60+ +m[2];pts.push(a);if(m[3]!=null)wins.push([a,+m[3]*60+ +m[4]])}
+  let dormant=false;
+  if(s.autoslow!==false&&st){const last=Date.parse(st.updated||st.since||"");if(last&&nowMs-last>30*864e5){dormant=true;step=0;base=Math.max(base,720)}}
+  return{tz,wins,pts,step:wins.length?step:0,base,dormant,mode:sc.mode};
+}
+function dueAt(p,triedMs,fails,nowMs){
+  if(!triedMs)return true;
+  const el=(nowMs-triedMs)/6e4;
+  if(fails>=1&&fails<=3&&el>=4)return true;
+  if(el>=p.base-2)return true;
+  const L=Math.floor(nowMs/6e4+p.tz*60),mod=((L%1440)+1440)%1440;
+  if(p.step&&el>=p.step-1.5&&p.wins.some(([a,b])=>a<=b?mod>=a&&mod<=b:mod>=a||mod<=b))return true;
+  for(const pt of p.pts)if(triedMs<(L-(((mod-pt)%1440)+1440)%1440-p.tz*60)*6e4)return true;
+  return false;
+}
+const TICK=5*6e4,TH=7;   // Cloudflare ปลุกทุก 5 นาที · แสดงผลเป็นเวลาไทย
+const peakCfg=()=>Object.assign({},PEAK_DEFAULT,(D.config&&D.config.peak)||{});
+const hm=m=>{m=((Math.round(m)%1440)+1440)%1440;return String(Math.floor(m/60)).padStart(2,"0")+":"+String(m%60).padStart(2,"0")};
+const toMin=t=>{const m=/^(\d\d):(\d\d)$/.exec(t||"");return m?+m[1]*60+ +m[2]:null};
+const thaiClock=ms=>hm(ms/6e4+TH*60);
+const fmtHrs=m=>m%1440===0&&m>=1440?(m/1440===1?"วันละครั้ง":"ทุก "+m/1440+" วัน"):m%60===0?"ทุก "+m/60+" ชม.":m>60?"ทุก "+(m/60).toFixed(1).replace(/\.0$/,"")+" ชม.":"ทุก "+m+" นาที";
+const TZ_NAME={7:"ไทย",8:"จีน",9:"เกาหลี/ญี่ปุ่น"};
+const slotTxt=(x,tz)=>{const m=SLOT_RE.exec(x);if(!m)return esc(x);const sh=((tz??7)-TH)*60;
+  const th=m[3]!=null?hm(toMin(m[1]+":"+m[2])-sh)+"–"+hm(toMin(m[3]+":"+m[4])-sh):hm(toMin(m[1]+":"+m[2])-sh);
+  const own=m[3]!=null?m[1]+":"+m[2]+"–"+m[3]+":"+m[4]:x;
+  return(m[3]!=null?"👀 เฝ้า ":"⏰ ")+own+(sh?' <span class="small">(ไทย '+th+")</span>":"")};
+function fmtSched(s,st){
+  const sc=schedOf(s),p=planOf(s,st||ST(s.id),D.config,Date.now());let t;
+  if(sc.mode==="every")t="⏱ "+fmtHrs(clampI(sc.min,10,10080,360));
+  else if(sc.mode==="custom")t="🕘 "+(sc.slots||[]).map(x=>x.replace("-","–")).join(", ")+(+(sc.tz??7)!==7?" (เวลา"+TZ_NAME[sc.tz]+")":"");
+  else t="⭐ ช่วงออกตอนหลัก";
+  return t+(p.dormant?" · 💤 ตรวจห่างลง":"");
+}
+/** จำลองรอบตรวจ (Cloudflare ปลุกทุก 5 นาที) คืนเวลาที่จะตรวจจริง */
+function simulate(s,st,fromMs,hours,tried,cfg){
+  const p=planOf(s,st,cfg||D.config,fromMs),out=[];let tr=tried,t=Math.ceil(fromMs/TICK)*TICK;const end=fromMs+hours*36e5;
+  for(;t<end;t+=TICK)if(dueAt(p,tr,0,t)){out.push(t);tr=t}
+  return out;
+}
 function nextCheck(s,st){
-  if(s.times&&s.times.length){const now=Date.now();let best=0;
-    for(let d=0;d<2;d++)for(const hm of s.times){const[h,m]=hm.split(":").map(Number);const l=new Date(now+TZ_OFF*6e4);
-      const t=Date.UTC(l.getUTCFullYear(),l.getUTCMonth(),l.getUTCDate()+d,h,m)-TZ_OFF*6e4;if(t>now&&(!best||t<best))best=t}
-    return best}
-  const base=T(st.tried||st.checked);return base?base+(+(s.interval||30))*6e4:0}
-function schedPicker(id,s){const times=(s&&s.times)||[],mode=times.length?"times":"int";
-  return'<div id="'+id+'W" data-mode="'+mode+'" data-times="'+esc(JSON.stringify(times))+'"><div class="seg" role="group" style="margin-bottom:8px"><button type="button" data-act="schedmode" data-t="'+id+'" data-m="int" aria-pressed="'+(mode==="int")+'">⏱ ทุก ๆ</button><button type="button" data-act="schedmode" data-t="'+id+'" data-m="times" aria-pressed="'+(mode==="times")+'">🕘 ตั้งเวลาเอง</button></div>'+
-  '<div id="'+id+'Int"'+(mode==="int"?"":" hidden")+'>'+intervalPicker(id,(s&&s.interval)||30)+'<div class="hint">ตรวจซ้ำทุกช่วงเวลานี้ (อย่างน้อย 10 นาที)</div></div>'+
-  '<div id="'+id+'Tm"'+(mode==="times"?"":" hidden")+'><div id="'+id+'L" style="display:flex;flex-wrap:wrap;gap:6px;min-height:8px">'+timeChips(id,times)+'</div>'+
-  '<div class="row" style="margin-top:8px"><input type="time" id="'+id+'T" value="08:00" style="flex:1"><button type="button" class="btn g" data-act="addtime" data-t="'+id+'" style="flex:0 0 auto">＋ เพิ่มเวลา</button></div>'+
-  '<div class="chips" style="padding-top:6px">'+[["เช้า","08:00"],["เที่ยง","12:00"],["เย็น","18:00"],["ดึก","22:00"],["เที่ยงคืน","00:00"]].map(([n,t])=>'<button type="button" class="chip" data-act="addtime" data-t="'+id+'" data-v="'+t+'">'+n+" "+t+"</button>").join("")+"</div>"+
-  '<div class="hint">ตรวจตามเวลาที่ตั้ง (เวลาไทย) ทุกวัน ระบบอาจช้ากว่าเวลาที่ตั้งได้ 10-20 นาที</div></div></div>'}
-function timeChips(id,times){return times.length?times.map(t=>'<span class="tchip">'+esc(t)+'<button type="button" data-act="deltime" data-t="'+id+'" data-v="'+esc(t)+'" aria-label="ลบ">✕</button></span>').join(""):'<span class="hint" style="margin:0">ยังไม่มีเวลา — เพิ่มอย่างน้อย 1 เวลา</span>'}
-function readSched(id){const w=$("#"+id+"W");
-  if(w.dataset.mode==="times"){const t=JSON.parse(w.dataset.times||"[]");if(!t.length)throw new Error("เพิ่มเวลาที่จะให้ตรวจอย่างน้อย 1 เวลา");return{times:t}}
-  return{interval:readInterval(id),times:[]}}
-function readInterval(id){const n=parseFloat($("#"+id+"N").value),u=+$("#"+id+"U").value;const m=Math.round(n*u);
-  if(!(m>=10&&m<=10080))throw new Error("ความถี่ต้องอยู่ระหว่างทุก 10 นาที ถึงทุก 7 วัน");return m}
+  if(s.enabled===false)return 0;const now=Date.now(),p=planOf(s,st,D.config,now),tr=T(st.tried||st.checked);
+  if(T(st.blocked_until)>now)return T(st.blocked_until);
+  for(let t=Math.ceil(now/TICK)*TICK;t<now+72*36e5;t+=TICK)if(dueAt(p,tr,+st.fails||0,t))return t;
+  return 0;
+}
+/** ตรวจกี่ครั้ง/วัน + เวลาตรวจในวันปกติ (นาทีตามเวลาไทย) */
+function dayPlan(s,st,cfg){
+  const d0=Math.floor(Date.now()/864e5)*864e5-TH*36e5,first=simulate(s,st,d0-864e5,24,0,cfg);
+  const day=simulate(s,st,d0,24,first[first.length-1]||0,cfg);
+  return day.map(t=>((t-d0)/6e4)%1440);
+}
+function timeline(s,st,cfg){
+  const p=planOf(s,st,cfg||D.config,Date.now()),sh=(p.tz-TH)*60,ticks=dayPlan(s,st,cfg),now=((Date.now()/6e4+TH*60)%1440);
+  let w="";for(const[a,b]of p.dormant?[]:p.wins){const A=((a-sh)%1440+1440)%1440,B=((b-sh)%1440+1440)%1440;
+    const seg=(x,y)=>w+='<i class="w" style="left:'+(x/14.4).toFixed(2)+"%;width:"+(Math.max(.4,(y-x)/14.4)).toFixed(2)+'%"></i>';A<=B?seg(A,B):(seg(A,1440),seg(0,B))}
+  return{n:ticks.length,html:'<div class="tl" aria-hidden="true">'+w+ticks.map(m=>'<i class="k" style="left:'+(m/14.4).toFixed(2)+'%"></i>').join("")+'<i class="nw" style="left:'+(now/14.4).toFixed(2)+'%"></i></div><div class="tll"><span>00</span><span>06</span><span>12</span><span>18</span><span>24</span></div>'};
+}
+/** 💡 เดาเวลาออกตอนจากประวัติ (ปัดเป็นครึ่งชั่วโมง เวลาไทย) */
+function releaseGuess(st){
+  const c={};for(const h of(st&&st.history)||[]){const t=T(h.at);if(!t)continue;const m=Math.round(((t/6e4+TH*60)%1440)/30)*30%1440;c[m]=(c[m]||0)+1}
+  const best=Object.entries(c).sort((a,b)=>b[1]-a[1])[0];return best&&best[1]>=2?{at:hm(+best[0]),n:best[1]}:null;
+}
+/* ---------- ตัวเลือกเวลาตรวจ ---------- */
+const PK={};
+function schedPicker(id,s,st){
+  const sc=schedOf(s||{});
+  PK[id]={mode:sc.mode,min:sc.mode==="every"?clampI(sc.min,10,10080,360):360,tz:+(sc.tz??7),slots:sc.mode==="custom"?[...(sc.slots||[])]:[],
+    off:sc.mode==="custom"?clampI(sc.off,60,1440,360):360,autoslow:!s||s.autoslow!==false,rel:"",st:st||{},sid:s&&s.id,sug:releaseGuess(st)};
+  return'<div class="sp" id="'+id+'W">'+spInner(id)+"</div>";
+}
+function spInner(id){
+  const k=PK[id],pk=peakCfg(),m=k.mode,b=(a,v,t,on)=>'<button type="button" class="chip" data-act="'+a+'" data-t="'+id+'" data-v="'+v+'" aria-pressed="'+on+'">'+t+"</button>";
+  let h='<div class="modes" role="group" aria-label="โหมดตรวจ">'+[["peak","⭐","ช่วงออกตอนหลัก","เฝ้าถี่ช่วง "+pk.windows.map(x=>x.split("-")[0]).join(" / "),1],["every","⏱","ทุก ๆ X ชม.","ตรวจสม่ำเสมอทั้งวัน"],["custom","🕘","กำหนดเอง","รู้เวลาออกแน่นอน"]]
+    .map(([v,ic,t,d,rec])=>'<button type="button" class="mode" data-act="spmode" data-t="'+id+'" data-v="'+v+'" aria-pressed="'+(m===v)+'"><span class="mi">'+ic+'</span><span class="mt"><b>'+t+"</b><span>"+esc(d)+"</span></span>"+(rec?'<i class="rec">แนะนำ</i>':"")+"</button>").join("")+"</div>";
+  h+='<div class="spb">';
+  if(m==="peak")h+='<div>👀 เฝ้า <b>'+pk.windows.map(x=>x.replace("-","–")).join("</b> และ <b>")+"</b> ทุก "+pk.every+' นาที</div><div class="small mut" style="margin-top:2px">นอกช่วงตรวจ'+fmtHrs(pk.off)+" · เวลาไทย"+(isOwner()?" · แก้ช่วงหลักได้ที่แท็บระบบ":"")+"</div>";
+  else if(m==="every"){const pre=[60,120,180,360,720,1440];
+    h+='<div class="small mut" style="margin-bottom:6px">ตรวจทุก ๆ</div><div class="chips wrap">'+pre.map(v=>b("spmin",v,v===1440?"24 ชม.":v/60+" ชม.",k.min===v)).join("")+
+      '<span class="cust">อื่น ๆ <input type="number" id="'+id+'Hr" min="1" max="168" step="1" inputmode="numeric" value="'+(pre.includes(k.min)?"":Math.round(k.min/60))+'" placeholder="-" aria-label="จำนวนชั่วโมง"> ชม.</span></div>';}
+  else{
+    h+='<div class="small mut" style="margin-bottom:6px">เวลาที่เว็บใช้</div><div class="seg" role="group">'+[[7,"🇹🇭 ไทย"],[8,"🇨🇳 จีน"],[9,"🇰🇷🇯🇵 เกาหลี/ญี่ปุ่น"]].map(([v,t])=>'<button type="button" data-act="sptz" data-t="'+id+'" data-v="'+v+'" aria-pressed="'+(k.tz===v)+'">'+t+"</button>").join("")+"</div>";
+    h+='<div class="slots">'+(k.slots.length?k.slots.map(x=>'<span class="tchip">'+slotTxt(x,k.tz)+'<button type="button" data-act="spdel" data-t="'+id+'" data-v="'+esc(x)+'" aria-label="ลบ">✕</button></span>').join(""):'<span class="hint" style="margin:0">ยังไม่มีเวลา — ใส่เวลาที่ตอนใหม่ออกด้านล่าง</span>')+"</div>";
+    h+='<label for="'+id+'Rel" style="margin-top:10px">ตอนใหม่ออกกี่โมง ('+TZ_NAME[k.tz]+')</label><div class="row addrow"><input type="time" id="'+id+'Rel" value="'+esc(k.rel)+'"><button type="button" class="btn sm" data-act="spadd" data-t="'+id+'" data-v="win">＋ เฝ้าช่วงนี้</button><button type="button" class="btn g sm" data-act="spadd" data-t="'+id+'" data-v="one">＋ ตรวจครั้งเดียว</button></div>';
+    h+='<div class="hint">เฝ้าช่วงนี้ = ตรวจทุก 5 นาที ตั้งแต่ 10 นาทีก่อน ถึง 1 ชม.หลังเวลาออก (แนะนำ เพราะเว็บมักลงช้า/เร็วกว่ากำหนด)</div>';
+    if(k.sug)h+='<button type="button" class="chip sug" data-act="spsug" data-t="'+id+'">💡 จากประวัติ มักออกราว '+k.sug.at+" น. ("+k.sug.n+" ครั้ง) — เพิ่มช่วงเฝ้า</button>";
+    h+='<div class="small mut" style="margin:10px 0 6px">นอกช่วง ตรวจ</div><div class="chips wrap">'+[[180,"ทุก 3 ชม."],[360,"ทุก 6 ชม."],[720,"ทุก 12 ชม."],[1440,"วันละครั้ง"]].map(([v,t])=>b("spoff",v,t,k.off===v)).join("")+"</div>";
+  }
+  h+="</div>";
+  h+='<label class="chk"><input type="checkbox" data-act="spslow" data-t="'+id+'"'+(k.autoslow?" checked":"")+'> 💤 ตรวจห่างลงเองถ้าไม่มีตอนใหม่เกิน 30 วัน <span class="mut small">(ประหยัด กันโดนบล็อก)</span></label>';
+  // สรุป + ไทม์ไลน์
+  let s0;try{s0={id:k.sid,sched:spValue(id,true),autoslow:k.autoslow}}catch(e){s0=null}
+  if(s0&&(s0.sched.mode!=="custom"||s0.sched.slots.length)){
+    const tl=timeline(s0,k.st),nx=k.sid&&k.st&&k.st.tried?nextCheck(s0,k.st):0;
+    h+='<div class="sum">🔁 ตรวจประมาณ <b>'+tl.n+" ครั้ง/วัน</b>"+(nx?" · ครั้งถัดไป <b>"+thaiClock(nx)+"</b> น. ("+ago(new Date(nx).toISOString())+")":"")+tl.html+'<div class="hint" style="margin-top:4px">แถบ = 24 ชม. (เวลาไทย) · <span style="color:var(--pri)">▍</span> ตรวจ · <span style="color:var(--bad)">▍</span> ตอนนี้</div></div>';
+  }
+  return h;
+}
+function spRender(id){const w=$("#"+id+"W");if(w)w.innerHTML=spInner(id);UI.sheetDirty=true;buzz()}
+function spValue(id,quiet){const k=PK[id];
+  if(k.mode==="every"){const hr=$("#"+id+"Hr"),v=hr&&hr.value?Math.round(+hr.value*60):k.min;if(!(v>=60&&v<=10080)){if(quiet)return{mode:"every",min:k.min};throw new Error("ใส่ชั่วโมง 1-168")}return{mode:"every",min:v}}
+  if(k.mode==="custom"){if(!k.slots.length&&!quiet)throw new Error("ใส่เวลาที่ตอนใหม่ออก แล้วกด “＋ เฝ้าช่วงนี้” อย่างน้อย 1 อัน");return{mode:"custom",tz:k.tz,slots:k.slots,off:k.off,every:5}}
+  return{mode:"peak"};
+}
+function readSched(id){return{sched:spValue(id),autoslow:PK[id].autoslow}}
+const winLen=x=>{const m=SLOT_RE.exec(x);if(!m||m[3]==null)return 0;return((toMin(m[3]+":"+m[4])-toMin(m[1]+":"+m[2])+1440)%1440)||1440};
+function spPush(id,slot){const k=PK[id];if(k.slots.includes(slot))return toast("มีเวลานี้แล้ว","info",1500);if(k.slots.length>=12)return toast("ได้ไม่เกิน 12 อัน","bad");
+  if([...k.slots,slot].reduce((a,x)=>a+winLen(x),0)>360)return toast("ช่วงเฝ้ารวมกันได้ไม่เกิน 6 ชม./วัน (กันเว็บบล็อก)","bad");
+  k.slots=[...k.slots,slot].sort();spRender(id)}
 const randPw=()=>Array.from(crypto.getRandomValues(new Uint8Array(10)),b=>"abcdefghjkmnpqrstuvwxyz23456789"[b%31]).join("");
 function toast(msg,type="info",ms){
   const el=document.createElement("div");el.className="toast "+type;
@@ -322,7 +441,7 @@ const derivedRepo=(()=>{const h=location.hostname,p=location.pathname.split("/")
 let API=(new URLSearchParams(location.search).get("api")||LS.get("mw_api","")||"").replace(/\/+$/,"");
 let S=LS.get("mw_session",null);              // {token,user:{name,role}}
 let D={series:[],state:{},log:[],followers:{},config:{},pending:0};
-let STATUS=null,ME=null,REQS=null,AUDIT=null,USERS=null,PREV=null,SUBS=null;
+let STATUS=null,ME=null,REQS=null,AUDIT=null,USERS=null,PREV=null,SUBS=null,CFG=null;
 let R=LS.get("mw_read",{});                     // อ่านถึงตอนไหน (เก็บในเครื่องนี้)
 const P=Object.assign({tab:"library",view:"list",sort:"recent",theme:"auto",notify:false},LS.get("mw_prefs",{}));
 const UI={lastLoad:0,filter:"all",q:"",feed:"all",pending:new Set(),loaded:false,sheetId:null,installEvt:null};
@@ -346,9 +465,11 @@ async function api(path,opt={}){
   if(!r.ok)throw new Error((j&&j.error)||"ผิดพลาด (HTTP "+r.status+")");
   return j;
 }
-async function staticJson(f,d){try{const r=await fetch(f+"?t="+Date.now(),{cache:"no-store"});return r.ok?await r.json():d}catch(e){return d}}
+async function staticJson(f,d){try{const r=await fetch(f+(f.includes("://")?"":"?t="+Date.now()),{cache:"no-store"});return r.ok?await r.json():d}catch(e){return d}}
 async function loadStatic(){
-  const[series,state,log,subs]=await Promise.all([staticJson("series.json",[]),staticJson("state.json",{}),staticJson("notify_log.json",[]),staticJson("subs.json",{users:{}})]);
+  const raw=f=>derivedRepo?"https://raw.githubusercontent.com/"+derivedRepo+"/data/"+f:f;   // state/บันทึกอยู่ branch data
+  const[series,state0,log0,subs]=await Promise.all([staticJson("series.json",[]),staticJson(raw("state.json"),null),staticJson(raw("notify_log.json"),null),staticJson("subs.json",{users:{}})]);
+  const state=state0||await staticJson("state.json",{}),log=log0||await staticJson("notify_log.json",[]);
   const followers={};for(const[n,u]of Object.entries((subs&&subs.users)||{}))for(const sid of u.series||[])(followers[sid]=followers[sid]||[]).push(n);
   const slim=(Array.isArray(log)?log:[]).slice(0,80).map(e=>{const em=(e.payload&&e.payload.embeds&&e.payload.embeds[0])||{};
     return{id:e.id,at:e.at,kind:e.kind,status:e.status,error:e.error,sid:e.sid,name:e.name,label:e.label,prev:e.prev,mentions:e.mentions,count:e.count,ref:e.ref,resent:e.resent,
@@ -414,17 +535,23 @@ function behind(id){
 function setRead(id,label){R[id]=String(label);LS.set("mw_read",R);render();if(UI.sheetId===id&&!$("#sheet").hidden)openDetail(id,true)}
 
 /* ================================================================ health */
+function tokenDays(){const e=T(STATUS&&STATUS.token_exp);return e?(e-Date.now())/864e5:null}
 function health(){
-  const runs=(STATUS&&STATUS.runs)||[],last=runs[0],sched=runs.find(r=>r.event==="schedule");
+  const runs=(STATUS&&STATUS.runs)||[],last=runs.find(r=>r.status==="completed"&&r.conclusion!=="cancelled");
+  const autoRun=runs.find(r=>/อัตโนมัติ/.test(r.title||"")),anyAuto=runs.find(r=>r.event==="schedule"||/อัตโนมัติ/.test(r.title||""));
   const bad=D.series.filter(s=>s.enabled!==false&&ST(s.id).error).length;
-  const failedMsgs=(D.log||[]).filter(e=>e.status==="failed"&&!e.resent&&Date.now()-T(e.at)<864e5).length;
+  const failedMsgs=(D.log||[]).filter(e=>e.status==="failed"&&!e.resent&&Date.now()-T(e.at)<864e5).length,td=tokenDays();
   if(!STATUS)return{c:"",t:"กำลังตรวจสอบ…",icon:"⏳",k:"n"};
-  if(!runs.length)return{c:"",t:STATUS.unknown?"ยังไม่ทราบสถานะ":"ยังไม่มีข้อมูลการรัน",icon:"❔",k:"n",sub:STATUS.unknown?"เชื่อมต่อหลังบ้านเพื่อดูสถานะการรัน":"ระบบจะเริ่มตรวจภายใน 10 นาทีหลังตั้งค่า"};
-  if(last.conclusion==="failure")return{c:"r",t:"รอบตรวจล่าสุดล้มเหลว",icon:"🛑",k:"r",sub:"กดดูรายละเอียดจากรายการรอบตรวจด้านล่าง"};
-  if(sched&&Date.now()-T(sched.at)>75*6e4)return{c:"y",t:"ระบบไม่ได้รันตามเวลา",icon:"⏰",k:"y",sub:"GitHub อาจหน่วงหรือปิดการรันอัตโนมัติ — เข้า GitHub → Actions เพื่อเปิดใหม่"};
-  if(failedMsgs)return{c:"y",t:"ส่ง Discord ไม่สำเร็จ "+failedMsgs+" ข้อความ",icon:"📭",k:"y",sub:"ดูในแท็บอัปเดต แล้วกดส่งซ้ำได้"};
+  if(STATUS.token_bad)return{c:"r",t:"GitHub Token ใช้ไม่ได้หรือหมดอายุ",icon:"🔑",k:"r",sub:"ระบบหยุดตรวจ — เจ้าของต้องสร้าง Token ใหม่ แล้ววางแทน GITHUB_TOKEN ใน Cloudflare"};
+  if(!runs.length)return{c:"",t:STATUS.unknown?"ยังไม่ทราบสถานะ":"ยังไม่มีข้อมูลการรัน",icon:"❔",k:"n",sub:STATUS.unknown?"เชื่อมต่อหลังบ้านเพื่อดูสถานะการรัน":"ระบบจะเริ่มตรวจภายในไม่กี่นาทีหลังตั้งค่า"};
+  if(last&&last.conclusion==="failure")return{c:"r",t:"รอบตรวจล่าสุดล้มเหลว",icon:"🛑",k:"r",sub:"กดดูรายละเอียดจากรายการรอบตรวจด้านล่าง"};
+  if(!anyAuto||Date.now()-T(anyAuto.at)>120*6e4)return{c:"y",t:"ระบบไม่ได้รันตามเวลา",icon:"⏰",k:"y",sub:"ตรวจ Cron Trigger ใน Cloudflare และหน้า Actions ใน GitHub (อาจถูกปิดการรันอัตโนมัติ)"};
+  if(D.series.length&&!autoRun&&runs.filter(r=>r.event==="schedule").length>=3)return{c:"y",t:"ยังไม่เห็นรอบจาก Cloudflare",icon:"⏰",k:"y",sub:"ตอนนี้ใช้รอบสำรองของ GitHub (~30 นาที) — ตั้ง Cron Trigger ใน Cloudflare ตาม README ขั้น C"};
+  if(autoRun&&Date.now()-T(autoRun.at)>13*36e5)return{c:"y",t:"Cloudflare ไม่ได้สั่งตรวจมา "+dur(Date.now()-T(autoRun.at)),icon:"⏰",k:"y",sub:"ตอนนี้ใช้รอบสำรองของ GitHub — ดู Cron Trigger และ GITHUB_TOKEN ใน Cloudflare"};
+  if(isMod()&&td!=null&&td<7)return{c:"y",t:"GitHub Token จะหมดอายุใน "+Math.max(0,Math.ceil(td))+" วัน",icon:"⏳",k:"y",sub:"เจ้าของต้องต่ออายุ (Regenerate) แล้ววางค่าใหม่ใน Cloudflare ก่อนหมด"};
+  if(failedMsgs)return{c:"y",t:"ส่ง Discord ไม่สำเร็จ "+failedMsgs+" ข้อความ",icon:"📭",k:"y",sub:"ระบบจะลองส่งซ้ำเองอีก 3 ครั้ง หรือกดส่งซ้ำในแท็บอัปเดต"};
   if(bad)return{c:"y",t:"ระบบปกติ · "+bad+" เรื่องอ่านไม่ได้",icon:"🟡",k:"y",sub:"ดูรายชื่อเรื่องที่มีปัญหาด้านล่าง"};
-  return{c:"g",t:"ระบบทำงานปกติ",icon:"🟢",k:"g",sub:"ระบบรันทุก ~10 นาที แต่ละเรื่องตรวจตามความถี่ที่ตั้งไว้"};
+  return{c:"g",t:"ระบบทำงานปกติ",icon:"🟢",k:"g",sub:"Cloudflare ปลุกทุก 5 นาที สั่งตรวจเฉพาะเรื่องที่ถึงเวลา · รอบสำรองของ GitHub ทุก ~30 นาที"};
 }
 function renderHealth(){const h=health();$("#hdot").className="dot "+h.c;
   const last=STATUS&&STATUS.runs&&STATUS.runs[0];$("#htxt").textContent=h.k==="g"&&last?"ตรวจล่าสุด "+ago(last.at):h.t}
@@ -497,9 +624,9 @@ function listCard(s){
   const mine=ME&&(ME.series||[]).includes(s.id),fol=(D.followers[s.id]||[]).length,id=esc(s.id);
   let h='<article class="card s'+(off?" off":"")+(pend?" pending":"")+'" data-id="'+id+'"><button class="cv" data-act="open" data-id="'+id+'" aria-label="รายละเอียด">'+cover(st.cover,s.name)+'</button><div style="min-width:0">';
   h+='<div class="r1"><button class="nm" data-act="open" data-id="'+id+'">'+esc(s.name)+"</button>"+(b?'<span class="pill new">ค้าง '+b+" ตอน</span>":"")+(off?'<span class="pill off">ปิดแจ้งเตือน</span>':"")+(st.error?'<span class="pill err">⚠ อ่านไม่ได้</span>':"")+"</div>";
-  h+='<div class="meta">'+esc(host(s.url))+" · ⏱ "+fmtSched(s)+(st.checked?" · ตรวจ "+ago(st.checked):"")+(fol?" · 🔔 "+fol+" คนติดตาม":"")+"</div>";
+  h+='<div class="meta">'+esc(host(s.url))+" · "+fmtSched(s,st)+(st.checked?" · ตรวจ "+ago(st.checked):"")+(fol?" · 🔔 "+fol+" คนติดตาม":"")+"</div>";
   if(st.label==null){
-    h+='<div class="meta" style="margin-top:8px">'+(st.error?"":pend?"⏳ กำลังตรวจครั้งแรก…":"⏳ รอตรวจครั้งแรก (ภายใน ~10 นาที)")+"</div>"+(st.error?"":'<div class="sk" style="width:65%"></div>');
+    h+='<div class="meta" style="margin-top:8px">'+(st.error?"":pend?"⏳ กำลังตรวจครั้งแรก…":"⏳ รอตรวจครั้งแรก (ภายในไม่กี่นาที)")+"</div>"+(st.error?"":'<div class="sk" style="width:65%"></div>');
   }else{
     h+='<div class="latest"><span class="lb">ตอนล่าสุด</span><b>'+esc(st.label)+"</b>"+(st.prev_label&&T(st.updated)>Date.now()-3*864e5?'<span class="chg">▲ จาก '+esc(st.prev_label)+"</span>":"")+'<span class="t">'+esc(st.title||"")+(st.updated?" · "+ago(st.updated):"")+"</span></div>";
     const a=num(st.label),r=num(R[s.id]),pct=a&&r!=null?Math.max(4,Math.min(100,r/a*100)):100;
@@ -528,7 +655,7 @@ function openDetail(id,keep){
   const st=ST(id),b=behind(id),hist=st.history||[],fol=D.followers[id]||[],mine=ME&&(ME.series||[]).includes(id),eid=esc(id);
   const gaps=[];for(let i=0;i<hist.length-1;i++)gaps.push(T(hist[i].at)-T(hist[i+1].at));
   const avg=gaps.length?gaps.reduce((a,c)=>a+c,0)/gaps.length:0;
-  const every=+(s.interval||30),nextAt=nextCheck(s,st);
+  const nextAt=nextCheck(s,st),guess=releaseGuess(st);
   const msgs=(D.log||[]).filter(e=>e.sid===id).slice(0,5);
   let h='<div class="dhead"><div class="blur" style="background-image:url(\''+esc(safeUrl(st.cover)).replace(/'/g,"%27")+'\')"></div><div class="ct"><div class="big">'+cover(st.cover,s.name)+'</div><div style="min-width:0"><h2>'+esc(s.name)+'</h2><div class="meta"><a href="'+esc(s.url)+'" target="_blank" rel="noopener">'+esc(host(s.url))+" ↗</a>"+(s.by?" · เพิ่มโดย "+esc(s.by):"")+'</div><div class="r1" style="margin-top:6px">'+(s.enabled===false?'<span class="pill off">ปิดแจ้งเตือน</span>':'<span class="pill ok">เปิดแจ้งเตือน</span>')+(st.error?'<span class="pill err">⚠ อ่านไม่ได้</span>':"")+"</div></div></div></div><div class=\"pad\">";
   h+='<div class="stat"><div><b>'+esc(st.label??"-")+'</b><span>ตอนล่าสุด</span></div><div><b>'+esc(R[id]??"-")+'</b><span>อ่านถึง</span></div><div><b style="color:'+(b?"var(--bad)":"var(--ok)")+'">'+(st.label==null?"-":b?b:"✓")+"</b><span>"+(b?"ค้างอ่าน":"ทันแล้ว")+"</span></div></div>";
@@ -539,9 +666,9 @@ function openDetail(id,keep){
   }
   h+='<div class="facts">'+
     '<div class="fact"><div class="k">ออกตอนใหม่ล่าสุด</div><div class="v">'+(st.updated?ago(st.updated):"ยังไม่มี")+'</div><div class="k">'+(st.updated?esc(fullTime(st.updated)):"ตั้งแต่เริ่มติดตาม")+"</div></div>"+
-    '<div class="fact"><div class="k">ความถี่การออก</div><div class="v">'+(avg?"ทุก "+dur(avg):"ข้อมูลยังไม่พอ")+'</div><div class="k">'+(avg?"เฉลี่ยจาก "+hist.length+" ตอนล่าสุด":"ต้องมีตอนใหม่อย่างน้อย 2 ครั้ง")+"</div></div>"+
-    '<div class="fact"><div class="k">ตรวจล่าสุด</div><div class="v">'+(st.checked?ago(st.checked):"-")+'</div><div class="k">ตรวจ'+esc(fmtSched(s))+"</div></div>"+
-    '<div class="fact"><div class="k">ตรวจครั้งถัดไป</div><div class="v">'+(s.enabled===false?"ปิดอยู่":nextAt&&nextAt>Date.now()?ago(new Date(nextAt).toISOString()):"รอบถัดไป")+'</div><div class="k">GitHub อาจช้าเล็กน้อย</div></div>'+
+    '<div class="fact"><div class="k">ความถี่การออก</div><div class="v">'+(avg?"ทุก "+dur(avg):"ข้อมูลยังไม่พอ")+'</div><div class="k">'+(avg?"เฉลี่ยจาก "+hist.length+" ตอนล่าสุด":"ต้องมีตอนใหม่อย่างน้อย 2 ครั้ง")+(guess?" · มักออก ~"+guess.at+" น.":"")+"</div></div>"+
+    '<div class="fact"><div class="k">ตรวจล่าสุด</div><div class="v">'+(st.checked?ago(st.checked):"-")+'</div><div class="k">'+fmtSched(s,st)+"</div></div>"+
+    '<div class="fact"><div class="k">ตรวจครั้งถัดไป</div><div class="v">'+(s.enabled===false?"ปิดอยู่":nextAt?thaiClock(nextAt)+" น.":"-")+'</div><div class="k">'+(s.enabled!==false&&nextAt?(nextAt>Date.now()+6e4?ago(new Date(nextAt).toISOString()):"ภายในไม่กี่นาที")+" · อาจช้า ~1-2 นาที":"")+"</div></div>"+
     "</div>";
   if(st.error)h+='<div class="err" style="margin-top:12px">⚠ '+esc(st.error)+"</div>";
   h+='<h2 class="sec">🔔 แจ้งเตือนเข้า Discord</h2><div class="card box" style="padding:12px 14px"><div class="line"><div>'+(fol.length?"<b>"+fol.length+" คน</b>ติดตาม: "+fol.map(esc).join(", "):'<span class="mut">ยังไม่มีใครกดติดตาม</span>')+"</div>";
@@ -561,7 +688,7 @@ function openDetail(id,keep){
     h+='<h2 class="sec">🛠 จัดการ (ผู้ดูแล)</h2><div class="card box f">'+
       '<label for="eName">ชื่อเรื่อง</label><input type="text" id="eName" maxlength="80" value="'+esc(s.name)+'">'+
       '<div class="row"><div><label for="eContains">ลิงก์ตอนต้องมีคำว่า</label><input type="text" id="eContains" value="'+esc(s.contains||"")+'" placeholder="เช่น /chapter/"></div>'+
-      '</div><label>ตรวจเมื่อไหร่</label>'+schedPicker("eIv",s)+
+      '</div><label>ตรวจเมื่อไหร่</label>'+schedPicker("eIv",s,st)+
       '<div class="acts"><button class="btn" data-act="save" data-id="'+eid+'">บันทึก</button><button class="btn g" data-act="check" data-id="'+eid+'">↻ ตรวจตอนนี้</button>'+
       '<button class="btn g" data-act="toggle" data-id="'+eid+'">'+(s.enabled===false?"▶ เปิดแจ้งเตือน":"⏸ ปิดแจ้งเตือน")+'</button><span style="flex:1"></span><button class="btn g danger" data-act="del" data-id="'+eid+'">ลบเรื่องนี้</button></div>'+
       (isOwner()?'<div class="acts" style="border-top:1px dashed var(--line);padding-top:10px"><button class="btn g" data-act="testseries" data-id="'+eid+'">🧪 ทดสอบส่งเข้า Discord</button><span class="hint" style="margin:0">ตรวจเว็บตอนนี้แล้วส่งข้อความบอกตอนล่าสุด + แท็กคนที่ติดตาม</span></div>':"")+"</div>";
@@ -575,8 +702,8 @@ function openAdd(pre){
     '<label for="aUrl">ลิงก์หน้าเรื่อง</label><input type="url" id="aUrl" placeholder="https://..." autocomplete="off" autocapitalize="off" value="'+esc(pre.url||"")+'"'+(pre.rid?" readonly":"")+">"+
     '<div id="aPv"></div>'+
     '<label for="aName">ชื่อเรื่อง</label><input type="text" id="aName" maxlength="80" placeholder="ดึงให้อัตโนมัติ หรือพิมพ์เอง" value="'+esc(pre.name||"")+'">'+
-    '<details style="margin-top:10px"><summary class="small mut" style="cursor:pointer">ตัวเลือกเพิ่มเติม</summary><div class="row"><div><label for="aContains">ลิงก์ตอนต้องมีคำว่า</label><input type="text" id="aContains" placeholder="เช่น /chapter/"></div>'+
-    '</div><label>ตรวจเมื่อไหร่</label>'+schedPicker("aIv",{interval:30})+'</details>'+
+    '<label>ตรวจเมื่อไหร่</label>'+schedPicker("aIv",null,{})+
+    '<details style="margin-top:10px"><summary class="small mut" style="cursor:pointer">ตัวเลือกเพิ่มเติม</summary><div class="row"><div><label for="aContains">ลิงก์ตอนต้องมีคำว่า</label><input type="text" id="aContains" placeholder="เช่น /chapter/"></div></div></details>'+
     '<div class="acts" style="margin-top:16px"><button class="btn" data-act="doadd"'+(pre.rid?' data-rid="'+esc(pre.rid)+'"':"")+">"+(pre.rid?"✓ อนุมัติและเพิ่ม":"＋ เพิ่มเรื่องนี้")+'</button><button class="btn g" data-act="close">ยกเลิก</button></div></div>',null,"add");
   const u=$("#aUrl");let t;
   const go=()=>{clearTimeout(t);t=setTimeout(()=>preview(u.value.trim()),550)};
@@ -636,7 +763,7 @@ async function doRequest(btn){
 }
 
 /* ================================================================ feed */
-const feedMatch=(e,k)=>k==="all"||(k==="failed"?e.status==="failed":k==="problem"?["problem","test"].includes(e.kind):k==="new"?["new","resend"].includes(e.kind):e.kind===k);
+const feedMatch=(e,k)=>k==="all"||(k==="failed"?e.status==="failed":k==="problem"?["problem","test","alert"].includes(e.kind):k==="new"?["new","resend"].includes(e.kind):e.kind===k);
 function renderFeed(v){
   const kinds={all:"ทั้งหมด",new:"ตอนใหม่",digest:"สรุปประจำวัน",problem:"ระบบ/ปัญหา",failed:"ส่งไม่สำเร็จ"};
   const all=D.log||[],l=all.filter(e=>feedMatch(e,UI.feed));
@@ -649,12 +776,12 @@ function renderFeed(v){
     const d=new Date(T(e.at)).toDateString();
     if(d!==day){day=d;h+='<div class="day">'+(d===today?"วันนี้":d===yest?"เมื่อวาน":new Date(T(e.at)).toLocaleDateString("th-TH",{weekday:"short",day:"numeric",month:"short"}))+"</div>"}
     const em=e.embed||{},col=em.color!=null?"#"+(+em.color).toString(16).padStart(6,"0"):"var(--pri)",s=e.sid&&SER(e.sid);
-    h+='<div class="msg"><div class="bot">'+({digest:"📚",problem:"⚠️",test:"✅"}[e.kind]||"📖")+'</div><div style="min-width:0"><div class="mh"><span class="who">Manga Bot</span><span class="tagbot">BOT</span><time class="small mut">'+esc(fullTime(e.at))+"</time></div>";
+    h+='<div class="msg"><div class="bot">'+({digest:"📚",problem:"⚠️",test:"✅",alert:"🚨"}[e.kind]||(e.count?"📦":"📖"))+'</div><div style="min-width:0"><div class="mh"><span class="who">Manga Bot</span><span class="tagbot">BOT</span><time class="small mut">'+esc(fullTime(e.at))+"</time></div>";
     if(e.mentions&&e.mentions.length)h+="<div>"+e.mentions.map(n=>'<span class="mention">@'+esc(n)+"</span>").join(" ")+"</div>";
     h+='<div class="embed" style="border-left-color:'+esc(col)+'"><div style="min-width:0">'+(em.title?(safeUrl(em.url)?'<a class="et" href="'+esc(em.url)+'" target="_blank" rel="noopener">'+esc(em.title)+"</a>":'<div class="et">'+esc(em.title)+"</div>"):"")+
       (em.description?'<div class="ed">'+md(em.description)+"</div>":"")+(em.footer?'<div class="ef">'+esc(em.footer)+"</div>":"")+"</div>"+(safeUrl(em.thumb)?'<img src="'+esc(em.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':"")+"</div>";
     h+='<div class="delivery">'+(e.status==="sent"?'<span class="pill ok">✓ ส่งเข้า Discord แล้ว</span>':'<span class="pill err">✗ ส่งไม่สำเร็จ'+(e.error?": "+esc(e.error):"")+"</span>")+
-      (e.kind==="resend"?'<span class="pill pri">ส่งซ้ำ</span>':"")+(e.resent?'<span class="mut">ส่งซ้ำแล้ว '+ago(e.resent)+"</span>":"")+
+      (e.kind==="resend"?'<span class="pill pri">ส่งซ้ำ</span>':"")+(e.late?'<span class="pill pri">ส่งซ้ำอัตโนมัติสำเร็จ '+ago(e.late)+"</span>":"")+(e.resent?'<span class="mut">ส่งซ้ำแล้ว '+ago(e.resent)+"</span>":"")+
       (s?'<button class="btn t sm" data-act="open" data-id="'+esc(s.id)+'">ดูเรื่อง</button>':"")+
       (isMod()&&e.kind!=="resend"?'<button class="btn t sm" data-act="resend" data-lid="'+esc(e.id)+'">↻ ส่งซ้ำ</button>':"")+"</div></div></div>";
   }
@@ -675,16 +802,19 @@ function renderRequests(v){
 /* ================================================================ system */
 const ACT_TH={"series.add":"เพิ่มเรื่อง","series.edit":"แก้ไขเรื่อง","series.delete":"ลบเรื่อง",check:"สั่งตรวจ",resend:"ส่งซ้ำ",test:"ทดสอบส่งข้อความ","request.reject":"ปฏิเสธคำขอ","user.add":"สร้างผู้ใช้","user.edit":"แก้ไขผู้ใช้","user.delete":"ลบผู้ใช้",config:"ตั้งค่า","subs.edit":"แก้รายชื่อแท็ก","subs.delete":"ลบรายชื่อแท็ก"};
 function renderSystem(v){
-  const hl=health(),runs=(STATUS&&STATUS.runs)||[],sched=runs.find(r=>r.event==="schedule");
-  const next=sched?T(sched.at)+10*6e4:0,lastMsg=(D.log||[])[0],bad=D.series.filter(s=>ST(s.id).error);
+  const hl=health(),runs=(STATUS&&STATUS.runs)||[],autoRun=runs.find(r=>/อัตโนมัติ/.test(r.title||""));
+  let nx=null;for(const s of D.series){if(s.enabled===false)continue;const t=nextCheck(s,ST(s.id));if(t&&(!nx||t<nx.t))nx={t,s}}
+  const lastMsg=(D.log||[])[0],bad=D.series.filter(s=>ST(s.id).error),td=tokenDays();
   let h='<div class="card hero" style="margin-top:10px"><div class="ic '+hl.k+'">'+hl.icon+'</div><div style="flex:1;min-width:200px"><div class="h">'+esc(hl.t)+'</div><div class="small mut">'+esc(hl.sub||"")+"</div></div>"+(isMod()?'<button class="btn" data-act="checkall">▶ ตรวจทุกเรื่องตอนนี้</button>':"")+"</div>";
   h+='<div class="facts">'+
     '<div class="fact"><div class="k">รอบตรวจล่าสุด</div><div class="v">'+(runs[0]?ago(runs[0].at):"-")+'</div><div class="k">'+(runs[0]?(runs[0].status!=="completed"?"⏳ กำลังรัน":runs[0].conclusion==="success"?"✓ สำเร็จ":"✗ "+esc(runs[0].conclusion||"")):"")+"</div></div>"+
-    '<div class="fact"><div class="k">รอบอัตโนมัติถัดไป</div><div class="v">'+(next?(next>Date.now()?ago(new Date(next).toISOString()):"เร็ว ๆ นี้"):"-")+'</div><div class="k">GitHub อาจช้า 5-15 นาที</div></div>'+
+    '<div class="fact"><div class="k">ตรวจครั้งถัดไป</div><div class="v">'+(nx?thaiClock(nx.t)+" น.":"-")+'</div><div class="k">'+(nx?esc(nx.s.name):"")+"</div></div>"+
+    '<div class="fact"><div class="k">Cloudflare สั่งตรวจล่าสุด</div><div class="v">'+(autoRun?ago(autoRun.at):"ยังไม่เห็น")+'</div><div class="k">'+(autoRun?"ปลุกทุก 5 นาที":"ตั้ง Cron Trigger ตาม README")+"</div></div>"+
+    (isMod()&&STATUS&&STATUS.token_exp?'<div class="fact"><div class="k">⏳ GitHub Token หมดอายุ</div><div class="v" style="color:'+(td<7?"var(--bad)":td<14?"var(--warn)":"inherit")+'">'+(td>0?"อีก "+Math.ceil(td)+" วัน":"หมดแล้ว")+'</div><div class="k">'+new Date(T(STATUS.token_exp)).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"numeric"})+"</div></div>":"")+
     '<div class="fact"><div class="k">ส่ง Discord ล่าสุด</div><div class="v">'+(lastMsg?ago(lastMsg.at):"-")+'</div><div class="k">'+(lastMsg?(lastMsg.status==="sent"?"✓ สำเร็จ":"✗ ล้มเหลว"):"")+"</div></div>"+
     '<div class="fact"><div class="k">เรื่องที่ติดตาม</div><div class="v">'+D.series.length+' เรื่อง</div><div class="k">'+D.series.filter(s=>s.enabled!==false).length+" เปิดแจ้งเตือน</div></div></div>";
   h+='<div class="cols" style="margin-top:14px">';
-  h+='<div class="card box"><h3>⏱ รอบตรวจล่าสุด</h3>'+(runs.length?'<ul class="rows">'+runs.slice(0,8).map(r=>"<li><span>"+(r.status!=="completed"?"⏳":r.conclusion==="success"?"✅":r.conclusion==="cancelled"?"⏹":"❌")+'</span><span class="grow">'+({schedule:"ตามเวลา",workflow_dispatch:"สั่งจากหน้าเว็บ",push:"มีการแก้ไฟล์"}[r.event]||esc(r.event))+(r.secs?' <span class="mut small">'+Math.round(r.secs)+" วิ</span>":"")+'</span><time title="'+esc(fullTime(r.at))+'">'+ago(r.at)+"</time>"+(safeUrl(r.url)?'<a class="small" href="'+esc(r.url)+'" target="_blank" rel="noopener">ดู</a>':"")+"</li>").join("")+"</ul>":'<p class="mut small">ยังไม่มีข้อมูล</p>')+"</div>";
+  h+='<div class="card box"><h3>⏱ รอบตรวจล่าสุด</h3>'+(runs.length?'<ul class="rows">'+runs.slice(0,8).map(r=>"<li><span>"+(r.status!=="completed"?"⏳":r.conclusion==="success"?"✅":r.conclusion==="cancelled"?"⏹":"❌")+'</span><span class="grow">'+esc(r.title&&r.title!=="check-manga"?r.title:({schedule:"ตามเวลา",workflow_dispatch:"สั่งจากหน้าเว็บ",push:"มีการแก้ไฟล์"}[r.event]||r.event))+(r.secs?' <span class="mut small">'+Math.round(r.secs)+" วิ</span>":"")+'</span><time title="'+esc(fullTime(r.at))+'">'+ago(r.at)+"</time>"+(safeUrl(r.url)?'<a class="small" href="'+esc(r.url)+'" target="_blank" rel="noopener">ดู</a>':"")+"</li>").join("")+"</ul>":'<p class="mut small">ยังไม่มีข้อมูล</p>')+"</div>";
   h+='<div class="card box"><h3>🩺 เว็บที่มีปัญหา <span class="cnt'+(bad.length?"":" soft")+'">'+bad.length+"</span></h3>"+(bad.length?'<ul class="rows">'+bad.map(s=>'<li><span class="grow"><b>'+esc(s.name)+'</b><br><span class="small mut">'+esc(ST(s.id).error)+'</span></span><button class="btn t sm" data-act="open" data-id="'+esc(s.id)+'">ดู</button></li>').join("")+"</ul>":'<p class="mut small">ทุกเว็บอ่านได้ปกติ 👍</p>')+"</div>";
   if(S){
     h+='<div class="card box f"><h3>👤 โปรไฟล์ของฉัน</h3><div class="small">'+esc(S.user.name)+' · <span class="role '+esc(S.user.role)+'">'+ROLE_TH[S.user.role]+"</span></div>"+
@@ -698,6 +828,22 @@ function renderSystem(v){
     (UI.installEvt?'<div class="line"><div>ติดตั้งเป็นแอป</div><button class="btn sm" data-act="install">ติดตั้ง</button></div>':'<div class="hint">ติดตั้งเป็นแอป: Android/Chrome กดเมนู ⋮ → ติดตั้งแอป · iPhone กดแชร์ → เพิ่มไปยังหน้าจอโฮม</div>')+
     (API?"":'<div class="hint warn" style="margin-top:10px">ยังไม่ได้ตั้งค่าหลังบ้าน (Worker) — ตอนนี้ดูได้อย่างเดียว ล็อกอินไม่ได้</div>')+"</div>";
   if(isOwner()){
+    if(!UI.pk)UI.pk=JSON.parse(JSON.stringify(peakCfg()));
+    const k=UI.pk,nPeak=D.series.filter(s=>schedOf(s).mode==="peak").length,tl=timeline({sched:{mode:"peak"},autoslow:false},{},{tz_offset:7,peak:k});
+    const ch=(a,v,t,on)=>'<button type="button" class="chip" data-act="'+a+'" data-v="'+v+'" aria-pressed="'+on+'">'+t+"</button>";
+    h+='<div class="card box f"><h3>⭐ ช่วงออกตอนหลัก</h3><p class="small mut" style="margin:0">ใช้กับทุกเรื่องที่เลือกโหมด ⭐ ('+nPeak+' เรื่อง) · เวลาไทย</p>'+
+      '<div class="slots">'+k.windows.map(x=>'<span class="tchip">👀 '+esc(x.replace("-","–"))+'<button type="button" data-act="pkdel" data-v="'+esc(x)+'" aria-label="ลบ">✕</button></span>').join("")+"</div>"+
+      '<div class="row addrow" style="margin-top:8px"><input type="time" id="pkA" aria-label="เริ่ม"><span class="mut">ถึง</span><input type="time" id="pkB" aria-label="สิ้นสุด"><button type="button" class="btn g sm" data-act="pkadd">＋ เพิ่มช่วง</button></div>'+
+      '<label>ในช่วงหลัก ตรวจทุก</label><div class="chips wrap">'+[5,10,15].map(v=>ch("pkev",v,v+" นาที",k.every===v)).join("")+"</div>"+
+      '<label>นอกช่วง ตรวจ</label><div class="chips wrap">'+[[180,"ทุก 3 ชม."],[360,"ทุก 6 ชม."],[720,"ทุก 12 ชม."],[1440,"วันละครั้ง"]].map(([v,t])=>ch("pkoff",v,t,k.off===v)).join("")+"</div>"+
+      '<div class="sum">🔁 เรื่องละ ~<b>'+tl.n+" ครั้ง/วัน</b> · "+nPeak+" เรื่อง ≈ "+tl.n*nPeak+" ครั้ง/วัน"+tl.html+"</div>"+
+      '<div class="acts"><button class="btn" data-act="savepeak">บันทึก</button><button class="btn g" data-act="resetpeak">ค่าเริ่มต้น (22:50–00:30, 04:50–06:30)</button></div></div>';
+    const al=(CFG&&CFG.alert)||{},myId=al.discord||(ME&&ME.discord)||"";
+    if(CFG==null)loadCfg();
+    h+='<div class="card box f"><h3>🚨 แจ้งเตือนเจ้าของ</h3><p class="small mut" style="margin:0">บอทจะแท็กคุณใน Discord เมื่อเว็บบล็อก/อ่านไม่ได้หลายครั้ง, GitHub Token ใกล้หมดอายุ (เตือนก่อน 7 วัน) หรือ Cloudflare หยุดสั่งตรวจ</p>'+
+      '<div class="line"><div>แท็กฉันเมื่อระบบมีปัญหา</div><label class="sw"><input type="checkbox" id="alOn"'+(al.enabled!==false?" checked":"")+' aria-label="เปิดแจ้งเตือนเจ้าของ"><i></i></label></div>'+
+      '<label for="alId">Discord ID ของคุณ</label><input type="text" id="alId" inputmode="numeric" placeholder="เช่น 123456789012345678" value="'+esc(myId)+'">'+
+      '<div class="acts"><button class="btn" data-act="savealert">บันทึก</button></div></div>';
     const dg=(D.config&&D.config.digest)||{};
     h+='<div class="card box f"><h3>📚 สรุปประจำวันเข้า Discord</h3><div class="line"><div>เปิดสรุปประจำวัน</div><label class="sw"><input type="checkbox" id="dgOn"'+(dg.enabled?" checked":"")+' aria-label="เปิดสรุปประจำวัน"><i></i></label></div>'+
       '<div class="row"><div><label for="dgHour">ส่งเวลา (เวลาไทย)</label><select id="dgHour">'+Array.from({length:24},(_,i)=>'<option value="'+i+'"'+((dg.hour??21)===i?" selected":"")+">"+String(i).padStart(2,"0")+":00</option>").join("")+'</select></div><div><label for="dgEmpty">วันที่ไม่มีตอนใหม่</label><select id="dgEmpty"><option value="0">ไม่ต้องส่ง</option><option value="1"'+(dg.send_empty?" selected":"")+">ส่งว่าไม่มี</option></select></div></div>"+
@@ -731,6 +877,7 @@ function renderSystem(v){
 }
 async function loadSubs(){try{SUBS=await api("/api/subs");SUBS.users=SUBS.users||{}}catch(e){SUBS={users:{}};toast(e.message,"bad")}render();if(UI.sheetId&&UI.sheetKind==="detail")openDetail(UI.sheetId,true)}
 async function loadUsers(){try{USERS=await api("/api/users")}catch(e){USERS=[];toast(e.message,"bad")}render()}
+async function loadCfg(){try{CFG=await api("/api/config")}catch(e){CFG={}}render()}
 async function loadAudit(){try{AUDIT=await api("/api/audit")}catch(e){AUDIT=[]}render()}
 
 /* ================================================================ account */
@@ -753,7 +900,7 @@ async function doLogin(btn){
     render();await loadMe();if(isMod())loadReqs();
   });
 }
-function logout(reason){S=null;ME=null;USERS=AUDIT=REQS=SUBS=null;LS.del("mw_session");if(UI.filter==="mine")UI.filter="all";render();toast(typeof reason==="string"?reason:"ออกจากระบบแล้ว","info",6000)}
+function logout(reason){S=null;ME=null;USERS=AUDIT=REQS=SUBS=CFG=null;LS.del("mw_session");if(UI.filter==="mine")UI.filter="all";render();toast(typeof reason==="string"?reason:"ออกจากระบบแล้ว","info",6000)}
 
 /* ================================================================ actions */
 function arm(btn,label,fn){
@@ -837,13 +984,26 @@ const ACT={
     const e=(D.log||[]).find(x=>x.kind==="test"&&x.sid===id&&T(x.at)>=T(r.since)-6e4),st=ST(id);
     if(e)toast(e.status==="sent"?"ส่งแล้ว! “"+s.name+"” ตอนล่าสุดคือตอน "+(st.label??"?")+(e.mentions&&e.mentions.length?" · แท็ก "+e.mentions.join(", "):""):"ส่งไม่สำเร็จ ("+(e.error||"")+") — ตรวจ Secret DISCORD_WEBHOOK_URL",e.status==="sent"?"ok":"bad",9000);
     else{const m=runMsg(c)||["ยังไม่เห็นผล — workflow อาจยังเป็นเวอร์ชันเก่า ลองอัปโหลด check.yml ใหม่","info"];toast(m[0],m[1])}}),
-  schedmode:el=>{const id=el.dataset.t,w=$("#"+id+"W"),m=el.dataset.m;w.dataset.mode=m;$("#"+id+"Int").hidden=m!=="int";$("#"+id+"Tm").hidden=m!=="times";
-    w.querySelectorAll('[data-act=schedmode]').forEach(b=>b.setAttribute("aria-pressed",b.dataset.m===m));buzz()},
-  addtime:el=>{const id=el.dataset.t,w=$("#"+id+"W"),v=el.dataset.v||$("#"+id+"T").value;if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(v||""))return toast("เลือกเวลาก่อน","bad");
-    const t=JSON.parse(w.dataset.times||"[]");if(t.includes(v))return toast("มีเวลานี้แล้ว","info",1500);if(t.length>=24)return toast("ได้ไม่เกิน 24 เวลา","bad");
-    t.push(v);t.sort();w.dataset.times=JSON.stringify(t);$("#"+id+"L").innerHTML=timeChips(id,t);buzz()},
-  deltime:el=>{const id=el.dataset.t,w=$("#"+id+"W");const t=JSON.parse(w.dataset.times||"[]").filter(x=>x!==el.dataset.v);w.dataset.times=JSON.stringify(t);$("#"+id+"L").innerHTML=timeChips(id,t);buzz()},
-  ivq:el=>{const m=+el.dataset.m,u=m%1440===0?1440:m%60===0?60:1;$("#"+el.dataset.t+"N").value=m/u;$("#"+el.dataset.t+"U").value=u;buzz()},
+  pkdel:el=>{UI.pk.windows=UI.pk.windows.filter(x=>x!==el.dataset.v);buzz();render()},
+  pkadd:()=>{const a=$("#pkA").value,b=$("#pkB").value;if(toMin(a)==null||toMin(b)==null)return toast("เลือกเวลาเริ่มและสิ้นสุด","bad");if(a===b)return toast("เวลาเริ่มกับสิ้นสุดต้องต่างกัน","bad");
+    const w=a+"-"+b;if(UI.pk.windows.includes(w))return;if([...UI.pk.windows,w].reduce((x,y)=>x+winLen(y),0)>480)return toast("ช่วงหลักรวมกันได้ไม่เกิน 8 ชม./วัน","bad");
+    UI.pk.windows=[...UI.pk.windows,w].sort();UI.clearForm=true;buzz();render()},
+  pkev:el=>{UI.pk.every=+el.dataset.v;buzz();render()},
+  pkoff:el=>{UI.pk.off=+el.dataset.v;buzz();render()},
+  resetpeak:()=>{UI.pk=JSON.parse(JSON.stringify(PEAK_DEFAULT));buzz();render();toast("กด “บันทึก” เพื่อใช้ค่าเริ่มต้น","info",2500)},
+  savepeak:el=>busy(el,async()=>{const r=await api("/api/config",{method:"PUT",body:{peak:UI.pk}});D.config=r.config;UI.pk=null;AUDIT=null;render();toast("บันทึกช่วงออกตอนหลักแล้ว — ใช้กับทุกเรื่องโหมด ⭐ ทันที","ok")}),
+  savealert:el=>busy(el,async()=>{const body={alert:{enabled:$("#alOn").checked,discord:$("#alId").value.trim()}};const r=await api("/api/config",{method:"PUT",body});D.config=r.config;CFG=Object.assign(CFG||{},body);AUDIT=null;render();
+    toast(body.alert.enabled&&body.alert.discord?"บอทจะแท็กคุณเมื่อระบบมีปัญหา 🚨":"ปิดแจ้งเตือนเจ้าของแล้ว","ok")}),
+  spmode:el=>{const k=PK[el.dataset.t];k.mode=el.dataset.v;spRender(el.dataset.t)},
+  spmin:el=>{PK[el.dataset.t].min=+el.dataset.v;const hr=$("#"+el.dataset.t+"Hr");if(hr)hr.value="";spRender(el.dataset.t)},
+  spoff:el=>{PK[el.dataset.t].off=+el.dataset.v;spRender(el.dataset.t)},
+  sptz:el=>{const k=PK[el.dataset.t],old=k.tz,nw=+el.dataset.v,sh=(nw-old)*60;
+    // ย้ายเวลาที่ตั้งไว้ให้เป็นเวลาเดิมตามนาฬิกาไทย
+    k.slots=k.slots.map(x=>{const m=SLOT_RE.exec(x);if(!m)return x;const a=hm(toMin(m[1]+":"+m[2])+sh);return m[3]!=null?a+"-"+hm(toMin(m[3]+":"+m[4])+sh):a});k.tz=nw;spRender(el.dataset.t)},
+  spdel:el=>{const k=PK[el.dataset.t];k.slots=k.slots.filter(x=>x!==el.dataset.v);spRender(el.dataset.t)},
+  spadd:el=>{const id=el.dataset.t,k=PK[id],v=$("#"+id+"Rel").value,t=toMin(v);if(t==null){$("#"+id+"Rel").focus();return toast("เลือกเวลาที่ตอนใหม่ออกก่อน","bad")}
+    spPush(id,el.dataset.v==="win"?hm(t-10)+"-"+hm(t+60):hm(t))},
+  spsug:el=>{const id=el.dataset.t,k=PK[id],t=toMin(k.sug.at)+(k.tz-TH)*60;spPush(id,hm(t-10)+"-"+hm(t+60))},
   subsave:el=>busy(el,async()=>{const n=el.dataset.n,inp=document.querySelector('[data-subid="'+CSS.escape(n)+'"]');
     const r=await api("/api/subs/"+encodeURIComponent(n),{method:"PUT",body:{discord:inp.value.trim()}});SUBS.users[n]=r.user;toast("บันทึก Discord ID ของ "+n+" แล้ว","ok");AUDIT=null}),
   subdel:el=>arm(el,"ยืนยันลบ?",()=>busy(el,async()=>{const n=el.dataset.n;await api("/api/subs/"+encodeURIComponent(n),{method:"DELETE"});delete SUBS.users[n];AUDIT=null;await loadData();toast("ลบ "+n+" ออกจากรายชื่อแท็กแล้ว","ok")})),
@@ -874,14 +1034,16 @@ document.addEventListener("change",async e=>{
   if(el.id==="sort"){P.sort=el.value;savePrefs();render();return}
   if(el.dataset.act==="notify")return ACT.notify(el);
   if(el.dataset.act==="subtoggle")return ACT.subtoggle(el);
+  if(el.dataset.act==="spslow"){PK[el.dataset.t].autoslow=el.checked;return spRender(el.dataset.t)}
+  if(el.id&&/Hr$/.test(el.id)&&PK[el.id.slice(0,-2)]){const id=el.id.slice(0,-2),v=Math.round(+el.value*60);if(v>=60&&v<=10080){PK[id].min=v;spRender(id)}return}
   if(el.dataset.act==="role"){const u=el.dataset.u;try{await api("/api/users/"+encodeURIComponent(u),{method:"PATCH",body:{role:el.value}});toast("เปลี่ยนยศ "+u+" เป็น"+(el.value==="mod"?"ผู้ดูแล":"สมาชิก")+"แล้ว","ok");AUDIT=null;USERS=null;render()}catch(x){toast(x.message,"bad");USERS=null;render()}}
 });
-document.addEventListener("input",e=>{if(e.target.id==="q"){UI.q=e.target.value;const pos=e.target.selectionStart;render();const q=$("#q");if(q){q.focus();try{q.setSelectionRange(pos,pos)}catch(x){}}}});
+document.addEventListener("input",e=>{if(e.target.id&&/Rel$/.test(e.target.id)&&PK[e.target.id.slice(0,-3)])PK[e.target.id.slice(0,-3)].rel=e.target.value;if(e.target.id==="q"){UI.q=e.target.value;const pos=e.target.selectionStart;render();const q=$("#q");if(q){q.focus();try{q.setSelectionRange(pos,pos)}catch(x){}}}});
 document.addEventListener("keydown",e=>{
   if(e.key==="Escape"&&!$("#sheet").hidden)closeSheet();
   if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&$("#q")){e.preventDefault();$("#q").focus()}
 });
-$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet();if(e.target.closest("[data-act=schedmode],[data-act=addtime],[data-act=deltime],[data-act=ivq]"))UI.sheetDirty=true});
+$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
 $("#sheet").addEventListener("input",e=>{if(e.target.matches("input,textarea,select")&&e.target.type!=="checkbox")UI.sheetDirty=true});
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();UI.installEvt=e});
 
