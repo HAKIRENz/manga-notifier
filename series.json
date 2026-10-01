@@ -5,15 +5,5 @@
     "url": "https://mangadex.org/title/a1c7c817-4e59-43b7-9365-09675a149a6f/one-piece",
     "contains": "",
     "enabled": true
-  },
-  {
-    "id": "bruc3cop",
-    "name": "《我的哥哥是恶犬》漫画_番奇动漫_全集免费在线阅读_腾讯动漫",
-    "url": "https://ac.qq.com/Comic/comicInfo/id/657728",
-    "contains": "657728",
-    "enabled": true,
-    "interval": 30,
-    "by": "boom",
-    "added": "2026-10-01T07:24:04Z"
   }
 ]
