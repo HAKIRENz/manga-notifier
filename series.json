@@ -524,5 +524,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T12:03:36Z"
+  },
+  {
+    "id": "w3xwwtyu",
+    "name": "สกิลไร้คูลดาวน์? งั้นข้าขอจุติเป็นภัยพิบัติอันเดด!",
+    "url": "https://ac.qq.com/Comic/comicInfo/id/657540",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T12:04:00Z"
   }
 ]
