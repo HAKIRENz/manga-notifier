@@ -6,6 +6,14 @@
   ONLY=<id>            ตรวจเฉพาะเรื่องนี้ ข้ามเวลารอบ
   FORCE=1              ตรวจทุกเรื่องทันที ข้ามเวลารอบ (ยังเคารพการพักเมื่อเว็บบล็อก)
   TEST=1               ส่งข้อความทดสอบเข้า Discord แล้วจบ
+  RESEND=<log id>      ส่งข้อความเดิมจากบันทึกซ้ำ แล้วจบ
+
+ไฟล์ข้อมูล:
+  series.json      รายการเรื่อง (แก้ผ่านหน้าเว็บ)
+  state.json       สถานะล่าสุดของแต่ละเรื่อง (ระบบเขียน)
+  notify_log.json  บันทึกทุกข้อความที่ส่งเข้า Discord พร้อมผลสำเร็จ/ล้มเหลว (ระบบเขียน)
+  subs.json        ใครติดตามเรื่องไหน + Discord ID สำหรับแท็ก (หน้าเว็บเขียน)
+  config.json      ตั้งค่าสรุปประจำวัน ฯลฯ (หน้าเว็บเขียน)
 """
 import datetime
 import html as htmllib
@@ -227,15 +235,83 @@ def latest(s, cache, need_cover):
 
 
 # ---------- Discord ----------
-def discord(webhook, embeds, content=None):
-    for i in range(0, len(embeds), 10):
-        body = json.dumps({"content": content, "embeds": embeds[i:i + 10]}).encode()
-        req = urllib.request.Request(webhook, data=body, headers={
-            "Content-Type": "application/json", "User-Agent": "manga-notifier"})
-        urllib.request.urlopen(req, timeout=30).read()
+LOG_KEEP = 150
+DISCORD_ID = re.compile(r"^\d{15,22}$")
 
 
-def new_chapter_embed(s, st, now):
+def load_json(path, default):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return default
+
+
+def post_discord(webhook, payload):
+    """ส่ง 1 ข้อความ คืนค่า (สำเร็จไหม, ข้อความ error) — ไม่โยน exception เพื่อไม่ให้รอบตรวจพัง"""
+    if not webhook:
+        return False, "ไม่ได้ตั้ง Secret DISCORD_WEBHOOK_URL"
+    body = json.dumps(payload).encode()
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(webhook, data=body, headers={
+                "Content-Type": "application/json", "User-Agent": "manga-notifier"})
+            urllib.request.urlopen(req, timeout=30).read()
+            return True, ""
+        except urllib.error.HTTPError as e:
+            if e.code == 429 and attempt < 2:          # Discord ให้รอ
+                try:
+                    wait = float(json.loads(e.read().decode() or "{}").get("retry_after", 2))
+                except Exception:
+                    wait = 2
+                time.sleep(min(wait, 10))
+                continue
+            return False, "Discord ตอบ HTTP %s" % e.code
+        except Exception as e:
+            if attempt < 2:
+                time.sleep(2)
+                continue
+            return False, str(e)[:150]
+    return False, "ส่งไม่สำเร็จ"
+
+
+class Notifier:
+    """ส่งข้อความ + จดบันทึกลง notify_log.json ทุกครั้ง"""
+
+    def __init__(self, webhook, now):
+        self.webhook, self.now = webhook, now
+        self.log = load_json("notify_log.json", [])
+        if not isinstance(self.log, list):
+            self.log = []
+
+    def send(self, kind, payload, **meta):
+        ok, err = post_discord(self.webhook, payload)
+        entry = {"id": "%x%04x" % (int(time.time() * 1000), random.randint(0, 0xFFFF)),
+                 "at": self.now.isoformat(timespec="seconds"), "kind": kind,
+                 "status": "sent" if ok else "failed", "payload": payload}
+        if err:
+            entry["error"] = err
+        entry.update({k: v for k, v in meta.items() if v not in (None, "", [])})
+        self.log.insert(0, entry)
+        print(("ส่งแล้ว" if ok else "ส่งไม่สำเร็จ: " + err), kind, meta.get("name", ""))
+        return ok
+
+    def save(self):
+        with open("notify_log.json", "w", encoding="utf-8") as f:
+            json.dump(self.log[:LOG_KEEP], f, ensure_ascii=False, indent=1)
+
+
+def subscribers(subs, sid):
+    """คืน [(ชื่อ, discord id)] ของคนที่กดติดตามเรื่องนี้และใส่ Discord ID แล้ว"""
+    out = []
+    for name, u in (subs.get("users") or {}).items():
+        did = str(u.get("discord") or "")
+        if sid in (u.get("series") or []) and DISCORD_ID.match(did):
+            out.append((name, did))
+    return out
+
+
+def new_chapter_payload(s, st, now, mentions):
     prev = st.get("prev_label")
     desc = []
     if st.get("title"):
@@ -247,31 +323,89 @@ def new_chapter_embed(s, st, now):
          "footer": {"text": urllib.parse.urlparse(s["url"]).netloc}, "timestamp": now.isoformat()}
     if st.get("cover"):
         e["thumbnail"] = {"url": st["cover"]}
-    return e
+    p = {"embeds": [e], "allowed_mentions": {"parse": [], "users": [d for _, d in mentions]}}
+    if mentions:
+        p["content"] = " ".join("<@%s>" % d for _, d in mentions)
+    return p
+
+
+def digest_payload(series, state, now_local, since):
+    names = {s["id"]: s["name"] for s in series}
+    rows = []
+    for sid, st in state.items():
+        if sid == "_meta" or sid not in names:
+            continue
+        for h in st.get("history") or []:
+            try:
+                at = datetime.datetime.fromisoformat(h["at"])
+            except (KeyError, ValueError):
+                continue
+            if at >= since:
+                rows.append((at, names[sid], h))
+    rows.sort(key=lambda r: r[0], reverse=True)
+    if not rows:
+        return None, 0
+    lines = ["• **%s** — ตอน %s → **%s**" % (n, h.get("prev") or "?", h["label"]) for _, n, h in rows[:30]]
+    if len(rows) > 30:
+        lines.append("…และอีก %d รายการ" % (len(rows) - 30))
+    return {"embeds": [{"title": "📚 สรุปประจำวัน %s — %d ตอนใหม่" % (now_local.strftime("%d/%m/%Y"), len(rows)),
+                        "description": "\n".join(lines), "color": 0xF0B232}]}, len(rows)
+
+
+def maybe_digest(cfg, series, state, notifier, now):
+    d = cfg.get("digest") or {}
+    if not d.get("enabled"):
+        return
+    tz = datetime.timezone(datetime.timedelta(hours=float(cfg.get("tz_offset", 7))))
+    local = now.astimezone(tz)
+    meta = state.setdefault("_meta", {})
+    if local.hour < int(d.get("hour", 21)) or meta.get("digest") == local.strftime("%Y-%m-%d"):
+        return
+    meta["digest"] = local.strftime("%Y-%m-%d")
+    payload, n = digest_payload(series, state, local, now - datetime.timedelta(hours=24))
+    if payload is None:
+        if d.get("send_empty"):
+            notifier.send("digest", {"embeds": [{"title": "📚 สรุปประจำวัน %s" % local.strftime("%d/%m/%Y"),
+                                                 "description": "วันนี้ยังไม่มีตอนใหม่", "color": 0xF0B232}]}, count=0)
+        return
+    notifier.send("digest", payload, count=n)
 
 
 def main():
     now = datetime.datetime.now(datetime.timezone.utc)
     webhook = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
+    notifier = Notifier(webhook, now)
 
     if os.environ.get("TEST") == "1":
-        if not webhook:
-            print("ไม่พบ DISCORD_WEBHOOK_URL — ตรวจชื่อ Secret ให้ตรง", file=sys.stderr)
-            sys.exit(1)
-        discord(webhook, [{"title": "✅ ทดสอบแจ้งเตือนสำเร็จ",
-                           "description": "ถ้าเห็นข้อความนี้ แปลว่า Discord เชื่อมกับระบบแล้ว",
-                           "color": 0x2E9E5B, "timestamp": now.isoformat()}])
-        print("ส่งข้อความทดสอบแล้ว")
+        ok = notifier.send("test", {"embeds": [{
+            "title": "✅ ทดสอบแจ้งเตือนสำเร็จ",
+            "description": "ถ้าเห็นข้อความนี้ แปลว่า Discord เชื่อมกับระบบแล้ว",
+            "color": 0x2E9E5B, "timestamp": now.isoformat()}]})
+        notifier.save()          # ผลสำเร็จ/ล้มเหลวอยู่ใน notify_log.json (หน้าเว็บอ่านจากตรงนั้น)
+        if not ok:
+            print("ส่งไม่สำเร็จ — ตรวจ Secret DISCORD_WEBHOOK_URL", file=sys.stderr)
         return
 
-    series = json.load(open("series.json", encoding="utf-8"))
-    try:
-        state = json.load(open("state.json", encoding="utf-8"))
-    except (FileNotFoundError, json.JSONDecodeError):
-        state = {}
+    resend = os.environ.get("RESEND", "").strip()
+    if resend:
+        orig = next((e for e in notifier.log if e.get("id") == resend), None)
+        if not orig:
+            print("ไม่พบข้อความ", resend, file=sys.stderr)
+            return
+        meta = {k: orig.get(k) for k in ("sid", "name", "label", "prev", "mentions")}
+        ok = notifier.send("resend", orig["payload"], ref=resend, **meta)
+        orig["resent"] = now.isoformat(timespec="seconds")
+        notifier.save()
+        return
+
+    series = load_json("series.json", [])
+    state = load_json("state.json", {})
+    subs = load_json("subs.json", {})
+    cfg = load_json("config.json", {})
     only = os.environ.get("ONLY", "").strip()
     force = os.environ.get("FORCE") == "1" or bool(only)
-    embeds, errors = [], []
+    found = []        # (series, state) ที่มีตอนใหม่
+    problems = []     # ข้อความเตือนเว็บมีปัญหา
 
     last_hit = {}   # โดเมน -> เวลาที่ยิงล่าสุด (เว้นระยะระหว่างคำขอ)
     order = list(series)
@@ -311,17 +445,17 @@ def main():
             st["error"] = str(e)
             print("BLOCKED", s["name"], e, file=sys.stderr)
             if st["blocks"] == 1:
-                errors.append({"title": "⚠️ %s ถูกเว็บปฏิเสธ (HTTP %s)" % (s["name"], e.code),
-                               "description": "ระบบพักตรวจเว็บนี้ %d ชม. แล้วลองใหม่เอง" % hrs,
-                               "url": s["url"], "color": 0xE67E22})
+                problems.append((s, {"title": "⚠️ %s ถูกเว็บปฏิเสธ (HTTP %s)" % (s["name"], e.code),
+                                     "description": "ระบบพักตรวจเว็บนี้ %d ชม. แล้วลองใหม่เอง" % hrs,
+                                     "url": s["url"], "color": 0xE67E22}))
             continue
         except Exception as e:
             st["fails"] = st.get("fails", 0) + 1
             st["error"] = str(e)[:200]
             print("FAIL", s["name"], e, file=sys.stderr)
             if st["fails"] == FAIL_NOTIFY_AT:
-                errors.append({"title": "⚠️ ตรวจ %s ไม่ได้ติดต่อกันหลายครั้ง" % s["name"],
-                               "description": st["error"], "url": s["url"], "color": 0xE67E22})
+                problems.append((s, {"title": "⚠️ ตรวจ %s ไม่ได้ติดต่อกันหลายครั้ง" % s["name"],
+                                     "description": st["error"], "url": s["url"], "color": 0xE67E22}))
             continue
 
         st["blocks"], st["blocked_until"] = 0, ""
@@ -340,23 +474,32 @@ def main():
                       url=cur["url"], title=cur["title"], updated=now.isoformat(timespec="seconds"))
             st["history"] = ([{"prev": prev_label, "label": cur["label"], "title": cur["title"],
                                "url": cur["url"], "at": st["updated"]}] + st.get("history", []))[:HISTORY_KEEP]
-            embeds.append(new_chapter_embed(s, st, now))
+            found.append((s, st))
         elif cur["number"] == old and st.get("label") != cur["label"]:
             st["label"] = cur["label"]                  # ปรับป้ายเลขตอนให้ตรงสูตรใหม่
+
+    # ส่งแจ้งเตือน: ตอนใหม่ทีละข้อความ (เพื่อแท็กเฉพาะคนที่ติดตามเรื่องนั้น)
+    for s, st in found:
+        mentions = subscribers(subs, s["id"])
+        ok = notifier.send("new", new_chapter_payload(s, st, now, mentions), sid=s["id"], name=s["name"],
+                           label=st["label"], prev=st.get("prev_label"), mentions=[n for n, _ in mentions])
+        st["notified"] = "sent" if ok else "failed"
+    for s, embed in problems:
+        notifier.send("problem", {"embeds": [embed]}, sid=s["id"], name=s["name"])
 
     # ล้างสถานะของเรื่องที่ถูกลบออกจากรายการ
     ids = {s["id"] for s in series}
     for k in [k for k in state if k not in ids and k != "_meta"]:
         del state[k]
-    state["_meta"] = {"heartbeat": now.strftime("%Y-%m-%d")}  # ให้มี commit วันละครั้ง กัน GitHub ปิด schedule
+    meta = state.get("_meta") if isinstance(state.get("_meta"), dict) else {}
+    meta["heartbeat"] = now.strftime("%Y-%m-%d")    # ให้มี commit วันละครั้ง กัน GitHub ปิด schedule
+    state["_meta"] = meta
+    if not only:
+        maybe_digest(cfg, series, state, notifier, now)
 
-    json.dump(state, open("state.json", "w", encoding="utf-8"), ensure_ascii=False, indent=1, sort_keys=True)
-    msgs = embeds + errors
-    if msgs:
-        if webhook:
-            discord(webhook, msgs)
-        else:
-            print("ไม่มี DISCORD_WEBHOOK_URL — แจ้งเตือนที่จะส่ง:", json.dumps(msgs, ensure_ascii=False))
+    with open("state.json", "w", encoding="utf-8") as f:
+        json.dump(state, f, ensure_ascii=False, indent=1, sort_keys=True)
+    notifier.save()
 
 
 if __name__ == "__main__":

@@ -2,532 +2,822 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>แจ้งเตือนการ์ตูน</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%9A%3C/text%3E%3C/svg%3E">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Manga Watch</title>
+<meta name="description" content="ติดตามการ์ตูนตอนใหม่ พร้อมแจ้งเตือน Discord">
+<meta name="theme-color" content="#5865f2">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
-:root{--bg:#f4f5fa;--card:#fff;--tx:#1b2030;--mut:#6a7285;--pri:#5865f2;--pri2:#4752c4;--bd:#e2e5ee;--ok:#1f9d57;--bad:#e5484d;--warn:#d98a1c;--sh:0 1px 2px rgba(20,24,40,.06),0 6px 20px rgba(20,24,40,.06)}
-@media(prefers-color-scheme:dark){:root{--bg:#12141a;--card:#1c1f28;--tx:#e9ebf2;--mut:#9aa2b4;--bd:#2b3040;--sh:0 1px 2px rgba(0,0,0,.3),0 6px 20px rgba(0,0,0,.25)}}
+:root{
+  --bg:#f3f4f9;--bg2:#e9ebf3;--card:#fff;--tx:#191c27;--mut:#687087;--line:#e1e4ee;
+  --pri:#5865f2;--pri2:#4752c4;--priS:#5865f21f;--ok:#1f9d57;--okS:#1f9d571f;--bad:#e5484d;--badS:#e5484d1a;--warn:#d98a1c;--warnS:#d98a1c1f;
+  --sh:0 1px 2px #14182808,0 8px 24px #1418280d;--r:16px;--nav:64px
+}
+:root[data-theme=dark]{--bg:#111318;--bg2:#181b22;--card:#1c1f27;--tx:#eceef4;--mut:#99a1b3;--line:#2a2f3b;--sh:0 1px 2px #0005,0 8px 24px #0004}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#111318;--bg2:#181b22;--card:#1c1f27;--tx:#eceef4;--mut:#99a1b3;--line:#2a2f3b;--sh:0 1px 2px #0005,0 8px 24px #0004}}
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
-body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,"Noto Sans Thai","Segoe UI",sans-serif}
-main{max-width:820px;margin:0 auto;padding:14px 16px 80px}
-h1{font-size:21px;margin:0}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--tx);font:15.5px/1.5 system-ui,-apple-system,"Noto Sans Thai","Segoe UI",sans-serif;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom))}
 a{color:var(--pri)}
 button,input,select,textarea{font:inherit;color:inherit}
-button{cursor:pointer}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
 :focus-visible{outline:2px solid var(--pri);outline-offset:2px}
-.top{display:flex;align-items:center;gap:8px;padding:6px 0 12px}
-.top h1{flex:1}
-.pill{font-size:12px;padding:3px 10px;border-radius:99px;background:var(--bd);color:var(--mut);white-space:nowrap}
-.pill.admin{background:var(--pri);color:#fff}
-.btn{border:0;border-radius:11px;padding:9px 14px;background:var(--pri);color:#fff;font-weight:600;position:relative;transition:transform .12s,background .15s,opacity .15s;display:inline-flex;align-items:center;gap:6px;justify-content:center}
-a.btn{text-decoration:none}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px}
+.hide{display:none!important}
+.mut{color:var(--mut)}.small{font-size:13px}.b{font-weight:700}
+
+/* ---------- header ---------- */
+header.top{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.topin{display:flex;align-items:center;gap:10px;height:58px}
+.logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:18px;letter-spacing:-.2px;flex:1;min-width:0}
+.logo img{width:30px;height:30px}
+.logo span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.health{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:6px 11px;font-size:13px;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--mut);flex:none}
+.dot.g{background:var(--ok);box-shadow:0 0 0 3px var(--okS)}.dot.y{background:var(--warn);box-shadow:0 0 0 3px var(--warnS)}.dot.r{background:var(--bad);box-shadow:0 0 0 3px var(--badS);animation:blink 1.4s infinite}
+@keyframes blink{50%{opacity:.35}}
+.me{display:inline-flex;align-items:center;gap:7px;border:0;background:var(--pri);color:#fff;border-radius:99px;padding:6px 13px;font-weight:600;font-size:14px;white-space:nowrap;max-width:46vw}
+.me.in{background:var(--card);color:var(--tx);border:1px solid var(--line);padding:4px 11px 4px 4px}
+.me .nmx{overflow:hidden;text-overflow:ellipsis}
+.av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;flex:none}
+.role{font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;background:var(--bg2);color:var(--mut);white-space:nowrap}
+.role.owner{background:#f0b23233;color:#b7791f}.role.mod{background:var(--priS);color:var(--pri)}
+
+/* ---------- tabs ---------- */
+nav.tabs{display:flex;gap:4px;padding:10px 0 4px}
+.tab{border:0;background:transparent;color:var(--mut);padding:8px 14px;border-radius:11px;font-weight:600;display:inline-flex;align-items:center;gap:7px;position:relative;transition:background .15s,color .15s}
+.tab:hover{background:var(--bg2)}
+.tab[aria-selected=true]{background:var(--card);color:var(--tx);box-shadow:var(--sh)}
+.tab .ic{font-size:17px}
+.cnt{min-width:19px;height:19px;padding:0 5px;border-radius:99px;background:var(--bad);color:#fff;font-size:11px;font-weight:700;display:inline-grid;place-items:center}
+.cnt.soft{background:var(--bg2);color:var(--mut)}
+@media(max-width:720px){
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:25;margin:0;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);justify-content:space-around;gap:0}
+  .tab{flex-direction:column;gap:1px;font-size:11.5px;padding:5px 4px;flex:1;border-radius:10px}
+  .tab[aria-selected=true]{box-shadow:none;background:var(--priS);color:var(--pri)}
+  .tab .cnt{position:absolute;top:1px;right:calc(50% - 24px)}
+  .health .txt,.me .role{display:none}
+}
+@media(min-width:721px){body{padding-bottom:30px}}
+
+/* ---------- buttons ---------- */
+.btn{border:0;border-radius:11px;padding:9px 15px;background:var(--pri);color:#fff;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:7px;position:relative;transition:transform .12s,background .15s,opacity .15s;text-decoration:none;white-space:nowrap}
 .btn:hover{background:var(--pri2)}
 .btn:active{transform:scale(.94)}
-.btn.ghost{background:transparent;color:var(--tx);border:1px solid var(--bd);font-weight:500}
-.btn.ghost:hover{background:var(--bd)}
-.btn.sm{padding:6px 10px;font-size:14px;border-radius:9px}
+.btn.g{background:var(--card);color:var(--tx);border:1px solid var(--line);font-weight:500}
+.btn.g:hover{background:var(--bg2)}
+.btn.ok{background:var(--ok)}
+.btn.t{background:transparent;color:var(--mut);padding:7px 9px}
+.btn.t:hover{background:var(--bg2);color:var(--tx)}
+.btn.sm{padding:6px 11px;font-size:13.5px;border-radius:9px}
 .btn.danger{color:var(--bad)}
-.btn.danger.armed{background:var(--bad);color:#fff;border-color:var(--bad);animation:shake .3s}
-.btn.icon{padding:8px 11px}
-.btn:disabled{opacity:.6;cursor:progress}
+.btn.armed{background:var(--bad)!important;color:#fff!important;border-color:var(--bad)!important;animation:shake .3s}
+.btn.on{background:var(--priS)!important;color:var(--pri)!important;border-color:transparent!important}
+.btn:disabled{opacity:.55;cursor:not-allowed}
 .btn.busy{color:transparent!important;pointer-events:none}
 .btn.busy::after{content:"";position:absolute;width:16px;height:16px;border:2px solid #fff6;border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
-.btn.ghost.busy::after{border-color:var(--bd);border-top-color:var(--pri)}
+.btn.g.busy::after,.btn.t.busy::after{border-color:var(--line);border-top-color:var(--pri)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes shake{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
-@keyframes pop{0%{opacity:0;transform:translateY(8px) scale(.97)}60%{transform:translateY(-2px) scale(1.01)}100%{opacity:1;transform:none}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #1f9d5766}50%{box-shadow:0 0 0 6px #1f9d5700}}
+@keyframes pop{0%{opacity:0;transform:translateY(8px) scale(.98)}100%{opacity:1;transform:none}}
 @keyframes shim{to{background-position:-200% 0}}
-.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}
-.chip{border:1px solid var(--bd);background:var(--card);border-radius:99px;padding:6px 13px;white-space:nowrap;font-size:14px;transition:transform .12s,background .15s}
+
+/* ---------- toolbar ---------- */
+.bar{display:flex;gap:8px;align-items:center;margin:10px 0}
+.search{flex:1;min-width:0;position:relative}
+.search input{width:100%;padding:10px 12px 10px 36px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.search::before{content:"🔍";position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.6}
+.sel{padding:9px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;background:var(--card);padding:2px}
+.seg button{border:0;background:transparent;padding:6px 10px;border-radius:9px;color:var(--mut)}
+.seg button[aria-pressed=true]{background:var(--bg2);color:var(--tx)}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:2px 0 8px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:5px 12px;white-space:nowrap;font-size:13.5px;transition:transform .12s}
 .chip:active{transform:scale(.94)}
-.chip b{margin-left:4px}
-.chip[aria-pressed=true]{background:var(--pri);color:#fff;border-color:var(--pri)}
-.tools{display:flex;gap:8px;margin-bottom:12px}
-.tools input,.tools select{flex:1;min-width:0;padding:9px 12px;border:1px solid var(--bd);border-radius:11px;background:var(--card)}
-.tools select{flex:0 0 auto}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;box-shadow:var(--sh)}
-.item{display:grid;grid-template-columns:76px 1fr;gap:14px;margin-bottom:12px;animation:pop .35s both}
-.item.off{opacity:.55}
-.item.gone{transition:all .3s;opacity:0;transform:scale(.96) translateX(20px)}
-.cover{width:76px;height:106px;border-radius:10px;overflow:hidden;background:var(--bd);flex:none}
-.cover img{width:100%;height:100%;object-fit:cover;display:block}
-.ph{width:100%;height:100%;display:grid;place-items:center;font-size:30px;font-weight:700;color:#fff;background:linear-gradient(135deg,hsl(var(--h) 60% 52%),hsl(calc(var(--h) + 40) 60% 38%))}
-.sk{background:linear-gradient(90deg,var(--bd) 25%,transparent 50%,var(--bd) 75%) 0 0/200% 100%;animation:shim 1.2s linear infinite;border-radius:6px;height:14px;width:70%}
-.nm{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.name{font-weight:700;font-size:17px;color:var(--tx);text-decoration:none;overflow-wrap:anywhere}
-.badge{font-size:12px;font-weight:700;padding:2px 9px;border-radius:99px;background:var(--ok);color:#fff;animation:pulse 1.8s infinite}
-.badge.mut{background:var(--bd);color:var(--mut);animation:none;font-weight:500}
-.sub{font-size:13px;color:var(--mut);overflow-wrap:anywhere}
-.chap{margin:4px 0 2px}
-.chap b{font-size:20px}
-.chap .ttl{color:var(--mut);font-size:14px;margin-left:6px}
-.chg{font-size:14px}
-.chg .arrow{display:inline-block;padding:1px 8px;border-radius:8px;background:color-mix(in srgb,var(--ok) 15%,transparent);color:var(--ok);font-weight:600}
-.err{color:var(--bad);font-size:13px;overflow-wrap:anywhere}
-.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;align-items:center}
-.sw{position:relative;width:42px;height:24px;flex:none;margin-left:auto}
+.chip b{margin-left:5px;font-weight:700}
+.chip[aria-pressed=true]{background:var(--tx);color:var(--bg);border-color:var(--tx)}
+@media(max-width:560px){.bar.lib{flex-wrap:wrap}.bar.lib .search{flex:1 1 100%}.bar.lib .sel{flex:1}}
+
+/* ---------- continue strip ---------- */
+.strip{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px;scrollbar-width:thin}
+.mini{flex:none;width:92px;border:0;background:none;padding:0;text-align:left;color:var(--tx)}
+.mini .cvw{width:92px;height:128px;border-radius:12px;overflow:hidden;position:relative;box-shadow:var(--sh);transition:transform .15s}
+.mini:hover .cvw{transform:translateY(-3px)}
+.mini .n{font-size:12.5px;margin-top:5px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.ribbon{position:absolute;top:6px;left:6px;background:var(--bad);color:#fff;font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:99px;box-shadow:0 2px 6px #0004}
+h2.sec{font-size:15px;margin:16px 0 8px;display:flex;align-items:center;gap:8px}
+
+/* ---------- cards ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.list{display:grid;gap:12px}
+.s{display:grid;grid-template-columns:84px 1fr;gap:14px;padding:13px;animation:pop .3s both}
+.s.off{opacity:.55}
+.s.pending{outline:2px dashed var(--pri);outline-offset:-2px}
+.cv{width:84px;height:118px;border-radius:11px;overflow:hidden;background:var(--bg2);border:0;padding:0;display:block;position:relative}
+.cv img,.cvw img,.big img{width:100%;height:100%;object-fit:cover;display:block}
+.ph{width:100%;height:100%;display:grid;place-items:center;font-size:30px;font-weight:800;color:#fff;background:linear-gradient(135deg,hsl(var(--h) 62% 55%),hsl(calc(var(--h) + 45) 62% 38%))}
+.nm{border:0;background:none;padding:0;font-weight:700;font-size:16.5px;text-align:left;color:var(--tx);overflow-wrap:anywhere;line-height:1.35}
+.nm:hover{color:var(--pri)}
+.r1{display:flex;gap:7px;align-items:flex-start;flex-wrap:wrap}
+.pill{font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap}
+.pill.new{background:var(--bad);color:#fff}.pill.ok{background:var(--okS);color:var(--ok)}.pill.off{background:var(--bg2);color:var(--mut)}.pill.err{background:var(--badS);color:var(--bad);white-space:normal}.pill.pri{background:var(--priS);color:var(--pri)}
+.meta{font-size:12.5px;color:var(--mut);margin-top:1px;overflow-wrap:anywhere}
+.latest{margin-top:6px;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;min-width:0}
+.latest .lb{font-size:13px;color:var(--mut)}
+.latest b{font-size:22px;letter-spacing:-.5px;line-height:1}
+.latest .t{color:var(--mut);font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.chg{display:inline-flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700;color:var(--ok);background:var(--okS);padding:1px 8px;border-radius:7px;white-space:nowrap}
+.prog{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);margin-top:6px}
+.prog .barw{flex:1;max-width:180px;height:6px;border-radius:9px;background:var(--bg2);overflow:hidden}
+.prog .barw i{display:block;height:100%;background:var(--ok);border-radius:9px;transition:width .4s}
+.prog.behind .barw i{background:var(--bad)}
+.prog.behind>span:last-child{color:var(--bad);font-weight:700}
+.acts{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;align-items:center}
+.err{color:var(--bad);font-size:12.5px;margin-top:6px;overflow-wrap:anywhere}
+.sk{background:linear-gradient(90deg,var(--bg2) 25%,var(--card) 50%,var(--bg2) 75%) 0 0/200% 100%;animation:shim 1.2s linear infinite;border-radius:7px;height:13px;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:14px}
+.g1{border:0;background:none;padding:0;text-align:left;animation:pop .3s both;color:var(--tx)}
+.g1 .cvw{aspect-ratio:5/7;border-radius:13px;overflow:hidden;position:relative;box-shadow:var(--sh);transition:transform .15s}
+.g1:hover .cvw{transform:translateY(-3px)}
+.g1 .n{font-weight:700;font-size:14px;margin-top:7px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.g1 .l{font-size:12.5px;color:var(--mut)}
+.g1.off{opacity:.5}
+.g1 .ch{position:absolute;left:0;right:0;bottom:0;padding:22px 8px 7px;background:linear-gradient(transparent,#000c);color:#fff;font-weight:800;font-size:15px}
+.empty{text-align:center;color:var(--mut);padding:44px 16px}
+.empty .big{font-size:44px;margin-bottom:6px}
+@media(max-width:480px){.s{grid-template-columns:70px 1fr;gap:11px;padding:11px}.cv{width:70px;height:98px}.grid{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:11px}}
+
+/* ---------- feed (discord-like) ---------- */
+.day{font-size:12.5px;font-weight:700;color:var(--mut);margin:12px 10px 6px;display:flex;align-items:center;gap:10px}
+.day::after{content:"";flex:1;height:1px;background:var(--line)}
+.msg{display:grid;grid-template-columns:40px 1fr;gap:12px;padding:10px 12px;border-radius:12px;animation:pop .3s both}
+.msg:hover{background:var(--bg2)}
+.bot{width:40px;height:40px;border-radius:50%;background:var(--pri);display:grid;place-items:center;font-size:20px}
+.mh{display:flex;gap:7px;align-items:baseline;flex-wrap:wrap}
+.mh .who{font-weight:700}.tagbot{font-size:10px;background:var(--pri);color:#fff;padding:1px 5px;border-radius:4px;font-weight:700}
+.mention{background:var(--priS);color:var(--pri);border-radius:4px;padding:0 3px;font-weight:600}
+.embed{margin-top:6px;border-left:4px solid var(--pri);background:var(--bg2);border-radius:6px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:12px;max-width:560px}
+.embed .et{font-weight:700;color:var(--pri);text-decoration:none;overflow-wrap:anywhere}
+.embed a.et:hover{text-decoration:underline}
+.embed .ed{font-size:14px;margin-top:4px;overflow-wrap:anywhere}
+.embed .ef{font-size:12px;color:var(--mut);margin-top:6px}
+.embed img{width:64px;height:88px;object-fit:cover;border-radius:6px}
+.delivery{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px;font-size:12.5px}
+
+/* ---------- system ---------- */
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:14px}
+.box{padding:16px}
+.box h3{margin:0 0 10px;font-size:15.5px;display:flex;align-items:center;gap:8px}
+.hero{display:flex;gap:14px;align-items:center;padding:18px;flex-wrap:wrap}
+.hero .ic{width:52px;height:52px;border-radius:15px;display:grid;place-items:center;font-size:26px;flex:none}
+.hero .ic.g{background:var(--okS)}.hero .ic.y{background:var(--warnS)}.hero .ic.r{background:var(--badS)}.hero .ic.n{background:var(--bg2)}
+.hero .h{font-size:18px;font-weight:800}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-top:12px}
+.fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.fact .k{font-size:12px;color:var(--mut)}.fact .v{font-weight:700;margin-top:2px}
+.rows{list-style:none;margin:0;padding:0}
+.rows li{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:14px;flex-wrap:wrap}
+.rows li:first-child{border-top:0}
+.rows .grow{flex:1;min-width:0;overflow-wrap:anywhere}
+.rows time{font-size:12px;color:var(--mut);white-space:nowrap}
+
+/* ---------- forms ---------- */
+.f label{display:block;font-size:13px;color:var(--mut);margin:11px 0 4px}
+.f input[type=text],.f input[type=url],.f input[type=password],.f select,.f textarea{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--card)}
+.f textarea{min-height:70px;resize:vertical}
+.f select.sel{width:auto;padding:6px 8px}
+.f .row{display:flex;gap:10px}.f .row>*{flex:1;min-width:0}
+.hint{font-size:12.5px;color:var(--mut);margin-top:5px}
+.hint.ok{color:var(--ok)}.hint.bad{color:var(--bad)}.hint.warn{color:var(--warn)}
+.sw{position:relative;width:44px;height:25px;flex:none;display:inline-block}
 .sw input{opacity:0;position:absolute;inset:0;margin:0;cursor:pointer;z-index:1}
-.sw i{position:absolute;inset:0;background:var(--bd);border-radius:99px;transition:background .2s}
-.sw i::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s cubic-bezier(.3,1.6,.5,1);box-shadow:0 1px 3px #0004}
-.sw input:checked+i{background:var(--ok)}
-.sw input:checked+i::after{transform:translateX(18px)}
-.hist{margin:8px 0 0;padding:8px 0 0 0;border-top:1px dashed var(--bd);list-style:none;font-size:14px}
-.hist li{padding:3px 0;display:flex;gap:8px;flex-wrap:wrap}
-.hist time{color:var(--mut);font-size:12px;margin-left:auto}
-.empty{text-align:center;color:var(--mut);padding:30px 10px}
-.empty .big{font-size:40px}
-details.card>summary{cursor:pointer;font-weight:600}
-.feed{list-style:none;margin:10px 0 0;padding:0;font-size:14px}
-.feed li{padding:6px 0;border-top:1px solid var(--bd);display:flex;gap:8px;flex-wrap:wrap}
-.feed time{margin-left:auto;color:var(--mut);font-size:12px}
-.form label{display:block;font-size:13px;color:var(--mut);margin:10px 0 3px}
-.form input[type=text],.form input[type=url],.form input[type=password],.form select,.form textarea{width:100%;padding:10px 12px;border:1px solid var(--bd);border-radius:11px;background:transparent}
-.form textarea{min-height:110px;font-family:ui-monospace,monospace;font-size:14px}
-.form .row{display:flex;gap:10px}
-.form .row>*{flex:1}
-.hint{font-size:13px;color:var(--mut);margin:6px 0 0}
-.hint.ok{color:var(--ok)}.hint.warn{color:var(--warn)}
-.sec{margin-top:16px}
-#toasts{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:50;width:min(92vw,440px);pointer-events:none}
-.toast{pointer-events:auto;padding:12px 16px;border-radius:13px;background:#232838;color:#fff;box-shadow:0 8px 28px #0006;font-size:15px;display:flex;gap:10px;align-items:flex-start;animation:tin .35s cubic-bezier(.3,1.5,.5,1) both;border-left:5px solid var(--pri)}
-.toast.ok{border-left-color:var(--ok)}.toast.bad{border-left-color:var(--bad)}.toast.out{animation:tout .25s forwards}
-@keyframes tin{from{opacity:0;transform:translateY(24px) scale(.92)}to{opacity:1;transform:none}}
-@keyframes tout{to{opacity:0;transform:translateY(12px) scale(.95)}}
-.drawer{position:fixed;inset:0;background:#0007;z-index:40;display:flex;justify-content:flex-end;animation:fade .2s}
-.drawer[hidden]{display:none}
-.drawer .panel{width:min(440px,100%);height:100%;overflow:auto;background:var(--bg);padding:16px;animation:slide .25s cubic-bezier(.3,1.2,.5,1)}
-@keyframes fade{from{opacity:0}}@keyframes slide{from{transform:translateX(40px);opacity:0}}
-.close{float:right}
-@media(max-width:480px){.item{grid-template-columns:64px 1fr;gap:11px}.cover{width:64px;height:90px}.form .row{flex-direction:column;gap:0}h1{font-size:18px;white-space:nowrap}.pill{font-size:11px;padding:3px 8px}.top{gap:6px}.tools{flex-wrap:wrap}.tools input{flex:1 1 100%}.tools select{flex:1}.top .btn.icon{padding:7px 10px}}
+.sw i{position:absolute;inset:0;background:var(--line);border-radius:99px;transition:background .2s}
+.sw i::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:transform .22s cubic-bezier(.3,1.6,.5,1);box-shadow:0 1px 3px #0004}
+.sw input:checked+i{background:var(--ok)}.sw input:checked+i::after{transform:translateX(19px)}
+.line{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:7px 0}
+
+/* ---------- sheet ---------- */
+.sheet{position:fixed;inset:0;z-index:40;background:#0008;display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s}
+.sheet[hidden]{display:none}
+.sheet .in{background:var(--bg);width:min(620px,100%);max-height:92vh;overflow:auto;border-radius:20px;position:relative;animation:up .28s cubic-bezier(.2,1.2,.4,1);box-shadow:0 20px 60px #0006;overscroll-behavior:contain}
+.sheet .x{position:absolute;top:12px;right:12px;z-index:3;box-shadow:var(--sh)}
+.pad{padding:18px}
+@keyframes fade{from{opacity:0}}@keyframes up{from{transform:translateY(30px);opacity:0}}
+@media(max-width:560px){.sheet{align-items:flex-end;padding:0}.sheet .in{border-radius:20px 20px 0 0;max-height:94vh;padding-bottom:env(safe-area-inset-bottom)}}
+.dhead{position:relative;overflow:hidden;border-radius:20px 20px 0 0}
+.dhead .blur{position:absolute;inset:-30px;background-size:cover;background-position:center;filter:blur(28px) saturate(1.3);opacity:.55}
+.dhead .ct{position:relative;display:flex;gap:16px;padding:22px 18px 16px;align-items:flex-end}
+.big{width:112px;height:158px;border-radius:13px;overflow:hidden;flex:none;box-shadow:0 8px 24px #0005;background:var(--bg2)}
+.dhead h2{margin:0;font-size:21px;line-height:1.3;overflow-wrap:anywhere}
+.stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 0 12px}
+.stat div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:9px;text-align:center}
+.stat b{display:block;font-size:19px;overflow-wrap:anywhere}
+.stat span{font-size:11.5px;color:var(--mut)}
+.pv{display:grid;grid-template-columns:70px 1fr;gap:12px;padding:12px;margin-top:12px;border-radius:14px;background:var(--card);border:1px solid var(--line);animation:pop .25s both}
+.pv .cvw{width:70px;height:98px;border-radius:10px;overflow:hidden}
+
+/* ---------- toast ---------- */
+#toasts{position:fixed;left:50%;bottom:calc(var(--nav) + 14px + env(safe-area-inset-bottom));transform:translateX(-50%);display:flex;flex-direction:column;gap:8px;z-index:60;width:min(92vw,440px);pointer-events:none}
+@media(min-width:721px){#toasts{bottom:22px}}
+.toast{pointer-events:auto;padding:11px 15px;border-radius:13px;background:#23283a;color:#fff;box-shadow:0 10px 30px #0006;font-size:14.5px;display:flex;gap:10px;align-items:flex-start;animation:tin .35s cubic-bezier(.3,1.5,.5,1) both;border-left:4px solid var(--pri)}
+.toast.ok{border-left-color:var(--ok)}.toast.bad{border-left-color:var(--bad)}.toast.out{animation:tout .22s forwards}
+@keyframes tin{from{opacity:0;transform:translateY(20px) scale(.94)}}
+@keyframes tout{to{opacity:0;transform:translateY(10px) scale(.96)}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
 <body>
-<main>
-  <div class="top">
-    <h1>📚 แจ้งเตือนการ์ตูน</h1>
-    <span class="pill" id="mode">กำลังโหลด…</span>
-    <button class="btn ghost icon" id="refresh" title="รีเฟรช" aria-label="รีเฟรช">↻</button>
-    <button class="btn ghost icon" id="gear" title="ตั้งค่า" aria-label="ตั้งค่า">⚙</button>
-  </div>
+<header class="top"><div class="wrap topin">
+  <div class="logo"><img src="icon.svg" alt=""><span>Manga Watch</span></div>
+  <button class="health" data-act="tab" data-tab="system" id="health" title="สถานะระบบ"><span class="dot" id="hdot"></span><span class="txt" id="htxt">กำลังโหลด…</span></button>
+  <button class="me" id="meBtn" data-act="account">เข้าสู่ระบบ</button>
+</div></header>
 
-  <div class="chips" id="chips"></div>
-  <div class="tools">
-    <input id="q" type="search" placeholder="🔍 ค้นหาชื่อเรื่องหรือเว็บ" aria-label="ค้นหา">
-    <select id="sort" aria-label="เรียงลำดับ">
-      <option value="recent">อัปเดตล่าสุด</option>
-      <option value="unread">ยังไม่อ่านก่อน</option>
-      <option value="name">ชื่อ ก-ฮ</option>
-    </select>
-    <button class="btn ghost" id="readall" title="ทำเครื่องหมายว่าอ่านทั้งหมดแล้ว">✓ อ่านหมด</button>
-  </div>
-
-  <section id="list" aria-live="polite"></section>
-
-  <details class="card sec" id="activity"><summary>🕘 ความเคลื่อนไหวล่าสุด</summary><ul class="feed" id="feed"></ul></details>
-
-  <section class="card sec form" id="addBox">
-    <b id="addTitle">เพิ่มเรื่องใหม่</b>
-    <label for="n">ชื่อเรื่อง</label>
-    <input type="text" id="n" placeholder="เช่น ฉันเลเวลอัปคนเดียว (ไทย - เว็บ A)" maxlength="80">
-    <label for="u">ลิงก์หน้าเรื่อง (หน้าที่มีรายการตอนทั้งหมด)</label>
-    <input type="url" id="u" placeholder="https://..." inputmode="url" autocapitalize="off">
-    <div class="hint" id="uHint"></div>
-    <details style="margin-top:8px"><summary class="hint">ตัวเลือกเพิ่มเติม</summary>
-      <label for="c">ลิงก์ตอนต้องมีคำว่า (ใช้เมื่อหน้าเว็บมีลิงก์อื่นปนเยอะ เช่น /chapter/)</label>
-      <input type="text" id="c" autocapitalize="off">
-      <div id="intervalWrap"><label for="iv">ตรวจบ่อยแค่ไหน</label>
-        <select id="iv"><option value="15">ทุก 15 นาที</option><option value="30" selected>ทุก 30 นาที (แนะนำ)</option><option value="60">ทุก 1 ชั่วโมง</option><option value="180">ทุก 3 ชั่วโมง</option><option value="720">ทุก 12 ชั่วโมง</option></select></div>
-    </details>
-    <p style="margin:14px 0 0"><button class="btn" id="add">+ เพิ่มเรื่องนี้</button></p>
-    <div class="hint" id="addHint"></div>
-  </section>
-</main>
-
-<div class="drawer" id="drawer" hidden>
-  <div class="panel form" role="dialog" aria-label="ตั้งค่า">
-    <button class="btn ghost sm close" id="closeDrawer">ปิด ✕</button>
-    <h2 style="margin:0 0 4px;font-size:19px">ตั้งค่า</h2>
-    <p class="hint" id="drawerMode"></p>
-    <label for="repoIn">ชื่อ repo (ชื่อผู้ใช้/ชื่อrepo)</label>
-    <input type="text" id="repoIn" autocapitalize="off">
-    <label for="tokIn">GitHub Token (สิทธิ์ Contents + Actions แบบ Read and write เฉพาะ repo นี้)</label>
-    <input type="password" id="tokIn" autocomplete="off" placeholder="github_pat_...">
-    <p class="hint">เก็บไว้ในเบราว์เซอร์เครื่องนี้เท่านั้น ใส่แล้วจะเป็นโหมดแอดมิน (เพิ่ม/ลบ/สั่งตรวจได้) ผู้ชมทั่วไปไม่ต้องใส่</p>
-    <p style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="saveCfg">บันทึกและเชื่อมต่อ</button><button class="btn ghost danger" id="logout">ออกจากโหมดแอดมิน</button></p>
-    <div id="adminTools" hidden>
-      <div class="sec"><b>เครื่องมือแอดมิน</b>
-        <p style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn ghost" id="checkAll">▶ ตรวจทุกเรื่องตอนนี้</button><button class="btn ghost" id="testHook">🔔 ส่งข้อความทดสอบ Discord</button></p>
-      </div>
-      <div class="sec"><b>เพื่อนที่ขอเพิ่มเรื่องได้</b>
-        <p class="hint">ใส่ชื่อ GitHub ของเพื่อน บรรทัดละ 1 ชื่อ (เพื่อนใช้ฟอร์มขอเพิ่มเรื่องในหน้านี้ได้โดยไม่ต้องมี Token)</p>
-        <textarea id="friends" spellcheck="false"></textarea>
-        <p><button class="btn" id="saveFriends">บันทึกรายชื่อ</button></p>
-      </div>
-    </div>
-  </div>
+<div class="wrap">
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <main id="view"></main>
 </div>
+
+<div class="sheet" id="sheet" hidden><div class="in" role="dialog" aria-modal="true"><button class="btn g sm x" data-act="close" aria-label="ปิด">✕</button><div id="sheetBody"></div></div></div>
 <div id="toasts" aria-live="polite"></div>
 
 <script>
 "use strict";
+/* ================================================================ utils */
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const safeUrl=u=>/^https?:\/\//i.test(u||"");
+const safeUrl=u=>/^https?:\/\//i.test(u||"")?u:"";
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(12)}catch(e){}};
-
-/* ---------- ค่าตั้งต้น ---------- */
-const derived=(()=>{const h=location.hostname,p=location.pathname.split("/")[1];return h.endsWith(".github.io")&&p?h.split(".")[0]+"/"+p:""})();
-let cfg=LS.get("mn2",null)||LS.get("mn",{})||{};
-const repo=()=>(cfg.repo||derived||"").trim();
-let series=[],state={},isAdmin=false,branch="main",filter="all",query="",sortBy=LS.get("mn_sort","recent");
-let seen=LS.get("mn_seen",{});
-const pending=new Set();
-const openHist=new Set();
-
-/* ---------- toast ---------- */
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},del(k){try{localStorage.removeItem(k)}catch(e){}}};
+const buzz=()=>{try{navigator.vibrate&&navigator.vibrate(10)}catch(e){}};
+const host=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return""}};
+const normU=u=>{try{const x=new URL(u);return(x.hostname.replace(/^www\./,"")+x.pathname.replace(/\/+$/,"")+x.search).toLowerCase()}catch(e){return String(u).toLowerCase()}};
+const hash=s=>[...String(s)].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
+const initial=n=>[...String(n||"").trim()].find(c=>/[\p{L}\p{N}]/u.test(c)&&!/[เแโใไ]/.test(c))||"?";
+const num=l=>{const n=parseFloat(String(l??"").replace(/[^\d.]/g,""));return Number.isFinite(n)?n:null};
+const T=iso=>{const t=Date.parse(iso||"");return Number.isFinite(t)?t:0};
+const ROLE_TH={owner:"เจ้าของ",mod:"ผู้ดูแล",member:"สมาชิก"};
+function ago(iso){const t=T(iso);if(!t)return"";const s=(Date.now()-t)/1e3;
+  if(s<0){const m=-s/60;return m<60?"อีก "+Math.max(1,Math.round(m))+" นาที":"อีก "+Math.round(m/60)+" ชม."}
+  if(s<45)return"เมื่อกี้";const m=s/60;if(m<60)return Math.round(m)+" นาทีที่แล้ว";const h=m/60;if(h<24)return Math.round(h)+" ชม.ที่แล้ว";
+  const d=h/24;if(d<30)return Math.round(d)+" วันที่แล้ว";return new Date(t).toLocaleDateString("th-TH",{day:"numeric",month:"short",year:"2-digit"})}
+const fullTime=iso=>T(iso)?new Date(T(iso)).toLocaleString("th-TH",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"";
+const dur=ms=>{const d=ms/864e5;if(d>=1.5)return"~"+Math.round(d)+" วัน";const h=ms/36e5;return h>=1?"~"+Math.round(h)+" ชม.":"~"+Math.max(1,Math.round(ms/6e4))+" นาที"};
+const randPw=()=>Array.from(crypto.getRandomValues(new Uint8Array(10)),b=>"abcdefghjkmnpqrstuvwxyz23456789"[b%31]).join("");
 function toast(msg,type="info",ms){
   const el=document.createElement("div");el.className="toast "+type;
   el.innerHTML="<span>"+({ok:"✅",bad:"⚠️",info:"💬"}[type]||"")+"</span><span>"+esc(msg)+"</span>";
   $("#toasts").appendChild(el);
-  const kill=()=>{el.classList.add("out");setTimeout(()=>el.remove(),260)};
+  const kill=()=>{el.classList.add("out");setTimeout(()=>el.remove(),230)};
   el.onclick=kill;setTimeout(kill,ms||(type==="bad"?7000:4200));
   while($("#toasts").children.length>4)$("#toasts").firstChild.remove();
 }
 async function busy(btn,fn){
-  if(!btn||btn.classList.contains("busy"))return;
-  buzz();btn.classList.add("busy");btn.disabled=true;
-  try{return await fn()}finally{btn.classList.remove("busy");btn.disabled=false}
+  if(btn&&btn.classList.contains("busy"))return;
+  buzz();if(btn){btn.classList.add("busy");btn.disabled=true}
+  try{return await fn()}catch(e){toast(e.message||String(e),"bad")}
+  finally{if(btn){btn.classList.remove("busy");btn.disabled=false}}
 }
+function cover(url,name){
+  const h=hash(name||"")%360,ch=esc(initial(name));
+  if(!safeUrl(url))return'<div class="ph" style="--h:'+h+'">'+ch+"</div>";
+  return'<img src="'+esc(url)+'" alt="" loading="lazy" referrerpolicy="no-referrer" data-h="'+h+'" data-ch="'+ch+'">';
+}
+document.addEventListener("error",e=>{const i=e.target;if(!i||i.tagName!=="IMG"||!i.dataset.ch)return;
+  const d=document.createElement("div");d.className="ph";d.style.setProperty("--h",i.dataset.h);d.textContent=i.dataset.ch;i.replaceWith(d)},true);
+const md=s=>esc(s).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/\n/g,"<br>");
 
-/* ---------- เวลา/ข้อความ ---------- */
-function ago(iso){
-  if(!iso)return"";const s=(Date.now()-new Date(iso))/1000;
-  if(s<45)return"เมื่อกี้";const m=s/60;if(m<60)return Math.round(m)+" นาทีที่แล้ว";
-  const h=m/60;if(h<24)return Math.round(h)+" ชม.ที่แล้ว";const d=h/24;
-  if(d<30)return Math.round(d)+" วันที่แล้ว";return new Date(iso).toLocaleDateString("th-TH");
-}
-const host=u=>{try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return""}};
-const initial=n=>[...(n||"").trim()].find(c=>/[\p{L}\p{N}]/u.test(c)&&!/[เแโใไ]/.test(c))||"?";
-const hash=s=>[...s].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7);
-const ST=id=>state[id]||{};
-const isUnread=id=>{const st=ST(id);return st.number!=null&&seen[id]!=null&&st.number>seen[id]};
-function markSeen(id){const st=ST(id);if(st.number!=null){seen[id]=st.number;LS.set("mn_seen",seen)}}
-function initSeen(){let ch=false;for(const s of series){const st=ST(s.id);if(st.number!=null&&seen[s.id]==null){seen[s.id]=st.number;ch=true}}if(ch)LS.set("mn_seen",seen)}
+/* ================================================================ state */
+const derivedRepo=(()=>{const h=location.hostname,p=location.pathname.split("/")[1];return h.endsWith(".github.io")&&p?h.split(".")[0]+"/"+p:""})();
+let API=(new URLSearchParams(location.search).get("api")||LS.get("mw_api","")||"").replace(/\/+$/,"");
+let S=LS.get("mw_session",null);              // {token,user:{name,role}}
+let D={series:[],state:{},log:[],followers:{},config:{},pending:0};
+let STATUS=null,ME=null,REQS=null,AUDIT=null,USERS=null,PREV=null;
+let R=LS.get("mw_read",{});                     // อ่านถึงตอนไหน (เก็บในเครื่องนี้)
+const P=Object.assign({tab:"library",view:"list",sort:"recent",theme:"auto",notify:false},LS.get("mw_prefs",{}));
+const UI={filter:"all",q:"",feed:"all",pending:new Set(),loaded:false,sheetId:null,installEvt:null};
+const savePrefs=()=>LS.set("mw_prefs",P);
+const rank=()=>({member:1,mod:2,owner:3}[S&&S.user&&S.user.role]||0);
+const isMod=()=>rank()>=2,isOwner=()=>rank()>=3;
+const ST=id=>D.state[id]||{};
+const SER=id=>D.series.find(s=>s.id===id);
+const applyTheme=()=>{if(P.theme==="auto")delete document.documentElement.dataset.theme;else document.documentElement.dataset.theme=P.theme};
+applyTheme();
 
-/* ---------- GitHub API (โหมดแอดมิน) ---------- */
-const api=(p,o={})=>fetch("https://api.github.com/repos/"+repo()+p,{cache:"no-store",...o,headers:{Authorization:"Bearer "+cfg.token,Accept:"application/vnd.github+json","X-GitHub-Api-Version":"2022-11-28",...(o.headers||{})}});
-const b64d=s=>new TextDecoder().decode(Uint8Array.from(atob(s.replace(/\n/g,"")),c=>c.charCodeAt(0)));
-const b64e=s=>{let r="";new TextEncoder().encode(s).forEach(x=>r+=String.fromCharCode(x));return btoa(r)};
-async function verifyAdmin(){
-  isAdmin=false;if(!cfg.token||!repo())return;
-  try{
-    const r=await api("");
-    if(r.status===401){toast("Token ไม่ถูกต้องหรือหมดอายุ — เข้าโหมดดูอย่างเดียวแทน","bad");return}
-    if(!r.ok){toast("เชื่อมต่อ repo ไม่ได้ ("+r.status+") ตรวจชื่อ repo/Token","bad");return}
-    const j=await r.json();isAdmin=!!(j.permissions&&j.permissions.push);branch=j.default_branch||"main";
-    if(!isAdmin)toast("Token นี้ไม่มีสิทธิ์เขียน repo — ต้องตั้ง Contents: Read and write","bad");
-  }catch(e){}
+/* ================================================================ data */
+async function api(path,opt={}){
+  if(!API)throw new Error("ยังไม่ได้ตั้งค่าหลังบ้าน (Cloudflare Worker)");
+  const h={"Content-Type":"application/json"};if(S&&S.token)h.Authorization="Bearer "+S.token;
+  let r;
+  try{r=await fetch(API+path,{method:opt.method||"GET",headers:h,body:opt.body?JSON.stringify(opt.body):undefined,cache:"no-store"})}
+  catch(e){throw new Error("เชื่อมต่อหลังบ้านไม่ได้ — ตรวจอินเทอร์เน็ตหรือที่อยู่ Worker")}
+  let j=null;try{j=await r.json()}catch(e){}
+  if(r.status===401&&S&&path!=="/api/login"){const m=(j&&j.error)||"กรุณาเข้าสู่ระบบใหม่";logout(m);throw new Error(m)}
+  if(!r.ok)throw new Error((j&&j.error)||"ผิดพลาด (HTTP "+r.status+")");
+  return j;
 }
-async function mutate(fn,msg){
-  for(let i=0;i<3;i++){
-    const r=await api("/contents/series.json");if(!r.ok)throw new Error("โหลดรายการไม่ได้ ("+r.status+")");
-    const j=await r.json(),cur=JSON.parse(b64d(j.content)),next=fn(cur);
-    const p=await api("/contents/series.json",{method:"PUT",body:JSON.stringify({message:msg,sha:j.sha,content:b64e(JSON.stringify(next,null,2)+"\n")})});
-    if(p.ok){series=next;return}
-    if(p.status!==409&&p.status!==422)throw new Error("บันทึกไม่สำเร็จ (HTTP "+p.status+")");
-    await sleep(600);
+async function staticJson(f,d){try{const r=await fetch(f+"?t="+Date.now(),{cache:"no-store"});return r.ok?await r.json():d}catch(e){return d}}
+async function loadStatic(){
+  const[series,state,log,subs]=await Promise.all([staticJson("series.json",[]),staticJson("state.json",{}),staticJson("notify_log.json",[]),staticJson("subs.json",{users:{}})]);
+  const followers={};for(const[n,u]of Object.entries((subs&&subs.users)||{}))for(const sid of u.series||[])(followers[sid]=followers[sid]||[]).push(n);
+  const slim=(Array.isArray(log)?log:[]).slice(0,80).map(e=>{const em=(e.payload&&e.payload.embeds&&e.payload.embeds[0])||{};
+    return{id:e.id,at:e.at,kind:e.kind,status:e.status,error:e.error,sid:e.sid,name:e.name,label:e.label,prev:e.prev,mentions:e.mentions,count:e.count,ref:e.ref,resent:e.resent,
+      embed:{title:em.title,description:em.description,url:em.url,color:em.color,thumb:em.thumbnail&&em.thumbnail.url,footer:em.footer&&em.footer.text}}});
+  return{series:Array.isArray(series)?series:[],state:state||{},log:slim,followers,config:{},pending:0};
+}
+async function loadData(announce){
+  let next;
+  try{next=API?await api("/api/data"):await loadStatic()}
+  catch(e){if(!announce)toast("โหลดข้อมูลไม่สำเร็จ: "+e.message,"bad");if(UI.loaded)return;next=await loadStatic()}
+  const before=PREV;D=next;UI.loaded=true;
+  initRead();
+  if(announce&&before){
+    const fresh=D.series.filter(s=>before[s.id]&&ST(s.id).label&&ST(s.id).label!==before[s.id]);
+    if(fresh.length){
+      toast("🔔 ตอนใหม่: "+fresh.map(s=>s.name+" ตอน "+ST(s.id).label).join(", "),"ok",8000);
+      if(P.notify&&"Notification"in window&&Notification.permission==="granted")
+        for(const s of fresh.slice(0,3))try{new Notification("📖 "+s.name+" ตอน "+ST(s.id).label,{body:ST(s.id).title||"ออกแล้ว!",icon:safeUrl(ST(s.id).cover)||"icon-192.png",tag:"mw-"+s.id})}catch(e){}
+    }
   }
-  throw new Error("ชนกับการแก้ไขอื่น ลองใหม่อีกครั้ง");
+  PREV={};for(const s of D.series)PREV[s.id]=ST(s.id).label;
+  render();
+  if(UI.sheetId&&SER(UI.sheetId)&&!$("#sheet").hidden&&UI.sheetKind==="detail")openDetail(UI.sheetId,true);
 }
-async function dispatch(inputs){
-  const r=await api("/actions/workflows/check.yml/dispatches",{method:"POST",body:JSON.stringify({ref:branch,inputs})});
-  if(!r.ok)throw new Error("สั่งรันไม่สำเร็จ (HTTP "+r.status+") เช็กสิทธิ์ Actions ของ Token");
+async function loadStatus(){
+  try{
+    if(API)STATUS=await api("/api/status");
+    else if(derivedRepo){const r=await fetch("https://api.github.com/repos/"+derivedRepo+"/actions/workflows/check.yml/runs?per_page=15");
+      if(r.ok){const j=await r.json();STATUS={runs:(j.workflow_runs||[]).map(x=>({at:x.created_at,event:x.event,status:x.status,conclusion:x.conclusion,url:x.html_url,secs:x.updated_at&&x.run_started_at?(T(x.updated_at)-T(x.run_started_at))/1e3:null})),every:15}}}
+  }catch(e){}
+  if(!STATUS)STATUS={runs:[],unknown:true};
+  renderHealth();if(P.tab==="system")render();
 }
-async function runWorkflow(inputs){
-  const t0=Date.now()-8000;await dispatch(inputs);
-  for(let i=0;i<40;i++){
-    await sleep(i<2?3000:4500);
-    try{
-      const r=await api("/actions/workflows/check.yml/runs?event=workflow_dispatch&per_page=5");if(!r.ok)continue;
-      const run=((await r.json()).workflow_runs||[]).find(x=>new Date(x.created_at)>=t0);
-      if(run&&run.status==="completed")return run.conclusion;
-    }catch(e){}
+async function loadMe(){if(!S||!API)return;try{ME=await api("/api/me");render()}catch(e){}}
+async function waitRun(since){
+  for(let i=0;i<45;i++){
+    await sleep(i<2?3000:4000);
+    try{const r=await api("/api/run?since="+encodeURIComponent(since));if(r.status==="completed")return r.conclusion}catch(e){}
   }
   return"timeout";
 }
-function explain(c){
+function runMsg(c){
+  if(c==="success")return null;
   if(c==="cancelled")return["คิวซ้อนกัน ระบบจะตรวจให้ในรอบถัดไป","info"];
-  if(c==="timeout")return["รอนานเกินไป ลองกดรีเฟรชอีกครั้ง","info"];
-  return["ระบบรันไม่สำเร็จ ดูรายละเอียดที่แท็บ Actions ใน GitHub","bad"];
+  if(c==="timeout")return["GitHub ยังไม่ตอบ ลองกดรีเฟรชอีกสักครู่","info"];
+  return["รอบตรวจล้มเหลว ดูรายละเอียดในแท็บระบบ","bad"];
 }
 
-/* ---------- โหลดข้อมูล ---------- */
-async function readJson(path){
-  if(isAdmin){
-    const r=await api("/contents/"+path,{headers:{Accept:"application/vnd.github.raw+json"}});
-    if(r.status===404)return null;if(!r.ok)throw new Error(path+" "+r.status);return JSON.parse(await r.text());
-  }
-  const r=await fetch(path+"?t="+Date.now(),{cache:"no-store"});
-  if(r.status===404)return null;if(!r.ok)throw new Error(path+" "+r.status);return r.json();
+/* ================================================================ reading progress */
+function initRead(){
+  const old=LS.get("mn_seen",null);let ch=false;
+  for(const s of D.series){const st=ST(s.id);if(st.label==null||R[s.id]!=null)continue;
+    R[s.id]=old&&old[s.id]!=null&&old[s.id]<st.number?(st.prev_label||st.label):st.label;ch=true}
+  if(ch)LS.set("mw_read",R);
 }
-async function loadData(silent){
-  const before={};for(const s of series)before[s.id]=ST(s.id).label;
-  try{
-    const sr=await readJson("series.json");series=sr||[];
-    state=(await readJson("state.json"))||{};
-  }catch(e){if(!silent)toast("โหลดข้อมูลไม่สำเร็จ: "+e.message,"bad")}
-  initSeen();
-  if(silent){ // แจ้งเมื่อมีตอนใหม่โผล่มาระหว่างเปิดหน้าไว้
-    const fresh=series.filter(s=>before[s.id]&&ST(s.id).label&&ST(s.id).label!==before[s.id]);
-    if(fresh.length)toast("🔔 "+fresh.map(s=>s.name+" ตอน "+ST(s.id).label).join(", ")+" ออกแล้ว!","ok",7000);
-  }
-  render();
+function behind(id){
+  const st=ST(id);if(st.label==null||R[id]==null)return 0;
+  const a=num(st.label),b=num(R[id]);
+  if(a!=null&&b!=null)return a>b?Math.max(1,Math.round(a-b)):0;
+  return String(st.label)===String(R[id])?0:1;
+}
+function setRead(id,label){R[id]=String(label);LS.set("mw_read",R);render();if(UI.sheetId===id&&!$("#sheet").hidden)openDetail(id,true)}
+
+/* ================================================================ health */
+function health(){
+  const runs=(STATUS&&STATUS.runs)||[],last=runs[0],sched=runs.find(r=>r.event==="schedule");
+  const bad=D.series.filter(s=>s.enabled!==false&&ST(s.id).error).length;
+  const failedMsgs=(D.log||[]).filter(e=>e.status==="failed"&&!e.resent&&Date.now()-T(e.at)<864e5).length;
+  if(!STATUS)return{c:"",t:"กำลังตรวจสอบ…",icon:"⏳",k:"n"};
+  if(!runs.length)return{c:"",t:STATUS.unknown?"ยังไม่ทราบสถานะ":"ยังไม่มีข้อมูลการรัน",icon:"❔",k:"n",sub:STATUS.unknown?"เชื่อมต่อหลังบ้านเพื่อดูสถานะการรัน":"ระบบจะเริ่มตรวจภายใน 15 นาทีหลังตั้งค่า"};
+  if(last.conclusion==="failure")return{c:"r",t:"รอบตรวจล่าสุดล้มเหลว",icon:"🛑",k:"r",sub:"กดดูรายละเอียดจากรายการรอบตรวจด้านล่าง"};
+  if(sched&&Date.now()-T(sched.at)>75*6e4)return{c:"y",t:"ระบบไม่ได้รันตามเวลา",icon:"⏰",k:"y",sub:"GitHub อาจหน่วงหรือปิดการรันอัตโนมัติ — เข้า GitHub → Actions เพื่อเปิดใหม่"};
+  if(failedMsgs)return{c:"y",t:"ส่ง Discord ไม่สำเร็จ "+failedMsgs+" ข้อความ",icon:"📭",k:"y",sub:"ดูในแท็บอัปเดต แล้วกดส่งซ้ำได้"};
+  if(bad)return{c:"y",t:"ระบบปกติ · "+bad+" เรื่องอ่านไม่ได้",icon:"🟡",k:"y",sub:"ดูรายชื่อเรื่องที่มีปัญหาด้านล่าง"};
+  return{c:"g",t:"ระบบทำงานปกติ",icon:"🟢",k:"g",sub:"ตรวจอัตโนมัติทุก ~15 นาที"};
+}
+function renderHealth(){const h=health();$("#hdot").className="dot "+h.c;
+  const last=STATUS&&STATUS.runs&&STATUS.runs[0];$("#htxt").textContent=h.k==="g"&&last?"ตรวจล่าสุด "+ago(last.at):h.t}
+
+/* ================================================================ render shell */
+function render(){
+  renderHealth();
+  const me=$("#meBtn");
+  if(S&&S.user){const u=S.user;me.className="me in";me.innerHTML='<span class="av" style="background:hsl('+hash(u.name)%360+' 55% 50%)">'+esc(initial(u.name))+'</span><span class="nmx">'+esc(u.name)+'</span><span class="role '+esc(u.role)+'">'+ROLE_TH[u.role]+"</span>"}
+  else{me.className="me";me.textContent="เข้าสู่ระบบ"}
+  const unread=D.series.filter(s=>behind(s.id)>0).length,fails=(D.log||[]).filter(e=>e.status==="failed"&&!e.resent).length;
+  const tabs=[["library","📚","ติดตาม",unread],["feed","🔔","อัปเดต",fails],...(isMod()?[["requests","📨","คำขอ",D.pending]]:[]),["system","⚙️","ระบบ",0]];
+  if(!tabs.some(t=>t[0]===P.tab))P.tab="library";
+  $("#tabs").innerHTML=tabs.map(([k,ic,t,c])=>'<button class="tab" role="tab" data-act="tab" data-tab="'+k+'" aria-selected="'+(P.tab===k)+'"><span class="ic">'+ic+"</span>"+t+(c?'<span class="cnt">'+c+"</span>":"")+"</button>").join("");
+  document.title=(unread?"("+unread+") ":"")+"Manga Watch";
+  const v=$("#view");
+  if(!UI.loaded){v.innerHTML='<div class="list" style="margin-top:12px">'+'<div class="card s"><div class="cv"></div><div><div class="sk" style="width:60%"></div><div class="sk"></div><div class="sk" style="width:40%"></div></div></div>'.repeat(3)+"</div>";return}
+  ({library:renderLibrary,feed:renderFeed,requests:renderRequests,system:renderSystem}[P.tab])(v);
 }
 
-/* ---------- วาดหน้า ---------- */
-function coverHTML(s,st){
-  const ch=initial(s.name),h=hash(s.name||"")%360;
-  if(st.cover&&safeUrl(st.cover))return'<img src="'+esc(st.cover)+'" alt="" loading="lazy" referrerpolicy="no-referrer" data-ch="'+esc(ch)+'" data-h="'+h+'">';
-  return'<div class="ph" style="--h:'+h+'">'+esc(ch)+"</div>";
-}
-function cardHTML(s){
-  const st=ST(s.id),off=s.enabled===false,isPend=pending.has(s.id)&&st.label==null&&!st.error;
-  const un=isUnread(s.id),hist=st.history||[];
-  let body;
-  if(isPend||(st.label==null&&!st.error)){
-    body='<div class="chap sub">'+(isPend?"กำลังตรวจครั้งแรก…":"รอตรวจครั้งแรก (ภายใน ~15 นาที)")+'</div><div class="sk"></div>';
-  }else if(st.label==null){
-    body='';
-  }else{
-    const link=safeUrl(st.url)?st.url:s.url;
-    body='<div class="chap">ตอนล่าสุด <b>'+esc(st.label)+"</b>"+(st.title?'<span class="ttl">'+esc(st.title)+"</span>":"")+"</div>"+
-      '<div class="chg">'+(st.prev_label?'เปลี่ยนจาก <span class="arrow">'+esc(st.prev_label)+" → "+esc(st.label)+"</span> · "+ago(st.updated)
-        :'เริ่มติดตามตั้งแต่ตอน '+esc(st.first_label||st.label)+(st.since?" · "+ago(st.since):""))+"</div>";
-    body+='<div class="acts"><a class="btn sm" data-act="read" href="'+esc(link)+'" target="_blank" rel="noopener">อ่านตอนล่าสุด ↗</a>';
-  }
-  const acts=[];
-  if(body.indexOf('class="acts"')<0)body+='<div class="acts">';
-  if(isAdmin)acts.push('<button class="btn ghost sm" data-act="check">↻ ตรวจ</button>');
-  if(hist.length)acts.push('<button class="btn ghost sm" data-act="hist">ประวัติ ('+hist.length+")</button>");
-  if(un)acts.push('<button class="btn ghost sm" data-act="seen">✓ อ่านแล้ว</button>');
-  if(isAdmin)acts.push('<button class="btn ghost sm danger" data-act="del">ลบ</button>');
-  body+=acts.join("");
-  if(isAdmin)body+='<label class="sw" title="เปิด/ปิดแจ้งเตือน"><input type="checkbox" data-act="toggle" '+(off?"":"checked")+'><i></i></label>';
-  body+="</div>";
-  if(st.error)body+='<div class="err">⚠ ตรวจไม่ได้'+(st.fails?" "+st.fails+" ครั้ง":"")+": "+esc(st.error)+"</div>";
-  if(openHist.has(s.id)&&hist.length)body+='<ul class="hist">'+hist.map(h=>'<li><a href="'+esc(safeUrl(h.url)?h.url:s.url)+'" target="_blank" rel="noopener">ตอน '+esc(h.prev||"?")+" → <b>"+esc(h.label)+"</b></a><span class=sub>"+esc(h.title||"")+"</span><time>"+ago(h.at)+"</time></li>").join("")+"</ul>";
-  return'<article class="card item'+(off?" off":"")+'" data-id="'+esc(s.id)+'"><div class="cover">'+coverHTML(s,st)+'</div><div>'+
-    '<div class="nm"><a class="name" href="'+esc(s.url)+'" target="_blank" rel="noopener">'+esc(s.name)+"</a>"+(un?'<span class="badge">ใหม่</span>':"")+(off?'<span class="badge mut">ปิดอยู่</span>':"")+"</div>"+
-    '<div class="sub">'+esc(host(s.url))+(s.by?" · เพิ่มโดย "+esc(s.by):"")+(st.checked?" · ตรวจ "+ago(st.checked):"")+"</div>"+body+"</div></article>";
-}
-function counts(){
-  const c={all:series.length,unread:0,error:0,off:0};
-  for(const s of series){if(isUnread(s.id))c.unread++;if(ST(s.id).error)c.error++;if(s.enabled===false)c.off++}
-  return c;
-}
+/* ================================================================ library */
 function visible(){
-  const q=query.trim().toLowerCase();
-  let l=series.filter(s=>{
-    if(q&&!(s.name+" "+host(s.url)).toLowerCase().includes(q))return false;
-    if(filter==="unread")return isUnread(s.id);
-    if(filter==="error")return !!ST(s.id).error;
-    if(filter==="off")return s.enabled===false;
-    return true;
+  const q=UI.q.trim().toLowerCase(),mine=new Set((ME&&ME.series)||[]);
+  const l=D.series.filter(s=>{
+    if(q&&!(s.name+" "+host(s.url)+" "+(s.by||"")).toLowerCase().includes(q))return false;
+    switch(UI.filter){case"behind":return behind(s.id)>0;case"mine":return mine.has(s.id);case"error":return!!ST(s.id).error;case"off":return s.enabled===false;default:return true}
   });
-  const t=s=>new Date(ST(s.id).updated||ST(s.id).since||0).getTime();
-  if(sortBy==="name")l.sort((a,b)=>a.name.localeCompare(b.name,"th"));
-  else if(sortBy==="unread")l.sort((a,b)=>(isUnread(b.id)-isUnread(a.id))||(t(b)-t(a)));
-  else l.sort((a,b)=>t(b)-t(a));
+  const upd=s=>T(ST(s.id).updated||ST(s.id).since||s.added);
+  if(P.sort==="name")l.sort((a,b)=>a.name.localeCompare(b.name,"th"));
+  else if(P.sort==="behind")l.sort((a,b)=>behind(b.id)-behind(a.id)||upd(b)-upd(a));
+  else l.sort((a,b)=>upd(b)-upd(a));
   return l;
 }
-function render(){
-  const c=counts();
-  $("#chips").innerHTML=[["all","ทั้งหมด"],["unread","ยังไม่อ่าน"],["error","มีปัญหา"],["off","ปิดอยู่"]]
-    .map(([k,t])=>'<button class="chip" data-f="'+k+'" aria-pressed="'+(filter===k)+'">'+t+"<b>"+c[k]+"</b></button>").join("");
-  const l=visible();
-  $("#list").innerHTML=l.length?l.map(cardHTML).join(""):
-    '<div class="empty"><div class="big">'+(series.length?"🔍":"📭")+"</div>"+(series.length?"ไม่พบเรื่องที่ตรงกับตัวกรอง":"ยังไม่มีเรื่องที่ติดตาม — เพิ่มเรื่องแรกด้านล่างได้เลย")+"</div>";
-  const feed=[];
-  for(const s of series)for(const h of ST(s.id).history||[])feed.push({n:s.name,...h});
-  feed.sort((a,b)=>new Date(b.at)-new Date(a.at));
-  $("#feed").innerHTML=feed.length?feed.slice(0,12).map(h=>"<li><b>"+esc(h.n)+"</b> ตอน "+esc(h.prev||"?")+" → "+esc(h.label)+"<time>"+ago(h.at)+"</time></li>").join(""):'<li class="sub">ยังไม่มีตอนใหม่ที่ตรวจพบ</li>';
-  $("#mode").textContent=isAdmin?"👑 แอดมิน":"👀 โหมดดูอย่างเดียว";$("#mode").className="pill"+(isAdmin?" admin":"");
-  $("#addTitle").textContent=isAdmin?"เพิ่มเรื่องใหม่":"ขอเพิ่มเรื่องใหม่";
-  $("#add").textContent=isAdmin?"+ เพิ่มเรื่องนี้":"ส่งคำขอเพิ่มเรื่อง ↗";
-  $("#intervalWrap").hidden=!isAdmin;
-  $("#addHint").textContent=isAdmin?"":"จะเปิดหน้า GitHub ให้กด Submit (ต้องมีบัญชี GitHub และชื่ออยู่ในรายชื่อที่เจ้าของอนุญาต)";
-  $("#readall").hidden=!c.unread;
-  $("#adminTools").hidden=!isAdmin;
-  document.title=(c.unread?"("+c.unread+") ":"")+"แจ้งเตือนการ์ตูน";
-}
-
-/* ---------- การกระทำ ---------- */
-function urlHint(){
-  const u=$("#u").value.trim(),h=$("#uHint");h.className="hint";
-  if(!u){h.textContent="";return}
-  if(!/^https?:\/\/\S+\.\S+/i.test(u)){h.textContent="ลิงก์ต้องขึ้นต้นด้วย https://";h.className="hint warn";return}
-  if(/mangadex\.org\/title\//i.test(u)){h.textContent="✓ MangaDex — ใช้ API ตรง ดึงปกได้ (ภาษาไทย/อังกฤษ)";h.className="hint ok"}
-  else if(/mangadex\.org/i.test(u)){h.textContent="ใช้ลิงก์หน้าเรื่อง (…/title/รหัส/ชื่อ)";h.className="hint warn"}
-  else if(/\/(feed|rss)|\.(rss|xml)$/i.test(u)){h.textContent="✓ ดูเหมือนลิงก์ RSS — เบาและแม่นที่สุด";h.className="hint ok"}
-  else if(series.some(s=>s.url.replace(/\/$/,"")===u.replace(/\/$/,""))){h.textContent="เรื่องนี้มีในรายการแล้ว";h.className="hint warn"}
-  else h.textContent="ระบบจะอ่านลิงก์ตอนจากหน้านี้ แล้วเลือกตอนที่เลขมากที่สุด";
-}
-async function addSeries(btn){
-  const name=$("#n").value.trim(),url=$("#u").value.trim(),contains=$("#c").value.trim();
-  if(!name){$("#n").focus();return toast("ใส่ชื่อเรื่องก่อน","bad")}
-  if(!/^https?:\/\/\S+\.\S+/i.test(url)){$("#u").focus();return toast("ลิงก์ต้องขึ้นต้นด้วย https://","bad")}
-  if(series.some(s=>s.url.replace(/\/$/,"")===url.replace(/\/$/,"")))return toast("เรื่องนี้มีในรายการแล้ว","bad");
-  if(!isAdmin){
-    if(!repo())return toast("ไม่พบชื่อ repo — เปิดตั้งค่า (⚙) แล้วใส่ชื่อ repo","bad");
-    const q=new URLSearchParams({template:"add-series.yml",title:"[เพิ่มเรื่อง] "+name,name,url,contains});
-    window.open("https://github.com/"+repo()+"/issues/new?"+q,"_blank","noopener");
-    return toast("เปิดหน้า GitHub แล้ว — กด Submit new issue เพื่อส่งคำขอ ระบบจะเพิ่มให้ใน 1-2 นาที","ok",8000);
+function renderLibrary(v){
+  const mine=(ME&&ME.series)||[];
+  const c={all:D.series.length,behind:D.series.filter(s=>behind(s.id)>0).length,mine:mine.length,error:D.series.filter(s=>ST(s.id).error).length,off:D.series.filter(s=>s.enabled===false).length};
+  const chips=[["all","ทั้งหมด"],["behind","ค้างอ่าน"],...(S?[["mine","ที่ฉันติดตาม"]]:[]),["error","มีปัญหา"],["off","ปิดอยู่"]].filter(([k])=>k==="all"||c[k]||UI.filter===k);
+  const cont=D.series.filter(s=>behind(s.id)>0).sort((a,b)=>T(ST(b.id).updated)-T(ST(a.id).updated));
+  const list=visible();
+  let h='<div class="bar lib"><div class="search"><input id="q" type="search" placeholder="ค้นหาเรื่อง เว็บ หรือคนเพิ่ม" value="'+esc(UI.q)+'" aria-label="ค้นหา" autocomplete="off"></div>'+
+    '<select class="sel" id="sort" aria-label="เรียง"><option value="recent">อัปเดตล่าสุด</option><option value="behind">ค้างอ่านมากสุด</option><option value="name">ชื่อ ก-ฮ</option></select>'+
+    '<div class="seg" role="group" aria-label="มุมมอง"><button data-act="view" data-v="list" aria-pressed="'+(P.view==="list")+'" title="รายการ">☰</button><button data-act="view" data-v="grid" aria-pressed="'+(P.view==="grid")+'" title="ตารางปก">▦</button></div>'+
+    (isMod()?'<button class="btn" data-act="add">＋ เพิ่ม</button>':'<button class="btn g" data-act="request">＋ ขอเพิ่ม</button>')+"</div>";
+  h+='<div class="chips">'+chips.map(([k,t])=>'<button class="chip" data-act="filter" data-f="'+k+'" aria-pressed="'+(UI.filter===k)+'">'+t+"<b>"+c[k]+"</b></button>").join("")+"</div>";
+  if(cont.length&&UI.filter==="all"&&!UI.q){
+    h+='<h2 class="sec">📌 อ่านต่อ <span class="cnt soft">'+cont.length+'</span><span style="flex:1"></span><button class="btn t sm" data-act="readall">✓ อ่านทันหมดแล้ว</button></h2><div class="strip">'+
+      cont.map(s=>'<button class="mini" data-act="open" data-id="'+esc(s.id)+'"><div class="cvw">'+cover(ST(s.id).cover,s.name)+'<span class="ribbon">ค้าง '+behind(s.id)+'</span></div><div class="n">'+esc(s.name)+"</div></button>").join("")+"</div>";
   }
-  const item={id:Math.random().toString(36).slice(2,10),name,url,contains,enabled:true,interval:+$("#iv").value,added:new Date().toISOString()};
-  await busy(btn,async()=>{
-    series=[...series,item];pending.add(item.id);render();
-    $("#n").value=$("#u").value=$("#c").value="";urlHint();
-    toast("กำลังบันทึก “"+name+"”…");
-    try{await mutate(l=>l.some(x=>x.id===item.id)?l:[...l,item],"add "+name)}
-    catch(e){series=series.filter(x=>x.id!==item.id);pending.delete(item.id);render();return toast("เพิ่มไม่สำเร็จ: "+e.message,"bad")}
-    toast("เพิ่ม “"+name+"” แล้ว กำลังตรวจครั้งแรก (ประมาณ 1 นาที)…","ok");
-    try{
-      const c=await runWorkflow({only:item.id});pending.delete(item.id);await loadData();
-      const st=ST(item.id);
-      if(st.label)toast("“"+name+"” ตอนล่าสุดคือตอน "+st.label+" — จะแจ้งเตือนเมื่อมีตอนใหม่กว่านี้","ok",7000);
-      else if(st.error)toast("อ่าน “"+name+"” ไม่ได้: "+st.error,"bad",9000);
-      else{const[m,t]=explain(c);toast(m,t)}
-    }catch(e){pending.delete(item.id);render();toast(e.message,"bad")}
-  });
+  if(!list.length)h+='<div class="empty"><div class="big">'+(D.series.length?"🔍":"📭")+"</div>"+(D.series.length?"ไม่พบเรื่องที่ตรงกับตัวกรอง":"ยังไม่มีเรื่องที่ติดตาม"+(isMod()?" — กด <b>＋ เพิ่ม</b> แล้ววางลิงก์ได้เลย":" — กด <b>＋ ขอเพิ่ม</b> เพื่อเสนอเรื่องให้ผู้ดูแล"))+"</div>";
+  else if(P.view==="grid")h+='<div class="grid">'+list.map(gridCard).join("")+"</div>";
+  else h+='<div class="list">'+list.map(listCard).join("")+"</div>";
+  v.innerHTML=h;
+  $("#sort").value=P.sort;
 }
-async function checkOne(id,btn){
-  const s=series.find(x=>x.id===id);if(!s)return;
-  await busy(btn,async()=>{
-    toast("สั่งตรวจ “"+s.name+"” แล้ว รอสักครู่…");
-    const before=ST(id).label;
-    try{
-      const c=await runWorkflow({only:id});await loadData();
-      const st=ST(id);
-      if(c!=="success"){const[m,t]=explain(c);return toast(m,t)}
-      if(st.error)toast("ตรวจ “"+s.name+"” ไม่ได้: "+st.error,"bad",9000);
-      else if(before&&st.label!==before)toast("🔔 “"+s.name+"” ตอน "+before+" → "+st.label+" (ส่ง Discord แล้ว)","ok",8000);
-      else toast("“"+s.name+"” ยังเป็นตอน "+(st.label||"?")+" — ยังไม่มีตอนใหม่","info");
-    }catch(e){toast(e.message,"bad")}
-  });
+function gridCard(s){
+  const st=ST(s.id),b=behind(s.id);
+  return'<button class="g1'+(s.enabled===false?" off":"")+'" data-act="open" data-id="'+esc(s.id)+'"><div class="cvw">'+cover(st.cover,s.name)+
+    (b?'<span class="ribbon">ค้าง '+b+"</span>":st.error?'<span class="ribbon">⚠</span>':"")+
+    (st.label!=null?'<div class="ch">ตอน '+esc(st.label)+"</div>":"")+'</div><div class="n">'+esc(s.name)+'</div><div class="l">'+esc(host(s.url))+(st.updated?" · "+ago(st.updated):"")+"</div></button>";
 }
-async function checkAll(btn){
-  await busy(btn,async()=>{
-    toast("สั่งตรวจทุกเรื่องแล้ว รอ 1-2 นาที…");
-    const before={};for(const s of series)before[s.id]=ST(s.id).label;
-    try{
-      const c=await runWorkflow({});await loadData();
-      if(c!=="success"){const[m,t]=explain(c);return toast(m,t)}
-      const fresh=series.filter(s=>before[s.id]&&ST(s.id).label!==before[s.id]),bad=series.filter(s=>ST(s.id).error);
-      toast("ตรวจเสร็จ: "+(fresh.length?fresh.length+" เรื่องมีตอนใหม่":"ยังไม่มีตอนใหม่")+(bad.length?" · "+bad.length+" เรื่องอ่านไม่ได้":""),bad.length?"info":"ok",6000);
-    }catch(e){toast(e.message,"bad")}
-  });
-}
-async function testHook(btn){
-  await busy(btn,async()=>{
-    toast("กำลังส่งข้อความทดสอบเข้า Discord…");
-    try{
-      const c=await runWorkflow({test:"1"});
-      if(c==="success")toast("ส่งแล้ว! ดูใน Discord ว่ามีข้อความ “ทดสอบแจ้งเตือนสำเร็จ”","ok",8000);
-      else if(c==="failure")toast("ส่งไม่สำเร็จ — ตรวจ Secret ชื่อ DISCORD_WEBHOOK_URL (สะกดตรงทุกตัวอักษร) และ Webhook ยังไม่ถูกลบ","bad",10000);
-      else{const[m,t]=explain(c);toast(m,t)}
-    }catch(e){toast(e.message,"bad")}
-  });
-}
-async function toggle(id,on){
-  const s=series.find(x=>x.id===id);if(!s)return;
-  s.enabled=on;render();toast((on?"เปิด":"ปิด")+"แจ้งเตือน “"+s.name+"” แล้ว",on?"ok":"info",2500);
-  try{await mutate(l=>l.map(x=>x.id===id?{...x,enabled:on}:x),(on?"enable ":"disable ")+s.name)}
-  catch(e){s.enabled=!on;render();toast("บันทึกไม่สำเร็จ: "+e.message,"bad")}
-}
-async function remove(id){
-  const s=series.find(x=>x.id===id);if(!s)return;
-  const el=document.querySelector('.item[data-id="'+id+'"]');if(el)el.classList.add("gone");
-  await sleep(280);const backup=series;series=series.filter(x=>x.id!==id);render();
-  try{await mutate(l=>l.filter(x=>x.id!==id),"remove "+s.name);toast("ลบ “"+s.name+"” แล้ว","ok",3000)}
-  catch(e){series=backup;render();toast("ลบไม่สำเร็จ: "+e.message,"bad")}
+function listCard(s){
+  const st=ST(s.id),b=behind(s.id),off=s.enabled===false,pend=UI.pending.has(s.id)&&st.label==null&&!st.error;
+  const mine=ME&&(ME.series||[]).includes(s.id),fol=(D.followers[s.id]||[]).length,id=esc(s.id);
+  let h='<article class="card s'+(off?" off":"")+(pend?" pending":"")+'" data-id="'+id+'"><button class="cv" data-act="open" data-id="'+id+'" aria-label="รายละเอียด">'+cover(st.cover,s.name)+'</button><div style="min-width:0">';
+  h+='<div class="r1"><button class="nm" data-act="open" data-id="'+id+'">'+esc(s.name)+"</button>"+(b?'<span class="pill new">ค้าง '+b+" ตอน</span>":"")+(off?'<span class="pill off">ปิดแจ้งเตือน</span>':"")+(st.error?'<span class="pill err">⚠ อ่านไม่ได้</span>':"")+"</div>";
+  h+='<div class="meta">'+esc(host(s.url))+(st.checked?" · ตรวจ "+ago(st.checked):"")+(fol?" · 🔔 "+fol+" คนติดตาม":"")+"</div>";
+  if(st.label==null){
+    h+='<div class="meta" style="margin-top:8px">'+(st.error?"":pend?"⏳ กำลังตรวจครั้งแรก…":"⏳ รอตรวจครั้งแรก (ภายใน ~15 นาที)")+"</div>"+(st.error?"":'<div class="sk" style="width:65%"></div>');
+  }else{
+    h+='<div class="latest"><span class="lb">ตอนล่าสุด</span><b>'+esc(st.label)+"</b>"+(st.prev_label&&T(st.updated)>Date.now()-3*864e5?'<span class="chg">▲ จาก '+esc(st.prev_label)+"</span>":"")+'<span class="t">'+esc(st.title||"")+(st.updated?" · "+ago(st.updated):"")+"</span></div>";
+    const a=num(st.label),r=num(R[s.id]),pct=a&&r!=null?Math.max(4,Math.min(100,r/a*100)):100;
+    h+='<div class="prog'+(b?" behind":"")+'"><span>อ่านถึง <b>'+esc(R[s.id]??"-")+'</b></span><span class="barw"><i style="width:'+pct.toFixed(1)+'%"></i></span><span>'+(b?"ค้าง "+b:"ทันแล้ว ✓")+"</span></div>";
+  }
+  h+='<div class="acts">';
+  if(st.label!=null)h+='<a class="btn sm" data-act="readlink" data-id="'+id+'" href="'+esc(safeUrl(st.url)||s.url)+'" target="_blank" rel="noopener">อ่านตอนล่าสุด ↗</a>';
+  if(b)h+='<button class="btn g sm" data-act="caught" data-id="'+id+'">✓ อ่านทันแล้ว</button>';
+  if(S)h+='<button class="btn g sm'+(mine?" on":"")+'" data-act="follow" data-id="'+id+'" title="ให้บอทแท็กฉันใน Discord เมื่อมีตอนใหม่">'+(mine?"🔔 ติดตามอยู่":"🔕 ติดตาม")+"</button>";
+  if(isMod())h+='<button class="btn t sm" data-act="check" data-id="'+id+'" title="ตรวจตอนนี้">↻ ตรวจ</button>';
+  h+='<button class="btn t sm" data-act="open" data-id="'+id+'">รายละเอียด</button></div>';
+  if(st.error)h+='<div class="err">⚠ '+esc(st.error)+(T(st.blocked_until)>Date.now()?" · ลองใหม่"+ago(st.blocked_until).replace("อีก"," อีก"):"")+"</div>";
+  return h+"</div></article>";
 }
 
-/* ---------- ตั้งค่า / รายชื่อเพื่อน ---------- */
-let friendsSha=null;
-async function loadFriends(){
-  if(!isAdmin)return;
+/* ================================================================ sheets */
+function openSheet(html,id,kind,keepScroll){
+  const box=$("#sheet .in"),top=keepScroll?box.scrollTop:0;
+  UI.sheetId=id||null;UI.sheetKind=kind||"";$("#sheetBody").innerHTML=html;
+  const sh=$("#sheet");if(sh.hidden){sh.hidden=false;document.body.style.overflow="hidden"}
+  box.scrollTop=top;
+}
+function closeSheet(){$("#sheet").hidden=true;document.body.style.overflow="";UI.sheetId=null;UI.sheetKind=""}
+function openDetail(id,keep){
+  const s=SER(id);if(!s)return closeSheet();
+  const st=ST(id),b=behind(id),hist=st.history||[],fol=D.followers[id]||[],mine=ME&&(ME.series||[]).includes(id),eid=esc(id);
+  const gaps=[];for(let i=0;i<hist.length-1;i++)gaps.push(T(hist[i].at)-T(hist[i+1].at));
+  const avg=gaps.length?gaps.reduce((a,c)=>a+c,0)/gaps.length:0;
+  const every=+(s.interval||30),base=T(st.tried||st.checked),nextAt=base?base+every*6e4:0;
+  const msgs=(D.log||[]).filter(e=>e.sid===id).slice(0,5);
+  let h='<div class="dhead"><div class="blur" style="background-image:url(\''+esc(safeUrl(st.cover)).replace(/'/g,"%27")+'\')"></div><div class="ct"><div class="big">'+cover(st.cover,s.name)+'</div><div style="min-width:0"><h2>'+esc(s.name)+'</h2><div class="meta"><a href="'+esc(s.url)+'" target="_blank" rel="noopener">'+esc(host(s.url))+" ↗</a>"+(s.by?" · เพิ่มโดย "+esc(s.by):"")+'</div><div class="r1" style="margin-top:6px">'+(s.enabled===false?'<span class="pill off">ปิดแจ้งเตือน</span>':'<span class="pill ok">เปิดแจ้งเตือน</span>')+(st.error?'<span class="pill err">⚠ อ่านไม่ได้</span>':"")+"</div></div></div></div><div class=\"pad\">";
+  h+='<div class="stat"><div><b>'+esc(st.label??"-")+'</b><span>ตอนล่าสุด</span></div><div><b>'+esc(R[id]??"-")+'</b><span>อ่านถึง</span></div><div><b style="color:'+(b?"var(--bad)":"var(--ok)")+'">'+(st.label==null?"-":b?b:"✓")+"</b><span>"+(b?"ค้างอ่าน":"ทันแล้ว")+"</span></div></div>";
+  if(st.label!=null){
+    h+='<div class="acts" style="margin-top:0"><a class="btn" data-act="readlink" data-id="'+eid+'" href="'+esc(safeUrl(st.url)||s.url)+'" target="_blank" rel="noopener">อ่านตอน '+esc(st.label)+" ↗</a>"+(b?'<button class="btn g" data-act="caught" data-id="'+eid+'">✓ อ่านทันแล้ว</button>':"")+"</div>";
+    h+='<div class="f"><label for="readIn">อ่านถึงตอน (จำไว้ในเครื่องนี้)</label><div class="row"><input type="text" id="readIn" inputmode="decimal" value="'+esc(R[id]??"")+'"><button class="btn g" data-act="setread" data-id="'+eid+'" style="flex:0 0 auto">บันทึก</button></div></div>';
+    if(st.title)h+='<p class="small mut" style="margin:10px 0 0">ชื่อตอนล่าสุด: '+esc(st.title)+"</p>";
+  }
+  h+='<div class="facts">'+
+    '<div class="fact"><div class="k">ออกตอนใหม่ล่าสุด</div><div class="v">'+(st.updated?ago(st.updated):"ยังไม่มี")+'</div><div class="k">'+(st.updated?esc(fullTime(st.updated)):"ตั้งแต่เริ่มติดตาม")+"</div></div>"+
+    '<div class="fact"><div class="k">ความถี่การออก</div><div class="v">'+(avg?"ทุก "+dur(avg):"ข้อมูลยังไม่พอ")+'</div><div class="k">'+(avg?"เฉลี่ยจาก "+hist.length+" ตอนล่าสุด":"ต้องมีตอนใหม่อย่างน้อย 2 ครั้ง")+"</div></div>"+
+    '<div class="fact"><div class="k">ตรวจล่าสุด</div><div class="v">'+(st.checked?ago(st.checked):"-")+'</div><div class="k">ตรวจทุก '+(every<60?every+" นาที":every/60+" ชม.")+"</div></div>"+
+    '<div class="fact"><div class="k">ตรวจครั้งถัดไป</div><div class="v">'+(s.enabled===false?"ปิดอยู่":nextAt&&nextAt>Date.now()?ago(new Date(nextAt).toISOString()):"รอบถัดไป")+'</div><div class="k">GitHub อาจช้าเล็กน้อย</div></div>'+
+    "</div>";
+  if(st.error)h+='<div class="err" style="margin-top:12px">⚠ '+esc(st.error)+"</div>";
+  h+='<h2 class="sec">🔔 แจ้งเตือนเข้า Discord</h2><div class="card box" style="padding:12px 14px"><div class="line"><div>'+(fol.length?"<b>"+fol.length+" คน</b>ติดตาม: "+fol.map(esc).join(", "):'<span class="mut">ยังไม่มีใครกดติดตาม</span>')+"</div>";
+  h+=S?'<button class="btn sm'+(mine?" g on":"")+'" data-act="follow" data-id="'+eid+'">'+(mine?"🔔 ติดตามอยู่":"🔔 แท็กฉันด้วย")+"</button>":'<button class="btn g sm" data-act="account">ล็อกอินเพื่อติดตาม</button>';
+  h+="</div>"+(S&&ME&&!ME.discord&&mine?'<div class="hint warn">ยังไม่ได้ใส่ Discord ID — บอทจะแท็กไม่ได้ ใส่ได้ที่แท็บระบบ → โปรไฟล์ของฉัน</div>':"")+"</div>";
+  h+='<h2 class="sec">🕘 ประวัติตอนใหม่ <span class="cnt soft">'+hist.length+"</span></h2>";
+  h+=hist.length?'<div class="card box" style="padding:6px 14px"><ul class="rows">'+hist.map(x=>'<li><span class="chg">'+esc(x.prev||"?")+" → "+esc(x.label)+'</span><a class="grow" href="'+esc(safeUrl(x.url)||s.url)+'" target="_blank" rel="noopener">'+esc(x.title||"ตอน "+x.label)+'</a><time title="'+esc(fullTime(x.at))+'">'+ago(x.at)+"</time></li>").join("")+"</ul></div>":'<p class="mut small">ยังไม่พบตอนใหม่ตั้งแต่เริ่มติดตาม'+(st.first_label?" (เริ่มที่ตอน "+esc(st.first_label)+(st.since?" · "+ago(st.since):"")+")":"")+"</p>";
+  if(msgs.length)h+='<h2 class="sec">📨 ข้อความ Discord ของเรื่องนี้</h2><div class="card box" style="padding:6px 14px"><ul class="rows">'+msgs.map(e=>"<li><span>"+(e.status==="sent"?"✅":"❌")+'</span><span class="grow">'+esc((e.embed&&e.embed.title)||e.kind)+(e.mentions&&e.mentions.length?' <span class="mut small">แท็ก '+e.mentions.map(esc).join(", ")+"</span>":"")+"</span><time>"+ago(e.at)+"</time></li>").join("")+"</ul></div>";
+  if(isMod()){
+    h+='<h2 class="sec">🛠 จัดการ (ผู้ดูแล)</h2><div class="card box f">'+
+      '<label for="eName">ชื่อเรื่อง</label><input type="text" id="eName" maxlength="80" value="'+esc(s.name)+'">'+
+      '<div class="row"><div><label for="eContains">ลิงก์ตอนต้องมีคำว่า</label><input type="text" id="eContains" value="'+esc(s.contains||"")+'" placeholder="เช่น /chapter/"></div>'+
+      '<div><label for="eInterval">ตรวจบ่อยแค่ไหน</label><select id="eInterval">'+[15,30,60,180,720].map(m=>'<option value="'+m+'"'+(every===m?" selected":"")+">"+(m<60?"ทุก "+m+" นาที":"ทุก "+m/60+" ชม.")+"</option>").join("")+"</select></div></div>"+
+      '<div class="acts"><button class="btn" data-act="save" data-id="'+eid+'">บันทึก</button><button class="btn g" data-act="check" data-id="'+eid+'">↻ ตรวจตอนนี้</button>'+
+      '<button class="btn g" data-act="toggle" data-id="'+eid+'">'+(s.enabled===false?"▶ เปิดแจ้งเตือน":"⏸ ปิดแจ้งเตือน")+'</button><span style="flex:1"></span><button class="btn g danger" data-act="del" data-id="'+eid+'">ลบเรื่องนี้</button></div></div>';
+  }
+  h+="</div>";
+  openSheet(h,id,"detail",keep);
+}
+function openAdd(pre){
+  pre=pre||{};
+  openSheet('<div class="pad f"><h2 style="margin:0 0 4px">'+(pre.rid?"✓ อนุมัติคำขอ":"＋ เพิ่มเรื่องใหม่")+'</h2><p class="mut small" style="margin:0">วางลิงก์หน้าเรื่อง (หน้าที่มีรายการตอนทั้งหมด) ระบบจะดึงชื่อ ปก และตอนล่าสุดมาให้ดูก่อน</p>'+
+    '<label for="aUrl">ลิงก์หน้าเรื่อง</label><input type="url" id="aUrl" placeholder="https://..." autocomplete="off" autocapitalize="off" value="'+esc(pre.url||"")+'"'+(pre.rid?" readonly":"")+">"+
+    '<div id="aPv"></div>'+
+    '<label for="aName">ชื่อเรื่อง</label><input type="text" id="aName" maxlength="80" placeholder="ดึงให้อัตโนมัติ หรือพิมพ์เอง" value="'+esc(pre.name||"")+'">'+
+    '<details style="margin-top:10px"><summary class="small mut" style="cursor:pointer">ตัวเลือกเพิ่มเติม</summary><div class="row"><div><label for="aContains">ลิงก์ตอนต้องมีคำว่า</label><input type="text" id="aContains" placeholder="เช่น /chapter/"></div>'+
+    '<div><label for="aInterval">ตรวจบ่อยแค่ไหน</label><select id="aInterval"><option value="15">ทุก 15 นาที</option><option value="30" selected>ทุก 30 นาที</option><option value="60">ทุก 1 ชม.</option><option value="180">ทุก 3 ชม.</option><option value="720">ทุก 12 ชม.</option></select></div></div></details>'+
+    '<div class="acts" style="margin-top:16px"><button class="btn" data-act="doadd"'+(pre.rid?' data-rid="'+esc(pre.rid)+'"':"")+">"+(pre.rid?"✓ อนุมัติและเพิ่ม":"＋ เพิ่มเรื่องนี้")+'</button><button class="btn g" data-act="close">ยกเลิก</button></div></div>',null,"add");
+  const u=$("#aUrl");let t;
+  const go=()=>{clearTimeout(t);t=setTimeout(()=>preview(u.value.trim()),550)};
+  u.addEventListener("input",go);
+  u.addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();clearTimeout(t);preview(u.value.trim())}});
+  if(pre.url)preview(pre.url);else setTimeout(()=>u.focus(),80);
+}
+let pvSeq=0;
+async function preview(url){
+  const box=$("#aPv");if(!box)return;
+  if(!/^https?:\/\/\S+\.\S+/i.test(url)){box.innerHTML=url?'<div class="hint warn">ลิงก์ต้องขึ้นต้นด้วย https://</div>':"";return}
+  const dup=D.series.find(s=>normU(s.url)===normU(url));
+  if(dup){box.innerHTML='<div class="hint bad">เรื่องนี้มีในรายการแล้ว: '+esc(dup.name)+"</div>";return}
+  const my=++pvSeq;
+  box.innerHTML='<div class="pv"><div class="cvw"><div class="sk" style="height:100%;margin:0"></div></div><div><div class="sk" style="width:70%"></div><div class="sk"></div><div class="small mut" style="margin-top:8px">กำลังเปิดเว็บและหาตอนล่าสุด…</div></div></div>';
   try{
-    const r=await api("/contents/friends.txt");
-    if(r.status===404){friendsSha=null;$("#friends").value="# ชื่อ GitHub ของเพื่อน บรรทัดละ 1 ชื่อ\n";return}
-    const j=await r.json();friendsSha=j.sha;$("#friends").value=b64d(j.content);
-  }catch(e){}
+    const p=await api("/api/preview",{method:"POST",body:{url}});if(my!==pvSeq||!$("#aPv"))return;
+    if(p.name&&!$("#aName").value)$("#aName").value=p.name;
+    $("#aPv").innerHTML='<div class="pv"><div class="cvw">'+cover(p.cover,p.name||host(url))+'</div><div style="min-width:0"><div class="b">'+esc(p.name||"(ไม่พบชื่อเรื่อง)")+'</div><div class="meta">'+esc(p.host)+(p.kind==="mangadex"?" · MangaDex API":p.kind==="rss"?" · RSS":"")+"</div>"+
+      (p.label!=null?'<div class="latest"><span class="lb">ตอนล่าสุดที่เจอ</span><b>'+esc(p.label)+'</b></div><div class="small mut">'+esc(p.chapterTitle||"")+(p.count?" · พบลิงก์ตอน "+p.count+" ลิงก์":"")+'</div><div class="hint ok">✓ อ่านเว็บนี้ได้ พร้อมเพิ่ม</div>':'<div class="hint warn">⚠ '+esc(p.warn||"ไม่พบตอน")+"</div>")+"</div></div>";
+  }catch(e){if(my!==pvSeq||!$("#aPv"))return;$("#aPv").innerHTML='<div class="hint warn">⚠ ดูตัวอย่างไม่ได้: '+esc(e.message)+" — ยังเพิ่มได้ ระบบจะลองตรวจจาก GitHub อีกที</div>"}
 }
-async function saveFriends(btn){
+async function doAdd(btn){
+  const url=$("#aUrl").value.trim(),name=$("#aName").value.trim(),contains=$("#aContains").value.trim(),interval=+$("#aInterval").value,rid=btn.dataset.rid;
+  if(!/^https?:\/\/\S+\.\S+/i.test(url)){$("#aUrl").focus();return toast("ใส่ลิงก์ที่ขึ้นต้นด้วย https://","bad")}
+  if(!name){$("#aName").focus();return toast("ใส่ชื่อเรื่อง","bad")}
   await busy(btn,async()=>{
-    const body={message:"update friends",content:b64e($("#friends").value.replace(/\s+$/,"")+"\n")};if(friendsSha)body.sha=friendsSha;
-    const r=await api("/contents/friends.txt",{method:"PUT",body:JSON.stringify(body)});
-    if(r.ok){friendsSha=(await r.json()).content.sha;toast("บันทึกรายชื่อเพื่อนแล้ว","ok")}
-    else toast("บันทึกไม่สำเร็จ (HTTP "+r.status+")","bad");
+    const r=rid?await api("/api/requests/"+rid+"/approve",{method:"POST",body:{name,contains,interval}}):await api("/api/series",{method:"POST",body:{name,url,contains,interval}});
+    closeSheet();D.series.push(r.item);UI.pending.add(r.item.id);
+    if(rid&&REQS){REQS=REQS.filter(x=>x.id!==rid);D.pending=REQS.length}
+    P.tab="library";UI.filter="all";savePrefs();render();
+    toast("เพิ่ม “"+name+"” แล้ว กำลังตรวจครั้งแรก (ประมาณ 1 นาที)…","ok");
+    if(r.warn)toast(r.warn,"bad");
+    if(!r.since)return;
+    const c=await waitRun(r.since);await loadData();UI.pending.delete(r.item.id);render();
+    const st=ST(r.item.id);
+    if(st.label)toast("“"+name+"” ตอนล่าสุดคือตอน "+st.label+" — จะแจ้งเตือนเมื่อมีตอนใหม่","ok",7000);
+    else if(st.error)toast("อ่าน “"+name+"” ไม่ได้: "+st.error,"bad",9000);
+    else{const m=runMsg(c);if(m)toast(m[0],m[1])}
   });
 }
-function openDrawer(){
-  $("#repoIn").value=repo();$("#tokIn").value=cfg.token||"";
-  $("#drawerMode").textContent=isAdmin?"ตอนนี้อยู่ในโหมดแอดมิน":"ตอนนี้อยู่ในโหมดดูอย่างเดียว — ใส่ Token ถ้าคุณเป็นเจ้าของระบบ";
-  $("#drawer").hidden=false;loadFriends();
+function openRequest(){
+  if(!API)return toast("ยังไม่ได้ตั้งค่าหลังบ้าน จึงส่งคำขอไม่ได้","bad");
+  openSheet('<div class="pad f"><h2 style="margin:0 0 4px">📨 ขอเพิ่มเรื่อง</h2><p class="mut small" style="margin:0">ผู้ดูแลจะเห็นคำขอในแท็บคำขอ และกดอนุมัติให้ ไม่ต้องล็อกอิน</p>'+
+    '<label for="qName">ชื่อเรื่อง</label><input type="text" id="qName" maxlength="80"><label for="qUrl">ลิงก์หน้าเรื่อง</label><input type="url" id="qUrl" placeholder="https://..." autocapitalize="off">'+
+    '<label for="qFrom">ชื่อของคุณ</label><input type="text" id="qFrom" maxlength="30" value="'+esc((S&&S.user.name)||LS.get("mw_from",""))+'">'+
+    '<label for="qNote">ข้อความถึงผู้ดูแล (ไม่บังคับ)</label><textarea id="qNote" maxlength="200"></textarea><input type="text" id="qWeb" class="hide" tabindex="-1" autocomplete="off" aria-hidden="true">'+
+    '<div class="acts" style="margin-top:16px"><button class="btn" data-act="dorequest">ส่งคำขอ</button><button class="btn g" data-act="close">ยกเลิก</button></div></div>',null,"request");
+  setTimeout(()=>$("#qName")&&$("#qName").focus(),80);
 }
-async function saveCfg(btn){
-  await busy(btn,async()=>{
-    cfg={repo:$("#repoIn").value.trim(),token:$("#tokIn").value.trim()};LS.set("mn2",cfg);
-    await verifyAdmin();await loadData();openDrawer();
-    if(isAdmin)toast("เชื่อมต่อสำเร็จ — โหมดแอดมิน","ok")
-  });
+async function doRequest(btn){
+  const b={name:$("#qName").value.trim(),url:$("#qUrl").value.trim(),from:$("#qFrom").value.trim(),note:$("#qNote").value.trim(),website:$("#qWeb").value};
+  if(!b.name)return toast("ใส่ชื่อเรื่อง","bad");
+  if(!/^https?:\/\/\S+\.\S+/i.test(b.url))return toast("ใส่ลิงก์ที่ขึ้นต้นด้วย https://","bad");
+  await busy(btn,async()=>{await api("/api/requests",{method:"POST",body:b});LS.set("mw_from",b.from);closeSheet();toast("ส่งคำขอแล้ว รอผู้ดูแลอนุมัติ 🙏","ok")});
 }
 
-/* ---------- events ---------- */
-$("#list").addEventListener("click",e=>{
-  const b=e.target.closest("[data-act]");if(!b)return;
-  const id=b.closest(".item").dataset.id,act=b.dataset.act;
-  if(act==="read"){markSeen(id);setTimeout(render,50);return}
-  if(act==="seen"){markSeen(id);render();return}
-  if(act==="hist"){openHist.has(id)?openHist.delete(id):openHist.add(id);render();return}
-  if(act==="check")return checkOne(id,b);
-  if(act==="del"){
-    if(b.classList.contains("armed")){clearTimeout(b._t);return remove(id)}
-    b.classList.add("armed");b.textContent="กดอีกครั้งเพื่อลบ";buzz();
-    b._t=setTimeout(()=>{b.classList.remove("armed");b.textContent="ลบ"},3000);
+/* ================================================================ feed */
+const feedMatch=(e,k)=>k==="all"||(k==="failed"?e.status==="failed":k==="problem"?["problem","test"].includes(e.kind):k==="new"?["new","resend"].includes(e.kind):e.kind===k);
+function renderFeed(v){
+  const kinds={all:"ทั้งหมด",new:"ตอนใหม่",digest:"สรุปประจำวัน",problem:"ระบบ/ปัญหา",failed:"ส่งไม่สำเร็จ"};
+  const all=D.log||[],l=all.filter(e=>feedMatch(e,UI.feed));
+  let h='<div style="margin:12px 0 6px"><b>ข้อความที่บอทส่งเข้า Discord</b><div class="small mut">เหมือนในห้อง Discord แต่บอกด้วยว่าส่งสำเร็จไหม แท็กใคร และกดส่งซ้ำได้</div></div>';
+  h+='<div class="chips">'+Object.entries(kinds).map(([k,t])=>{const n=all.filter(e=>feedMatch(e,k)).length;return(k==="all"||n||UI.feed===k)?'<button class="chip" data-act="feed" data-f="'+k+'" aria-pressed="'+(UI.feed===k)+'">'+t+"<b>"+n+"</b></button>":""}).join("")+"</div>";
+  if(!l.length){v.innerHTML=h+'<div class="empty"><div class="big">📭</div>'+(all.length?"ไม่มีข้อความในหมวดนี้":"ยังไม่มีข้อความ — พอมีตอนใหม่ บอทจะส่งเข้า Discord และขึ้นที่นี่ด้วย")+"</div>";return}
+  let day="";const today=new Date().toDateString(),yest=new Date(Date.now()-864e5).toDateString();
+  h+='<div class="card" style="padding:6px">';
+  for(const e of l){
+    const d=new Date(T(e.at)).toDateString();
+    if(d!==day){day=d;h+='<div class="day">'+(d===today?"วันนี้":d===yest?"เมื่อวาน":new Date(T(e.at)).toLocaleDateString("th-TH",{weekday:"short",day:"numeric",month:"short"}))+"</div>"}
+    const em=e.embed||{},col=em.color!=null?"#"+(+em.color).toString(16).padStart(6,"0"):"var(--pri)",s=e.sid&&SER(e.sid);
+    h+='<div class="msg"><div class="bot">'+({digest:"📚",problem:"⚠️",test:"✅"}[e.kind]||"📖")+'</div><div style="min-width:0"><div class="mh"><span class="who">Manga Bot</span><span class="tagbot">BOT</span><time class="small mut">'+esc(fullTime(e.at))+"</time></div>";
+    if(e.mentions&&e.mentions.length)h+="<div>"+e.mentions.map(n=>'<span class="mention">@'+esc(n)+"</span>").join(" ")+"</div>";
+    h+='<div class="embed" style="border-left-color:'+esc(col)+'"><div style="min-width:0">'+(em.title?(safeUrl(em.url)?'<a class="et" href="'+esc(em.url)+'" target="_blank" rel="noopener">'+esc(em.title)+"</a>":'<div class="et">'+esc(em.title)+"</div>"):"")+
+      (em.description?'<div class="ed">'+md(em.description)+"</div>":"")+(em.footer?'<div class="ef">'+esc(em.footer)+"</div>":"")+"</div>"+(safeUrl(em.thumb)?'<img src="'+esc(em.thumb)+'" alt="" loading="lazy" referrerpolicy="no-referrer">':"")+"</div>";
+    h+='<div class="delivery">'+(e.status==="sent"?'<span class="pill ok">✓ ส่งเข้า Discord แล้ว</span>':'<span class="pill err">✗ ส่งไม่สำเร็จ'+(e.error?": "+esc(e.error):"")+"</span>")+
+      (e.kind==="resend"?'<span class="pill pri">ส่งซ้ำ</span>':"")+(e.resent?'<span class="mut">ส่งซ้ำแล้ว '+ago(e.resent)+"</span>":"")+
+      (s?'<button class="btn t sm" data-act="open" data-id="'+esc(s.id)+'">ดูเรื่อง</button>':"")+
+      (isMod()&&e.kind!=="resend"?'<button class="btn t sm" data-act="resend" data-lid="'+esc(e.id)+'">↻ ส่งซ้ำ</button>':"")+"</div></div></div>";
   }
+  v.innerHTML=h+"</div>";
+}
+
+/* ================================================================ requests (mod) */
+async function loadReqs(){try{REQS=await api("/api/requests");D.pending=REQS.length;render()}catch(e){REQS=[];toast(e.message,"bad")}}
+function renderRequests(v){
+  if(REQS==null){v.innerHTML='<div class="empty">กำลังโหลดคำขอ…</div>';loadReqs();return}
+  if(!REQS.length){v.innerHTML='<div class="empty"><div class="big">📨</div>ไม่มีคำขอค้าง<br><span class="small">เพื่อนกด “＋ ขอเพิ่ม” ในแท็บติดตามได้โดยไม่ต้องล็อกอิน</span><div class="acts" style="justify-content:center"><button class="btn g sm" data-act="reloadreqs">รีเฟรช</button></div></div>';return}
+  v.innerHTML='<div class="bar"><b>คำขอเพิ่มเรื่อง ('+REQS.length+')</b><span style="flex:1"></span><button class="btn g sm" data-act="reloadreqs">รีเฟรช</button></div><div class="list">'+REQS.map(r=>
+    '<div class="card box" style="animation:pop .3s both"><div class="r1"><b style="font-size:16px">'+esc(r.name)+'</b><span class="pill pri">'+esc(host(r.url))+'</span></div><div class="meta">จาก <b>'+esc(r.from)+"</b> · "+ago(r.at)+' · <a href="'+esc(safeUrl(r.url))+'" target="_blank" rel="noopener">เปิดลิงก์ ↗</a></div>'+
+    (r.note?'<p style="margin:8px 0 0">💬 '+esc(r.note)+"</p>":"")+
+    '<div class="acts"><button class="btn ok" data-act="approve" data-rid="'+esc(r.id)+'">✓ ดูตัวอย่างแล้วอนุมัติ</button><button class="btn g danger" data-act="reject" data-rid="'+esc(r.id)+'">ปฏิเสธ</button></div></div>').join("")+"</div>";
+}
+
+/* ================================================================ system */
+const ACT_TH={"series.add":"เพิ่มเรื่อง","series.edit":"แก้ไขเรื่อง","series.delete":"ลบเรื่อง",check:"สั่งตรวจ",resend:"ส่งซ้ำ",test:"ทดสอบ Discord","request.reject":"ปฏิเสธคำขอ","user.add":"สร้างผู้ใช้","user.edit":"แก้ไขผู้ใช้","user.delete":"ลบผู้ใช้",config:"ตั้งค่า"};
+function renderSystem(v){
+  const hl=health(),runs=(STATUS&&STATUS.runs)||[],sched=runs.find(r=>r.event==="schedule");
+  const next=sched?T(sched.at)+15*6e4:0,lastMsg=(D.log||[])[0],bad=D.series.filter(s=>ST(s.id).error);
+  let h='<div class="card hero" style="margin-top:10px"><div class="ic '+hl.k+'">'+hl.icon+'</div><div style="flex:1;min-width:200px"><div class="h">'+esc(hl.t)+'</div><div class="small mut">'+esc(hl.sub||"")+"</div></div>"+(isMod()?'<button class="btn" data-act="checkall">▶ ตรวจทุกเรื่องตอนนี้</button>':"")+"</div>";
+  h+='<div class="facts">'+
+    '<div class="fact"><div class="k">รอบตรวจล่าสุด</div><div class="v">'+(runs[0]?ago(runs[0].at):"-")+'</div><div class="k">'+(runs[0]?(runs[0].status!=="completed"?"⏳ กำลังรัน":runs[0].conclusion==="success"?"✓ สำเร็จ":"✗ "+esc(runs[0].conclusion||"")):"")+"</div></div>"+
+    '<div class="fact"><div class="k">รอบอัตโนมัติถัดไป</div><div class="v">'+(next?(next>Date.now()?ago(new Date(next).toISOString()):"เร็ว ๆ นี้"):"-")+'</div><div class="k">GitHub อาจช้า 5-15 นาที</div></div>'+
+    '<div class="fact"><div class="k">ส่ง Discord ล่าสุด</div><div class="v">'+(lastMsg?ago(lastMsg.at):"-")+'</div><div class="k">'+(lastMsg?(lastMsg.status==="sent"?"✓ สำเร็จ":"✗ ล้มเหลว"):"")+"</div></div>"+
+    '<div class="fact"><div class="k">เรื่องที่ติดตาม</div><div class="v">'+D.series.length+' เรื่อง</div><div class="k">'+D.series.filter(s=>s.enabled!==false).length+" เปิดแจ้งเตือน</div></div></div>";
+  h+='<div class="cols" style="margin-top:14px">';
+  h+='<div class="card box"><h3>⏱ รอบตรวจล่าสุด</h3>'+(runs.length?'<ul class="rows">'+runs.slice(0,8).map(r=>"<li><span>"+(r.status!=="completed"?"⏳":r.conclusion==="success"?"✅":r.conclusion==="cancelled"?"⏹":"❌")+'</span><span class="grow">'+({schedule:"ตามเวลา",workflow_dispatch:"สั่งจากหน้าเว็บ",push:"มีการแก้ไฟล์"}[r.event]||esc(r.event))+(r.secs?' <span class="mut small">'+Math.round(r.secs)+" วิ</span>":"")+'</span><time title="'+esc(fullTime(r.at))+'">'+ago(r.at)+"</time>"+(safeUrl(r.url)?'<a class="small" href="'+esc(r.url)+'" target="_blank" rel="noopener">ดู</a>':"")+"</li>").join("")+"</ul>":'<p class="mut small">ยังไม่มีข้อมูล</p>')+"</div>";
+  h+='<div class="card box"><h3>🩺 เว็บที่มีปัญหา <span class="cnt'+(bad.length?"":" soft")+'">'+bad.length+"</span></h3>"+(bad.length?'<ul class="rows">'+bad.map(s=>'<li><span class="grow"><b>'+esc(s.name)+'</b><br><span class="small mut">'+esc(ST(s.id).error)+'</span></span><button class="btn t sm" data-act="open" data-id="'+esc(s.id)+'">ดู</button></li>').join("")+"</ul>":'<p class="mut small">ทุกเว็บอ่านได้ปกติ 👍</p>')+"</div>";
+  if(S){
+    h+='<div class="card box f"><h3>👤 โปรไฟล์ของฉัน</h3><div class="small">'+esc(S.user.name)+' · <span class="role '+esc(S.user.role)+'">'+ROLE_TH[S.user.role]+"</span></div>"+
+      '<label for="dId">Discord User ID (ให้บอทแท็กชื่อคุณ)</label><div class="row"><input type="text" id="dId" inputmode="numeric" placeholder="เช่น 123456789012345678" value="'+esc((ME&&ME.discord)||"")+'"><button class="btn g" data-act="savediscord" style="flex:0 0 auto">บันทึก</button></div>'+
+      '<div class="hint">หา ID: Discord → ตั้งค่า → ขั้นสูง → เปิด Developer Mode → คลิกขวาที่ชื่อตัวเอง → Copy User ID</div>'+
+      '<div class="hint">ติดตามอยู่ '+((ME&&ME.series)||[]).length+' เรื่อง — กดปุ่ม 🔕 ติดตาม ที่การ์ดเรื่องเพื่อเลือก</div><div class="acts"><button class="btn g danger" data-act="logout">ออกจากระบบ</button></div></div>';
+  }
+  h+='<div class="card box"><h3>📱 แอปบนเครื่องนี้</h3>'+
+    '<div class="line"><div>แจ้งเตือนบนเบราว์เซอร์<div class="small mut">เด้งเตือนเมื่อมีตอนใหม่ขณะเปิดหน้านี้ไว้</div></div><label class="sw"><input type="checkbox" data-act="notify"'+(P.notify?" checked":"")+' aria-label="แจ้งเตือนบนเบราว์เซอร์"><i></i></label></div>'+
+    '<div class="line"><div>ธีม</div><div class="seg">'+[["auto","อัตโนมัติ"],["light","สว่าง"],["dark","มืด"]].map(([k,t])=>'<button data-act="theme" data-v="'+k+'" aria-pressed="'+(P.theme===k)+'">'+t+"</button>").join("")+"</div></div>"+
+    (UI.installEvt?'<div class="line"><div>ติดตั้งเป็นแอป</div><button class="btn sm" data-act="install">ติดตั้ง</button></div>':'<div class="hint">ติดตั้งเป็นแอป: Android/Chrome กดเมนู ⋮ → ติดตั้งแอป · iPhone กดแชร์ → เพิ่มไปยังหน้าจอโฮม</div>')+
+    (API?"":'<div class="hint warn" style="margin-top:10px">ยังไม่ได้ตั้งค่าหลังบ้าน (Worker) — ตอนนี้ดูได้อย่างเดียว ล็อกอินไม่ได้</div>')+"</div>";
+  if(isOwner()){
+    const dg=(D.config&&D.config.digest)||{};
+    h+='<div class="card box f"><h3>📚 สรุปประจำวันเข้า Discord</h3><div class="line"><div>เปิดสรุปประจำวัน</div><label class="sw"><input type="checkbox" id="dgOn"'+(dg.enabled?" checked":"")+' aria-label="เปิดสรุปประจำวัน"><i></i></label></div>'+
+      '<div class="row"><div><label for="dgHour">ส่งเวลา (เวลาไทย)</label><select id="dgHour">'+Array.from({length:24},(_,i)=>'<option value="'+i+'"'+((dg.hour??21)===i?" selected":"")+">"+String(i).padStart(2,"0")+":00</option>").join("")+'</select></div><div><label for="dgEmpty">วันที่ไม่มีตอนใหม่</label><select id="dgEmpty"><option value="0">ไม่ต้องส่ง</option><option value="1"'+(dg.send_empty?" selected":"")+">ส่งว่าไม่มี</option></select></div></div>"+
+      '<div class="acts"><button class="btn" data-act="savedigest">บันทึก</button><button class="btn g" data-act="testdiscord">🔔 ส่งข้อความทดสอบ</button></div></div>';
+  }
+  h+="</div>";
+  if(isOwner()){
+    h+='<div class="card box f" style="margin-top:14px"><h3>👥 ผู้ใช้และยศ</h3><p class="small mut" style="margin:0 0 6px"><b>ผู้ดูแล</b>: เพิ่ม/แก้/ลบ/เปิดปิดเรื่อง อนุมัติคำขอ สั่งตรวจ ส่งซ้ำ · <b>สมาชิก</b>: กดติดตามให้บอทแท็กใน Discord · ไม่มีใครเห็น Token/Webhook หรือแก้ระบบได้นอกจากคุณ</p>';
+    if(USERS==null){h+='<p class="mut">กำลังโหลด…</p>';loadUsers()}
+    else h+='<ul class="rows">'+USERS.map(u=>'<li><span class="av" style="background:hsl('+hash(u.name)%360+' 55% 50%)">'+esc(initial(u.name))+'</span><span class="grow"><b>'+esc(u.name)+'</b> <span class="small mut">'+(u.created?"สร้าง "+ago(u.created):"")+'</span></span><select class="sel" data-act="role" data-u="'+esc(u.name)+'" aria-label="ยศ"><option value="mod"'+(u.role==="mod"?" selected":"")+'>ผู้ดูแล</option><option value="member"'+(u.role==="member"?" selected":"")+'>สมาชิก</option></select><button class="btn t sm" data-act="resetpw" data-u="'+esc(u.name)+'">รีเซ็ตรหัส</button><button class="btn t sm danger" data-act="deluser" data-u="'+esc(u.name)+'">ลบ</button></li>').join("")+(USERS.length?"":'<li class="mut small">ยังไม่มีผู้ใช้อื่น</li>')+"</ul>";
+    h+='<div class="row" style="margin-top:8px"><div><label for="nuName">ชื่อผู้ใช้ใหม่</label><input type="text" id="nuName" maxlength="24" autocomplete="off"></div><div><label for="nuRole">ยศ</label><select id="nuRole"><option value="mod">ผู้ดูแล</option><option value="member">สมาชิก</option></select></div></div>'+
+      '<label for="nuPw">รหัสผ่าน (อย่างน้อย 6 ตัว)</label><div class="row"><input type="text" id="nuPw" autocomplete="off"><button class="btn g" data-act="genpw" style="flex:0 0 auto">สุ่ม</button></div>'+
+      '<div class="acts"><button class="btn" data-act="adduser">＋ สร้างบัญชี</button></div><div class="hint">สร้างแล้วส่งชื่อ+รหัสให้เพื่อนทางแชท เพื่อนเข้าหน้านี้แล้วกด “เข้าสู่ระบบ”</div></div>';
+  }
+  if(isMod()){
+    h+='<div class="card box" style="margin-top:14px"><h3>📜 บันทึกการจัดการ</h3>';
+    if(AUDIT==null){h+='<p class="mut">กำลังโหลด…</p>';loadAudit()}
+    else h+=AUDIT.length?'<ul class="rows">'+AUDIT.slice(0,40).map(a=>'<li><span class="grow"><b>'+esc(a.who)+"</b> "+esc(ACT_TH[a.act]||a.act)+' <span class="mut">'+esc(a.detail||"")+'</span></span><time title="'+esc(fullTime(a.at))+'">'+ago(a.at)+"</time></li>").join("")+"</ul>":'<p class="mut small">ยังไม่มีบันทึก</p>';
+    h+="</div>";
+  }
+  v.innerHTML=h;
+}
+async function loadUsers(){try{USERS=await api("/api/users")}catch(e){USERS=[];toast(e.message,"bad")}render()}
+async function loadAudit(){try{AUDIT=await api("/api/audit")}catch(e){AUDIT=[]}render()}
+
+/* ================================================================ account */
+function openAccount(){
+  if(S){P.tab="system";savePrefs();render();window.scrollTo({top:0,behavior:"smooth"});return}
+  if(!API)return toast("ยังไม่ได้ตั้งค่าหลังบ้าน (Cloudflare Worker) — ตอนนี้ดูได้อย่างเดียว","bad",6000);
+  openSheet('<div class="pad f"><h2 style="margin:0 0 4px">เข้าสู่ระบบ</h2><p class="mut small" style="margin:0">ขอบัญชีจากเจ้าของระบบ · ไม่ล็อกอินก็ดูและขอเพิ่มเรื่องได้</p>'+
+    '<label for="lName">ชื่อผู้ใช้</label><input type="text" id="lName" autocomplete="username" autocapitalize="off"><label for="lPw">รหัสผ่าน</label><input type="password" id="lPw" autocomplete="current-password">'+
+    '<div class="acts" style="margin-top:16px"><button class="btn" data-act="login">เข้าสู่ระบบ</button><button class="btn g" data-act="close">ยกเลิก</button></div></div>',null,"login");
+  setTimeout(()=>$("#lName")&&$("#lName").focus(),80);
+  $("#lPw").addEventListener("keydown",e=>{if(e.key==="Enter")$('[data-act="login"]').click()});
+}
+async function doLogin(btn){
+  const name=$("#lName").value.trim(),password=$("#lPw").value;
+  if(!name||!password)return toast("กรอกชื่อและรหัสผ่าน","bad");
+  await busy(btn,async()=>{
+    const r=await api("/api/login",{method:"POST",body:{name,password}});
+    S=r;LS.set("mw_session",S);closeSheet();USERS=AUDIT=REQS=null;
+    toast("ยินดีต้อนรับ "+r.user.name+" ("+ROLE_TH[r.user.role]+")","ok");
+    render();await loadMe();if(isMod())loadReqs();
+  });
+}
+function logout(reason){S=null;ME=null;USERS=AUDIT=REQS=null;LS.del("mw_session");if(UI.filter==="mine")UI.filter="all";render();toast(typeof reason==="string"?reason:"ออกจากระบบแล้ว","info",6000)}
+
+/* ================================================================ actions */
+function arm(btn,label,fn){
+  if(btn.classList.contains("armed")){clearTimeout(btn._t);btn.classList.remove("armed");btn.textContent=btn._orig;return fn()}
+  btn._orig=btn.textContent;btn.classList.add("armed");btn.textContent=label;buzz();
+  btn._t=setTimeout(()=>{btn.classList.remove("armed");btn.textContent=btn._orig},3200);
+}
+async function checkOne(btn,id){
+  const s=SER(id);if(!s)return;
+  await busy(btn,async()=>{
+    const before=ST(id).label;const r=await api("/api/check",{method:"POST",body:{only:id}});
+    toast("สั่งตรวจ “"+s.name+"” แล้ว รอประมาณ 1 นาที…");
+    const c=await waitRun(r.since);await loadData();
+    const m=runMsg(c);if(m)return toast(m[0],m[1]);
+    const st=ST(id);
+    if(st.error)toast("ตรวจ “"+s.name+"” ไม่ได้: "+st.error,"bad",9000);
+    else if(before&&st.label!==before)toast("🔔 “"+s.name+"” ตอน "+before+" → "+st.label+" (ส่ง Discord แล้ว)","ok",8000);
+    else toast("“"+s.name+"” ยังเป็นตอน "+(st.label||"?")+" — ยังไม่มีตอนใหม่","info");
+  });
+}
+const ACT={
+  tab:el=>{P.tab=el.dataset.tab;savePrefs();if(P.tab==="system")loadStatus();render();window.scrollTo({top:0})},
+  account:()=>openAccount(),
+  close:()=>closeSheet(),
+  view:el=>{P.view=el.dataset.v;savePrefs();render()},
+  filter:el=>{UI.filter=el.dataset.f;buzz();render()},
+  feed:el=>{UI.feed=el.dataset.f;buzz();render()},
+  open:el=>openDetail(el.dataset.id),
+  add:()=>openAdd(),
+  request:()=>openRequest(),
+  doadd:el=>doAdd(el),
+  dorequest:el=>doRequest(el),
+  login:el=>doLogin(el),
+  logout:()=>logout(false),
+  readlink:el=>{const id=el.dataset.id,st=ST(id);if(st.label!=null){R[id]=st.label;LS.set("mw_read",R)}setTimeout(()=>{render();if(UI.sheetId===id)openDetail(id,true)},60)},
+  caught:el=>{const id=el.dataset.id;setRead(id,ST(id).label);toast("อ่านทัน “"+SER(id).name+"” แล้ว ✓","ok",2000)},
+  readall:()=>{for(const s of D.series)if(ST(s.id).label!=null)R[s.id]=ST(s.id).label;LS.set("mw_read",R);render();toast("ทำเครื่องหมายอ่านทันทั้งหมดแล้ว","ok",2200)},
+  setread:el=>{const v=$("#readIn").value.trim();if(!v)return;setRead(el.dataset.id,v);toast("บันทึกว่าอ่านถึงตอน "+v,"ok",2000)},
+  follow:async el=>{
+    const id=el.dataset.id,on=!(ME&&(ME.series||[]).includes(id)),me=S.user.name;
+    ME=ME||{series:[],discord:""};const old=[...(ME.series||[])];ME.series=on?[...old,id]:old.filter(x=>x!==id);
+    const f=D.followers[id]||[];D.followers[id]=on?[...f.filter(n=>n!==me),me]:f.filter(n=>n!==me);
+    render();if(UI.sheetId===id)openDetail(id,true);buzz();
+    toast(on?(ME.discord?"🔔 จะแท็กคุณใน Discord เมื่อ “"+SER(id).name+"” มีตอนใหม่":"ติดตามแล้ว — ใส่ Discord ID ในแท็บระบบเพื่อให้บอทแท็กคุณ"):"เลิกติดตามแล้ว",on?"ok":"info",4500);
+    try{ME=await api("/api/subscribe",{method:"POST",body:{sid:id,on}})}catch(e){ME.series=old;D.followers[id]=f;render();toast(e.message,"bad")}
+  },
+  check:el=>checkOne(el,el.dataset.id),
+  checkall:el=>busy(el,async()=>{const before={};for(const s of D.series)before[s.id]=ST(s.id).label;
+    const r=await api("/api/check",{method:"POST",body:{}});toast("สั่งตรวจทุกเรื่องแล้ว รอ 1-3 นาที…");
+    const c=await waitRun(r.since);await loadData();loadStatus();const m=runMsg(c);if(m)return toast(m[0],m[1]);
+    const fresh=D.series.filter(s=>before[s.id]&&ST(s.id).label!==before[s.id]),bad=D.series.filter(s=>ST(s.id).error).length;
+    toast("ตรวจเสร็จ: "+(fresh.length?fresh.length+" เรื่องมีตอนใหม่ 🎉":"ยังไม่มีตอนใหม่")+(bad?" · "+bad+" เรื่องอ่านไม่ได้":""),"ok",6000)}),
+  save:el=>busy(el,async()=>{const id=el.dataset.id;
+    const r=await api("/api/series/"+id,{method:"PATCH",body:{name:$("#eName").value,contains:$("#eContains").value,interval:+$("#eInterval").value}});
+    Object.assign(SER(id),r.item);render();openDetail(id,true);toast("บันทึกแล้ว","ok",2200)}),
+  toggle:el=>busy(el,async()=>{const id=el.dataset.id,s=SER(id),on=s.enabled===false;
+    const r=await api("/api/series/"+id,{method:"PATCH",body:{enabled:on}});Object.assign(s,r.item);render();openDetail(id,true);
+    toast((on?"เปิด":"ปิด")+"แจ้งเตือน “"+s.name+"” แล้ว",on?"ok":"info",2500)}),
+  del:el=>arm(el,"กดอีกครั้งเพื่อยืนยันลบ",()=>busy(el,async()=>{const id=el.dataset.id,s=SER(id);
+    await api("/api/series/"+id,{method:"DELETE"});D.series=D.series.filter(x=>x.id!==id);closeSheet();render();toast("ลบ “"+s.name+"” แล้ว","ok")})),
+  resend:el=>busy(el,async()=>{const lid=el.dataset.lid,r=await api("/api/resend",{method:"POST",body:{id:lid}});toast("กำลังส่งซ้ำ…");
+    const c=await waitRun(r.since);await loadData();const e=(D.log||[]).find(x=>x.kind==="resend"&&x.ref===lid&&T(x.at)>=T(r.since)-6e4);
+    if(e)toast(e.status==="sent"?"ส่งซ้ำเข้า Discord แล้ว ✓":"ส่งซ้ำไม่สำเร็จ: "+(e.error||"")+" — ตรวจ Secret DISCORD_WEBHOOK_URL",e.status==="sent"?"ok":"bad",8000);
+    else{const m=runMsg(c)||["ยังไม่เห็นผล ลองกดรีเฟรชอีกครั้ง","info"];toast(m[0],m[1])}}),
+  approve:el=>{const r=(REQS||[]).find(x=>x.id===el.dataset.rid);if(r)openAdd({url:r.url,name:r.name,rid:r.id})},
+  reject:el=>arm(el,"กดอีกครั้งเพื่อปฏิเสธ",()=>busy(el,async()=>{await api("/api/requests/"+el.dataset.rid+"/reject",{method:"POST",body:{}});REQS=REQS.filter(x=>x.id!==el.dataset.rid);D.pending=REQS.length;render();toast("ปฏิเสธคำขอแล้ว","info")})),
+  reloadreqs:el=>busy(el,loadReqs),
+  savediscord:el=>busy(el,async()=>{ME=await api("/api/me",{method:"PUT",body:{discord:$("#dId").value.trim()}});render();toast(ME.discord?"บันทึก Discord ID แล้ว บอทจะแท็กคุณ ✓":"ลบ Discord ID แล้ว","ok")}),
+  notify:async el=>{if(el.checked&&"Notification"in window){const p=await Notification.requestPermission();if(p!=="granted"){el.checked=false;return toast("เบราว์เซอร์ไม่อนุญาตให้แจ้งเตือน","bad")}}
+    else if(el.checked){el.checked=false;return toast("เบราว์เซอร์นี้ไม่รองรับการแจ้งเตือน","bad")}P.notify=el.checked;savePrefs();toast(P.notify?"เปิดแจ้งเตือนบนเบราว์เซอร์แล้ว":"ปิดแล้ว","ok",2000)},
+  theme:el=>{P.theme=el.dataset.v;savePrefs();applyTheme();render()},
+  install:()=>{if(UI.installEvt){UI.installEvt.prompt();UI.installEvt=null;render()}},
+  savedigest:el=>busy(el,async()=>{const r=await api("/api/config",{method:"PUT",body:{digest:{enabled:$("#dgOn").checked,hour:+$("#dgHour").value,send_empty:$("#dgEmpty").value==="1"}}});D.config=r.config;AUDIT=null;toast("บันทึกการตั้งค่าสรุปประจำวันแล้ว","ok")}),
+  testdiscord:el=>busy(el,async()=>{const r=await api("/api/test",{method:"POST"});toast("กำลังส่งข้อความทดสอบ…");const c=await waitRun(r.since);await loadData();
+    const e=(D.log||[]).find(x=>x.kind==="test"&&T(x.at)>=T(r.since)-6e4);
+    if(e)toast(e.status==="sent"?"ส่งแล้ว! ดูใน Discord ว่ามีข้อความ “ทดสอบแจ้งเตือนสำเร็จ”":"ส่งไม่สำเร็จ ("+(e.error||"")+") — ตรวจ Secret DISCORD_WEBHOOK_URL ใน GitHub",e.status==="sent"?"ok":"bad",9000);
+    else{const m=runMsg(c)||["ยังไม่เห็นผล ลองกดรีเฟรชอีกครั้ง","info"];toast(m[0],m[1])}}),
+  genpw:()=>{$("#nuPw").value=randPw()},
+  adduser:el=>busy(el,async()=>{const name=$("#nuName").value.trim(),role=$("#nuRole").value,password=$("#nuPw").value;
+    await api("/api/users",{method:"POST",body:{name,role,password}});
+    openSheet('<div class="pad"><h2 style="margin:0">สร้างบัญชีแล้ว 🎉</h2><p class="mut small">ส่งข้อความนี้ให้ '+esc(name)+' ได้เลย</p><div class="card box" style="white-space:pre-wrap;user-select:all" id="cred">'+esc("เข้า "+location.origin+location.pathname+"\nชื่อผู้ใช้: "+name+"\nรหัสผ่าน: "+password)+'</div><div class="acts"><button class="btn" data-act="copy" data-src="cred">คัดลอก</button><button class="btn g" data-act="close">ปิด</button></div></div>',null,"cred");
+    USERS=null;AUDIT=null;render()}),
+  resetpw:el=>{const u=el.dataset.u,pw=randPw();
+    arm(el,"ยืนยันรีเซ็ต?",()=>busy(el,async()=>{await api("/api/users/"+encodeURIComponent(u),{method:"PATCH",body:{password:pw}});AUDIT=null;
+      openSheet('<div class="pad"><h2 style="margin:0">รหัสใหม่ของ '+esc(u)+'</h2><p class="mut small">ส่งให้เจ้าของบัญชี (แสดงครั้งเดียว) เครื่องที่ล็อกอินไว้จะถูกออกจากระบบ</p><div class="card box" id="cred" style="font:600 22px ui-monospace,monospace;text-align:center;letter-spacing:2px;user-select:all">'+esc(pw)+'</div><div class="acts"><button class="btn" data-act="copy" data-src="cred">คัดลอก</button><button class="btn g" data-act="close">ปิด</button></div></div>',null,"cred")}))},
+  copy:el=>{const t=($("#"+el.dataset.src)||{}).textContent||"";if(navigator.clipboard)navigator.clipboard.writeText(t).then(()=>toast("คัดลอกแล้ว","ok",1500),()=>toast("คัดลอกไม่ได้ ให้กดค้างที่ข้อความแล้วคัดลอกเอง","bad"))},
+  deluser:el=>arm(el,"ยืนยันลบ?",()=>busy(el,async()=>{await api("/api/users/"+encodeURIComponent(el.dataset.u),{method:"DELETE"});USERS=USERS.filter(x=>x.name!==el.dataset.u);AUDIT=null;render();toast("ลบผู้ใช้แล้ว","ok")})),
+};
+document.addEventListener("click",e=>{
+  const el=e.target.closest("[data-act]");if(!el||el.tagName==="SELECT"||el.tagName==="INPUT")return;
+  const fn=ACT[el.dataset.act];if(fn)fn(el,e);
 });
-$("#list").addEventListener("change",e=>{if(e.target.dataset.act==="toggle")toggle(e.target.closest(".item").dataset.id,e.target.checked)});
-$("#list").addEventListener("error",e=>{
-  const i=e.target;if(i.tagName!=="IMG")return;
-  const d=document.createElement("div");d.className="ph";d.style.setProperty("--h",i.dataset.h||"200");d.textContent=i.dataset.ch||"?";i.replaceWith(d);
-},true);
-$("#chips").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b){filter=b.dataset.f;buzz();render()}});
-$("#q").addEventListener("input",e=>{query=e.target.value;render()});
-$("#sort").value=sortBy;$("#sort").addEventListener("change",e=>{sortBy=e.target.value;LS.set("mn_sort",sortBy);render()});
-$("#readall").onclick=()=>{series.forEach(s=>markSeen(s.id));render();toast("ทำเครื่องหมายว่าอ่านทั้งหมดแล้ว","ok",2200)};
-$("#refresh").onclick=e=>busy(e.currentTarget,async()=>{await loadData();toast("รีเฟรชแล้ว","info",1500)});
-$("#add").onclick=e=>addSeries(e.currentTarget);
-$("#u").addEventListener("input",urlHint);
-for(const id of["#n","#u","#c"])$(id).addEventListener("keydown",e=>{if(e.key==="Enter")$("#add").click()});
-$("#gear").onclick=openDrawer;
-$("#closeDrawer").onclick=()=>{$("#drawer").hidden=true};
-$("#drawer").addEventListener("click",e=>{if(e.target.id==="drawer")$("#drawer").hidden=true});
-document.addEventListener("keydown",e=>{if(e.key==="Escape")$("#drawer").hidden=true});
-$("#saveCfg").onclick=e=>saveCfg(e.currentTarget);
-$("#logout").onclick=async()=>{cfg={repo:cfg.repo};LS.set("mn2",cfg);isAdmin=false;$("#tokIn").value="";await loadData();openDrawer();toast("ออกจากโหมดแอดมินแล้ว","info")};
-$("#checkAll").onclick=e=>checkAll(e.currentTarget);
-$("#testHook").onclick=e=>testHook(e.currentTarget);
-$("#saveFriends").onclick=e=>saveFriends(e.currentTarget);
-setInterval(()=>{if(!document.hidden&&!document.querySelector(".btn.busy"))loadData(true)},60000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden)loadData(true)});
-(async()=>{await verifyAdmin();await loadData();if(!series.length&&!isAdmin&&!cfg.token){/* ว่างเปล่า */}})();
+document.addEventListener("change",async e=>{
+  const el=e.target;
+  if(el.id==="sort"){P.sort=el.value;savePrefs();render();return}
+  if(el.dataset.act==="notify")return ACT.notify(el);
+  if(el.dataset.act==="role"){const u=el.dataset.u;try{await api("/api/users/"+encodeURIComponent(u),{method:"PATCH",body:{role:el.value}});toast("เปลี่ยนยศ "+u+" เป็น"+(el.value==="mod"?"ผู้ดูแล":"สมาชิก")+"แล้ว","ok");AUDIT=null;USERS=null;render()}catch(x){toast(x.message,"bad");USERS=null;render()}}
+});
+document.addEventListener("input",e=>{if(e.target.id==="q"){UI.q=e.target.value;const pos=e.target.selectionStart;render();const q=$("#q");if(q){q.focus();try{q.setSelectionRange(pos,pos)}catch(x){}}}});
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"&&!$("#sheet").hidden)closeSheet();
+  if(e.key==="/"&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&$("#q")){e.preventDefault();$("#q").focus()}
+});
+$("#sheet").addEventListener("click",e=>{if(e.target.id==="sheet")closeSheet()});
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();UI.installEvt=e});
+
+/* ================================================================ start */
+(async()=>{
+  render();
+  if(!API){const c=await staticJson("config.json",{});if(c&&c.worker_url)API=String(c.worker_url).trim().replace(/\/+$/,"")}
+  await loadData();loadStatus();loadMe();
+  if(isMod())loadReqs();
+  setInterval(()=>{if(!document.hidden&&!document.querySelector(".btn.busy"))loadData(true)},45000);
+  setInterval(()=>{if(!document.hidden)loadStatus()},120000);
+  setInterval(()=>{if(!document.hidden)renderHealth()},30000);
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden){loadData(true);loadStatus()}});
+  if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+})();
 </script>
 </body>
 </html>

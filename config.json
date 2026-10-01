@@ -1,0 +1,5 @@
+{
+  "worker_url": "",
+  "tz_offset": 7,
+  "digest": {"enabled": true, "hour": 21, "send_empty": false}
+}
