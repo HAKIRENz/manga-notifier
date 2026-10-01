@@ -1,13 +1,16 @@
 [
   {
     "id": "46zx8029",
-    "name": "The Transcendent Holy Swordsman Regresses as the Youngest Son of a Magic Swordsm",
+    "name": "จอมดาบศักดิ์สิทธิ์เหนือขีดจำกัด ขอย้อนเวลากลับเป็นคุณชายเล็กตระกูลดาบเวท!",
     "url": "https://en-thunderscans.com/comics/the-transcendent-holy-swordsman-regresses-as-the-youngest-son-of-a-magic-swordsman-family/",
     "contains": "",
     "enabled": true,
-    "interval": 180,
     "by": "boom",
-    "added": "2026-10-01T07:53:25Z"
+    "added": "2026-10-01T07:53:25Z",
+    "sched": {
+      "mode": "peak"
+    },
+    "autoslow": true
   },
   {
     "id": "afxbxwrf",
