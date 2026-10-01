@@ -548,5 +548,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T12:04:31Z"
+  },
+  {
+    "id": "8phwj2sy",
+    "name": "ราชันย์แห่งยมโลก: ข้านี่แหละคือห้วงอเวจี!",
+    "url": "https://ac.qq.com/Comic/comicInfo/id/657781",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T12:04:50Z"
   }
 ]
