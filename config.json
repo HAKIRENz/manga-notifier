@@ -5,5 +5,9 @@
     "enabled": true,
     "hour": 23,
     "send_empty": true
+  },
+  "alert": {
+    "enabled": true,
+    "discord": "343575893156954112"
   }
 }
