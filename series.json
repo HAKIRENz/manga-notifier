@@ -380,5 +380,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T11:58:42Z"
+  },
+  {
+    "id": "ienhj2sv",
+    "name": "จุติฮันเตอร์วันสิ้นโลก: ฉันมีระบบค่าประสบการณ์",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27683/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-05-27%2008%3A46%3A31%3A267&cps=undefined",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T11:58:56Z"
   }
 ]
