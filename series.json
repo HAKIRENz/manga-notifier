@@ -416,5 +416,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T11:59:26Z"
+  },
+  {
+    "id": "sfzds7bk",
+    "name": "พลิกอักษรเปลี่ยนสกิลบงการโลกจนยับเยิน",
+    "url": "https://ac.qq.com/Comic/comicInfo/id/657528",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T11:59:53Z"
   }
 ]
