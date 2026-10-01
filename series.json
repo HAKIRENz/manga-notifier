@@ -260,5 +260,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T11:55:59Z"
+  },
+  {
+    "id": "0orrzd2m",
+    "name": "ยีนส์เทพเจ้า",
+    "url": "https://ac.qq.com/Comic/comicInfo/id/651640",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T11:56:19Z"
   }
 ]
