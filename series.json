@@ -34,14 +34,16 @@
   },
   {
     "id": "wo8f3lu3",
-    "name": "我！天命大反派",
+    "name": "ข้าคือจอมวายร้ายผู้ยิ่งใหญ่",
     "url": "https://www.kuaikanmanhua.com/web/topic/12602/?cps=undefined",
     "contains": "",
     "enabled": true,
-    "interval": 180,
     "by": "Admin",
     "added": "2026-10-01T08:16:24Z",
-    "times": []
+    "sched": {
+      "mode": "peak"
+    },
+    "autoslow": true
   },
   {
     "id": "0ahhxsog",
