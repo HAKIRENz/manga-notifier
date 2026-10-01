@@ -101,7 +101,7 @@
   },
   {
     "id": "drgsqxj2",
-    "name": "命轮之主！当异变降临人间",
+    "name": "เจ้ากงล้อแห่งโชคชะตา",
     "url": "https://ac.qq.com/Comic/comicInfo/id/655278",
     "contains": "",
     "enabled": true,
@@ -109,7 +109,8 @@
       "mode": "peak"
     },
     "by": "boom",
-    "added": "2026-10-01T11:46:36Z"
+    "added": "2026-10-01T11:46:36Z",
+    "autoslow": true
   },
   {
     "id": "80tc295y",
