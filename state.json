@@ -34,5 +34,24 @@
   "title": "战争",
   "tried": "2026-10-01T07:26:16+00:00",
   "url": "https://ac.qq.com/Comic/all/theme/117"
+ },
+ "mvpi6ssc": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"13112-0eapHtnGLXVRKBmU37J79TB8F+g\"",
+   "lm": null
+  },
+  "checked": "2026-10-01T07:29:16+00:00",
+  "cover": "https://festatic.v3mh.com/static-resource/img/20210706/tiny/logo_128x128.png",
+  "error": "",
+  "fails": 0,
+  "first_label": "90227",
+  "label": "90227",
+  "number": 90227.0,
+  "since": "2026-10-01T07:29:16+00:00",
+  "title": "问答 由希区柯克本人重拍过的希区柯克的电影 由希区柯克本人重拍过的希区柯克的电影是擒凶记。希区柯克本人的代表作品有后窗、惊魂记、西北偏北、蝴蝶梦、列车上的陌生人",
+  "tried": "2026-10-01T07:29:16+00:00",
+  "url": "https://www.kuaikanmanhua.com/qa1/90227?cps=topic"
  }
 }
