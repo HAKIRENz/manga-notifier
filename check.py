@@ -535,6 +535,27 @@ def maybe_digest(cfg, series, state, notifier, now):
     notifier.send("digest", payload, count=n)
 
 
+def is_due(s, st, now, cfg):
+    """ถึงเวลาตรวจเรื่องนี้หรือยัง: โหมด 'ตั้งเวลาเอง' (times) หรือโหมด 'ทุก ๆ X นาที' (interval)"""
+    if not st.get("tried"):
+        return True
+    tried = datetime.datetime.fromisoformat(st["tried"])
+    times = [t for t in (s.get("times") or []) if re.fullmatch(r"([01]\d|2[0-3]):[0-5]\d", str(t))]
+    if times:
+        tz = datetime.timezone(datetime.timedelta(hours=float(cfg.get("tz_offset", 7))))
+        local = now.astimezone(tz)
+        for back in (0, 1):                                  # วันนี้ + เมื่อวาน (เผื่อรอบข้ามเที่ยงคืน)
+            day = (local - datetime.timedelta(days=back)).date()
+            for hm in times:
+                h, m = map(int, hm.split(":"))
+                at = datetime.datetime(day.year, day.month, day.day, h, m, tzinfo=tz)
+                if tried < at <= now:
+                    return True
+        return False
+    every = int(s.get("interval") or DEFAULT_INTERVAL_MIN)
+    return (now - tried).total_seconds() >= every * 60 - 120
+
+
 def main():
     now = datetime.datetime.now(datetime.timezone.utc)
     webhook = os.environ.get("DISCORD_WEBHOOK_URL", "").strip()
@@ -583,9 +604,7 @@ def main():
         st = state.setdefault(s["id"], {})
         if st.get("blocked_until") and now.isoformat() < st["blocked_until"] and not only:
             continue                                   # กำลังพักเพราะเว็บบล็อก
-        every = int(s.get("interval", DEFAULT_INTERVAL_MIN))
-        if not force and st.get("tried") and \
-                (now - datetime.datetime.fromisoformat(st["tried"])).total_seconds() < every * 60 - 120:
+        if not force and not is_due(s, st, now, cfg):
             continue                                   # ยังไม่ถึงรอบของเรื่องนี้
         dom = urllib.parse.urlparse(s["url"]).netloc
         wait = last_hit.get(dom, 0) + random.uniform(4, 10) - time.time()
