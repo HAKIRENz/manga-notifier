@@ -66,7 +66,7 @@
   },
   {
     "id": "egon7x0q",
-    "name": "全民转职：无职的我终结了神明！",
+    "name": "ฉันคือผู้เล่นไร้อาชีพที่สังหารเหล่าเทพ",
     "url": "https://www.kuaikanmanhua.com/web/topic/16315/?cps=undefined",
     "contains": "",
     "enabled": true,
@@ -74,7 +74,8 @@
       "mode": "peak"
     },
     "by": "boom",
-    "added": "2026-10-01T11:45:24Z"
+    "added": "2026-10-01T11:45:24Z",
+    "autoslow": true
   },
   {
     "id": "fqxby98w",
