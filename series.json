@@ -536,5 +536,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T12:04:00Z"
+  },
+  {
+    "id": "susczonp",
+    "name": "ยอดอัจฉริยะอหังการ์",
+    "url": "https://ac.qq.com/Comic/ComicInfo/id/657666",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T12:04:31Z"
   }
 ]
