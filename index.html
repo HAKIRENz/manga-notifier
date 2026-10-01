@@ -535,6 +535,17 @@ function behind(id){
 function setRead(id,label){R[id]=String(label);LS.set("mw_read",R);render();if(UI.sheetId===id&&!$("#sheet").hidden)openDetail(id,true)}
 
 /* ================================================================ health */
+/** เรื่องที่ถึงเวลาตรวจมาเกิน 30 นาทีแล้วแต่ยังไม่ถูกตรวจ = ระบบสั่งตรวจไม่ทำงาน */
+function overdue(){
+  const now=Date.now(),out=[];
+  for(const s of D.series){
+    if(s.enabled===false)continue;const st=ST(s.id),tr=T(st.tried);
+    if(!tr||T(st.blocked_until)>now)continue;
+    const p=planOf(s,st,D.config,now);
+    for(let t=Math.ceil(tr/TICK)*TICK;t<now-30*6e4;t+=TICK)if(dueAt(p,tr,+st.fails||0,t)){out.push(s);break}
+  }
+  return out;
+}
 function tokenDays(){const e=T(STATUS&&STATUS.token_exp);return e?(e-Date.now())/864e5:null}
 function health(){
   const runs=(STATUS&&STATUS.runs)||[],last=runs.find(r=>r.status==="completed"&&r.conclusion!=="cancelled");
@@ -545,9 +556,9 @@ function health(){
   if(STATUS.token_bad)return{c:"r",t:"GitHub Token ใช้ไม่ได้หรือหมดอายุ",icon:"🔑",k:"r",sub:"ระบบหยุดตรวจ — เจ้าของต้องสร้าง Token ใหม่ แล้ววางแทน GITHUB_TOKEN ใน Cloudflare"};
   if(!runs.length)return{c:"",t:STATUS.unknown?"ยังไม่ทราบสถานะ":"ยังไม่มีข้อมูลการรัน",icon:"❔",k:"n",sub:STATUS.unknown?"เชื่อมต่อหลังบ้านเพื่อดูสถานะการรัน":"ระบบจะเริ่มตรวจภายในไม่กี่นาทีหลังตั้งค่า"};
   if(last&&last.conclusion==="failure")return{c:"r",t:"รอบตรวจล่าสุดล้มเหลว",icon:"🛑",k:"r",sub:"กดดูรายละเอียดจากรายการรอบตรวจด้านล่าง"};
-  if(!anyAuto||Date.now()-T(anyAuto.at)>120*6e4)return{c:"y",t:"ระบบไม่ได้รันตามเวลา",icon:"⏰",k:"y",sub:"ตรวจ Cron Trigger ใน Cloudflare และหน้า Actions ใน GitHub (อาจถูกปิดการรันอัตโนมัติ)"};
-  if(D.series.length&&!autoRun&&runs.filter(r=>r.event==="schedule").length>=3)return{c:"y",t:"ยังไม่เห็นรอบจาก Cloudflare",icon:"⏰",k:"y",sub:"ตอนนี้ใช้รอบสำรองของ GitHub (~30 นาที) — ตั้ง Cron Trigger ใน Cloudflare ตาม README ขั้น C"};
-  if(autoRun&&Date.now()-T(autoRun.at)>13*36e5)return{c:"y",t:"Cloudflare ไม่ได้สั่งตรวจมา "+dur(Date.now()-T(autoRun.at)),icon:"⏰",k:"y",sub:"ตอนนี้ใช้รอบสำรองของ GitHub — ดู Cron Trigger และ GITHUB_TOKEN ใน Cloudflare"};
+  // ช่วงที่ไม่มีเรื่องไหนถึงเวลา ระบบเงียบได้ตามปกติ → เตือนเฉพาะเมื่อมีเรื่อง "เลยเวลาตรวจ" เกิน 30 นาทีจริง ๆ
+  const late=overdue();
+  if(late.length)return{c:"y",t:"ตรวจช้ากว่ากำหนด "+late.length+" เรื่อง",icon:"⏰",k:"y",sub:(autoRun?"Cloudflare สั่งตรวจล่าสุด "+ago(autoRun.at):"ยังไม่เห็นรอบจาก Cloudflare")+" — ตรวจ Cron Trigger และ GITHUB_TOKEN ใน Cloudflare (ระหว่างนี้ใช้รอบสำรองของ GitHub)"};
   if(isMod()&&td!=null&&td<7)return{c:"y",t:"GitHub Token จะหมดอายุใน "+Math.max(0,Math.ceil(td))+" วัน",icon:"⏳",k:"y",sub:"เจ้าของต้องต่ออายุ (Regenerate) แล้ววางค่าใหม่ใน Cloudflare ก่อนหมด"};
   if(failedMsgs)return{c:"y",t:"ส่ง Discord ไม่สำเร็จ "+failedMsgs+" ข้อความ",icon:"📭",k:"y",sub:"ระบบจะลองส่งซ้ำเองอีก 3 ครั้ง หรือกดส่งซ้ำในแท็บอัปเดต"};
   if(bad)return{c:"y",t:"ระบบปกติ · "+bad+" เรื่องอ่านไม่ได้",icon:"🟡",k:"y",sub:"ดูรายชื่อเรื่องที่มีปัญหาด้านล่าง"};
