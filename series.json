@@ -320,5 +320,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T11:57:16Z"
+  },
+  {
+    "id": "tfvuvize",
+    "name": "ระบบคืนผลหมื่นเท่า ชะตานี้ข้าขอกำหนดเอง",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27125/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2568-12-29%2002%3A33%3A10%3A572&cps=undefined",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T11:57:32Z"
   }
 ]
