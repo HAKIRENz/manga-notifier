@@ -404,5 +404,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T11:59:10Z"
+  },
+  {
+    "id": "mqc5qgwc",
+    "name": "มหาปรจารย์ระดับเทพแห่งนคร",
+    "url": "https://ac.qq.com/Comic/comicInfo/id/657544",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T11:59:26Z"
   }
 ]
