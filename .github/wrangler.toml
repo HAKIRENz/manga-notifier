@@ -1,0 +1,15 @@
+# ใช้เฉพาะถ้าจะ deploy ด้วยคำสั่ง (npx wrangler deploy) — ถ้าตั้งผ่านหน้าเว็บ Cloudflare ไม่ต้องใช้ไฟล์นี้
+name = "manga-watch-api"
+main = "worker.js"
+compatibility_date = "2026-01-01"
+
+[vars]
+REPO = "HAKIRENz/manga-notifier"
+BRANCH = "main"
+OWNER_NAME = "owner"
+ALLOWED_ORIGINS = "https://hakirenz.github.io"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "ใส่ ID ของ KV namespace ที่สร้างไว้"
+# Secret ตั้งด้วย: npx wrangler secret put GITHUB_TOKEN / OWNER_PASSWORD / SESSION_SECRET
