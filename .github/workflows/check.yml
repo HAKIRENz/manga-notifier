@@ -1,8 +1,9 @@
 name: check-manga
+run-name: ${{ github.event_name == 'schedule' && 'รอบสำรอง (GitHub)' || inputs.auto == '1' && 'อัตโนมัติ (Cloudflare)' || inputs.test_series != '' && 'ทดสอบเรื่อง' || inputs.test != '' && 'ทดสอบ Discord' || inputs.resend != '' && 'ส่งซ้ำ' || inputs.only != '' && 'ตรวจเรื่องเดียว' || 'ตรวจทุกเรื่อง' }}
 on:
   schedule:
-    - cron: "*/10 * * * *"   # รอบรันทุก 10 นาที แต่ละเรื่องตรวจตามความถี่ที่ตั้งในหน้าเว็บ (ค่าเริ่มต้น 30 นาที)
-  workflow_dispatch:          # กดรันเองจากหน้าเว็บจัดการได้
+    - cron: "7,37 * * * *"   # รอบสำรองทุก ~30 นาที (รอบหลัก: Cloudflare สั่งทุก 5 นาทีเมื่อมีเรื่องถึงเวลา)
+  workflow_dispatch:          # หน้าเว็บ/Cloudflare สั่งรัน
     inputs:
       only:
         description: "ตรวจเฉพาะเรื่องที่มี id นี้ (เว้นว่าง = ตรวจทุกเรื่องทันที)"
@@ -20,6 +21,14 @@ on:
         description: "id ของเรื่องที่จะตรวจแล้วส่งข้อความทดสอบ"
         required: false
         default: ""
+      auto:
+        description: "1 = รอบอัตโนมัติจาก Cloudflare (ตรวจเฉพาะเรื่องที่ถึงเวลา)"
+        required: false
+        default: ""
+      alert:
+        description: "แจ้งเตือนระบบจาก Cloudflare"
+        required: false
+        default: ""
 permissions:
   contents: write
 concurrency:
@@ -28,8 +37,19 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
+      - name: Load state (branch data)
+        run: |
+          mkdir -p /tmp/prev
+          if git fetch --depth=1 origin data 2>/dev/null; then
+            for f in state.json notify_log.json public_log.json; do
+              if git show origin/data:$f > /tmp/prev/$f 2>/dev/null; then cp /tmp/prev/$f $f; else rm -f /tmp/prev/$f; fi
+            done
+          else
+            echo "ยังไม่มี branch data — ใช้ไฟล์ใน main เป็นค่าเริ่มต้น"
+          fi
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -40,12 +60,30 @@ jobs:
           TEST: ${{ inputs.test }}
           RESEND: ${{ inputs.resend }}
           TEST_SERIES: ${{ inputs.test_series }}
-          FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+          AUTO: ${{ inputs.auto }}
+          ALERT: ${{ inputs.alert }}
+          EVENT: ${{ github.event_name }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && inputs.auto != '1' && '1' || '' }}
         run: python check.py
-      - name: Save state
+      - name: Save state (branch data)
         if: always()
+        env:
+          TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
         run: |
+          changed=0
+          for f in state.json notify_log.json public_log.json; do
+            [ -f "$f" ] || continue
+            cmp -s "$f" "/tmp/prev/$f" || changed=1
+          done
+          if [ "$changed" = 0 ]; then echo "ไม่มีอะไรเปลี่ยน"; exit 0; fi
+          rm -rf /tmp/out && mkdir /tmp/out
+          for f in state.json notify_log.json public_log.json; do [ -f "$f" ] && cp "$f" /tmp/out/; done
+          cd /tmp/out
+          git init -q -b data
           git config user.name "manga-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add state.json notify_log.json
-          git diff --cached --quiet || (git commit -m "update state" && git pull --rebase && git push)
+          git add -A
+          git commit -qm "state $(date -u +%FT%TZ)"
+          # เก็บแค่ commit เดียว (เขียนทับทุกรอบ): repo ไม่โตเรื่อย ๆ และหน้าเว็บไม่ต้อง build ใหม่ทุกรอบ
+          git push -qf "https://x-access-token:${TOKEN}@github.com/${REPO}.git" data
