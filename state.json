@@ -1,1 +1,18 @@
-{}
+{
+ "_meta": {
+  "heartbeat": "2026-10-01"
+ },
+ "example-1": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {},
+  "checked": "2026-10-01T05:36:33+00:00",
+  "error": "",
+  "fails": 0,
+  "number": 1194.0,
+  "title": "\"ทุกสรรพสิ่งล้วนมีวันแปรเปลี่ยน\"",
+  "tried": "2026-10-01T05:36:33+00:00",
+  "updated": "2026-10-01T05:36:33+00:00",
+  "url": "https://mangadex.org/chapter/6e7a956a-fb33-43ff-b391-58a5bf2e0055"
+ }
+}
