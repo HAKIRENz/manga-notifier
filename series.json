@@ -332,5 +332,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T11:57:32Z"
+  },
+  {
+    "id": "esccjghs",
+    "name": "เทพธิดาไร้ใจ จงกลายเป็นเตาหลอมของข้าซะ!",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27325/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-03-14%2012%3A52%3A35%3A180&cps=undefined",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T11:57:47Z"
   }
 ]
