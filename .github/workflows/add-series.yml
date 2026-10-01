@@ -1,0 +1,36 @@
+name: add-series
+# เพื่อนกรอกฟอร์ม "เพิ่มเรื่อง" (Issue) -> ระบบตรวจรายชื่อใน friends.txt -> เพิ่มเรื่องให้อัตโนมัติ
+on:
+  issues:
+    types: [opened]
+permissions:
+  contents: write
+  issues: write
+concurrency:
+  group: check-manga
+  cancel-in-progress: false
+jobs:
+  add:
+    if: startsWith(github.event.issue.title, '[เพิ่มเรื่อง]')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Add series from issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          OWNER: ${{ github.repository_owner }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_USER: ${{ github.event.issue.user.login }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: python add_series.py
+      - name: Save
+        if: always()
+        run: |
+          git config user.name "manga-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add series.json state.json
+          git diff --cached --quiet || (git commit -m "add series from issue #${{ github.event.issue.number }}" && git pull --rebase && git push)
