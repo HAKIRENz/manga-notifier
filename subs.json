@@ -1,9 +1,7 @@
 {
   "users": {
     "boom": {
-      "series": [
-        "example-1"
-      ]
+      "series": []
     }
   }
 }
