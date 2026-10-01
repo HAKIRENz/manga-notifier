@@ -6,7 +6,7 @@
    "etag": null,
    "lm": null
   },
-  "checked": "2026-10-01T07:54:31+00:00",
+  "checked": "2026-10-01T08:04:46+00:00",
   "cover": "https://manhua.acimg.cn/vertical/0/20_10_15_a7f0a4ce1c9b3538bb50a9f82ad51d4b_1787192147538.jpg/420",
   "error": "",
   "fails": 0,
@@ -16,7 +16,7 @@
   "number": 31.0,
   "since": "2026-10-01T07:54:31+00:00",
   "title": "31 排名第十",
-  "tried": "2026-10-01T07:54:31+00:00",
+  "tried": "2026-10-01T08:04:46+00:00",
   "url": "https://ac.qq.com/ComicView/index/id/657728/cid/152887"
  },
  "46zx8029": {
@@ -26,7 +26,7 @@
    "etag": null,
    "lm": null
   },
-  "checked": "2026-10-01T07:53:35+00:00",
+  "checked": "2026-10-01T08:04:46+00:00",
   "cover": "https://en-thunderscans.com/wp-content/uploads/2026/05/2026-05-16-03-43-28-1778946208186.avif",
   "error": "",
   "fails": 0,
@@ -36,7 +36,7 @@
   "number": 33.0,
   "since": "2026-10-01T07:53:35+00:00",
   "title": "New Chapter Chapter 33",
-  "tried": "2026-10-01T07:53:35+00:00",
+  "tried": "2026-10-01T08:04:46+00:00",
   "url": "https://en-thunderscans.com/the-transcendent-holy-swordsman-regresses-as-the-youngest-son-of-a-magic-swordsman-family-chapter-33/"
  },
  "_meta": {
@@ -46,10 +46,10 @@
   "blocked_until": "",
   "blocks": 0,
   "cache": {
-   "etag": "\"13111-vG+1nmqoWXbU3W4CgazFbPvYmR4\"",
+   "etag": "\"130b6-WWp7OZuV56fHQsfoZOyv5SuNCtc\"",
    "lm": null
   },
-  "checked": "2026-10-01T07:53:56+00:00",
+  "checked": "2026-10-01T08:04:46+00:00",
   "cover": "https://tn1-f2.kkmh.com/image/260513/usYnQhLQn.webp-w750.jpg",
   "error": "",
   "fails": 0,
@@ -59,21 +59,22 @@
   "number": 14.0,
   "since": "2026-10-01T07:53:56+00:00",
   "title": "共14篇正文",
-  "tried": "2026-10-01T07:53:56+00:00",
+  "tried": "2026-10-01T08:04:46+00:00",
   "url": "https://www.kuaikanmanhua.com/web/topic/27690/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A52%3A25%3A328&cps=undefined"
  },
  "example-1": {
   "blocked_until": "",
   "blocks": 0,
   "cache": {},
-  "checked": "2026-10-01T06:06:48+00:00",
+  "checked": "2026-10-01T08:04:46+00:00",
   "cover": "https://uploads.mangadex.org/covers/a1c7c817-4e59-43b7-9365-09675a149a6f/2f4aca53-64c7-46ac-ae85-3bc9b3169890.png.256.jpg",
   "error": "",
   "fails": 0,
   "label": "1194",
+  "mode": "mangadex",
   "number": 1194.0,
   "title": "\"ทุกสรรพสิ่งล้วนมีวันแปรเปลี่ยน\"",
-  "tried": "2026-10-01T06:06:48+00:00",
+  "tried": "2026-10-01T08:04:46+00:00",
   "updated": "2026-10-01T05:36:33+00:00",
   "url": "https://mangadex.org/chapter/6e7a956a-fb33-43ff-b391-58a5bf2e0055"
  }
