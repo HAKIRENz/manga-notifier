@@ -572,5 +572,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T12:05:03Z"
+  },
+  {
+    "id": "a2d1xxpa",
+    "name": "มหาสงครามสัตว์อสูร: เปิดเกมมาข้าก็คว้าพรสวรรค์ระดับ SSS!",
+    "url": "https://ac.qq.com/Comic/comicInfo/id/657755",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T12:05:16Z"
   }
 ]
