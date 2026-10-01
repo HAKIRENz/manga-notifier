@@ -77,5 +77,25 @@
   "tried": "2026-10-01T08:04:46+00:00",
   "updated": "2026-10-01T05:36:33+00:00",
   "url": "https://mangadex.org/chapter/6e7a956a-fb33-43ff-b391-58a5bf2e0055"
+ },
+ "wo8f3lu3": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"11ec2f-wrwIFdH4GxjavNOCUPARwBCwGYU\"",
+   "lm": null
+  },
+  "checked": "2026-10-01T08:16:36+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/210928/XXkfelelu.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "360",
+  "label": "360",
+  "mode": "count",
+  "number": 360.0,
+  "since": "2026-10-01T08:16:36+00:00",
+  "title": "共360篇正文",
+  "tried": "2026-10-01T08:16:36+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/12602/?cps=undefined"
  }
 }
