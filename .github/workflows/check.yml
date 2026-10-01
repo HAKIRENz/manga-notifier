@@ -43,6 +43,7 @@ jobs:
       - name: Load state (branch data)
         run: |
           mkdir -p /tmp/prev
+          [ -f state.json ] && cp state.json state_main.json   # สำรองสถานะจาก main (ใช้กู้เรื่องที่ไม่มีใน branch data)
           if git fetch --depth=1 origin data 2>/dev/null; then
             for f in state.json notify_log.json public_log.json; do
               if git show origin/data:$f > /tmp/prev/$f 2>/dev/null; then cp /tmp/prev/$f $f; else rm -f /tmp/prev/$f; fi
