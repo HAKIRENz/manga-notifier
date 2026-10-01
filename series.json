@@ -344,5 +344,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T11:57:47Z"
+  },
+  {
+    "id": "bkkkskss",
+    "name": "เทพสงครามคืนบัลลังก์",
+    "url": "https://ac.qq.com/Comic/comicInfo/id/657151",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T11:58:02Z"
   }
 ]
