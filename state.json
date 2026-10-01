@@ -1,4 +1,24 @@
 {
+ "46zx8029": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-01T07:53:35+00:00",
+  "cover": "https://en-thunderscans.com/wp-content/uploads/2026/05/2026-05-16-03-43-28-1778946208186.avif",
+  "error": "",
+  "fails": 0,
+  "first_label": "33",
+  "label": "33",
+  "mode": "text",
+  "number": 33.0,
+  "since": "2026-10-01T07:53:35+00:00",
+  "title": "New Chapter Chapter 33",
+  "tried": "2026-10-01T07:53:35+00:00",
+  "url": "https://en-thunderscans.com/the-transcendent-holy-swordsman-regresses-as-the-youngest-son-of-a-magic-swordsman-family-chapter-33/"
+ },
  "_meta": {
   "heartbeat": "2026-10-01"
  },
@@ -16,42 +36,5 @@
   "tried": "2026-10-01T06:06:48+00:00",
   "updated": "2026-10-01T05:36:33+00:00",
   "url": "https://mangadex.org/chapter/6e7a956a-fb33-43ff-b391-58a5bf2e0055"
- },
- "hgeiayqv": {
-  "blocked_until": "",
-  "blocks": 0,
-  "cache": {
-   "etag": null,
-   "lm": null
-  },
-  "checked": "2026-10-01T07:26:16+00:00",
-  "error": "",
-  "fails": 0,
-  "first_label": "117",
-  "label": "117",
-  "number": 117.0,
-  "since": "2026-10-01T07:26:16+00:00",
-  "title": "战争",
-  "tried": "2026-10-01T07:26:16+00:00",
-  "url": "https://ac.qq.com/Comic/all/theme/117"
- },
- "mvpi6ssc": {
-  "blocked_until": "",
-  "blocks": 0,
-  "cache": {
-   "etag": "\"13112-0eapHtnGLXVRKBmU37J79TB8F+g\"",
-   "lm": null
-  },
-  "checked": "2026-10-01T07:29:16+00:00",
-  "cover": "https://festatic.v3mh.com/static-resource/img/20210706/tiny/logo_128x128.png",
-  "error": "",
-  "fails": 0,
-  "first_label": "90227",
-  "label": "90227",
-  "number": 90227.0,
-  "since": "2026-10-01T07:29:16+00:00",
-  "title": "问答 由希区柯克本人重拍过的希区柯克的电影 由希区柯克本人重拍过的希区柯克的电影是擒凶记。希区柯克本人的代表作品有后窗、惊魂记、西北偏北、蝴蝶梦、列车上的陌生人",
-  "tried": "2026-10-01T07:29:16+00:00",
-  "url": "https://www.kuaikanmanhua.com/qa1/90227?cps=topic"
  }
 }
