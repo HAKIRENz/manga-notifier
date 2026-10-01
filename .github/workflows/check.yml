@@ -1,0 +1,40 @@
+name: check-manga
+on:
+  schedule:
+    - cron: "*/15 * * * *"   # รอบรันทุก 15 นาที แต่แต่ละเรื่องจะถูกตรวจทุก 30 นาที (ปรับได้ใน check.py)
+  workflow_dispatch:          # กดรันเองจากหน้าเว็บจัดการได้
+    inputs:
+      only:
+        description: "ตรวจเฉพาะเรื่องที่มี id นี้ (เว้นว่าง = ตรวจทุกเรื่องทันที)"
+        required: false
+        default: ""
+      test:
+        description: "ใส่ 1 เพื่อส่งข้อความทดสอบเข้า Discord"
+        required: false
+        default: ""
+permissions:
+  contents: write
+concurrency:
+  group: check-manga
+  cancel-in-progress: false
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check updates
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          ONLY: ${{ inputs.only }}
+          TEST: ${{ inputs.test }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' && '1' || '' }}
+        run: python check.py
+      - name: Save state
+        run: |
+          git config user.name "manga-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add state.json
+          git diff --cached --quiet || (git commit -m "update state" && git pull --rebase && git push)
