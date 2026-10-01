@@ -584,5 +584,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T12:06:50Z"
+  },
+  {
+    "id": "w5sbh9ym",
+    "name": "เกิดใหม่อีกครั้ง: ล้างแค้นอาฆาตด้วยพลังโลกกระจก",
+    "url": "https://ac.qq.com/Comic/comicInfo/id/656779",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T12:31:19Z"
   }
 ]
