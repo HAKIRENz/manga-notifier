@@ -219,13 +219,33 @@ def latest_feed(text):
 YEAR_RE = re.compile(r"^\s*(?:19|20)\d\d\s*[-./年]")
 
 
+CN_DIGIT = {"零": 0, "〇": 0, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9}
+CN_UNIT = {"十": 10, "百": 100, "千": 1000}
+CN_RE = re.compile(r"第\s*([零〇一二两三四五六七八九十百千]+)\s*(?=[话話章回集]|[\s·.:：、,，]|$)")
+
+
+def cn_num(s):
+    """เลขจีน → ตัวเลข: 二十五 → 25, 十 → 10, 一百零三 → 103"""
+    total, cur = 0, 0
+    for ch in s:
+        if ch in CN_DIGIT:
+            cur = CN_DIGIT[ch]
+        elif ch in CN_UNIT:
+            total += (cur or 1) * CN_UNIT[ch]
+            cur = 0
+    return total + cur
+
+
 def text_num(t):
-    """เลขตอนจากชื่อลิงก์ เช่น 'ตอนที่ 88', 'Chapter 12', '31 排名第十', '第5话' (ไม่นับวันที่)"""
+    """เลขตอนจากชื่อลิงก์ เช่น 'ตอนที่ 88', 'Chapter 12', '31 排名第十', '第5话', '第二十五话 调停者' (ไม่นับวันที่)"""
     if not t or YEAR_RE.match(t):
         return None
     m = CH_RE.search(t) or LEAD_RE.search(t)
     n = to_num(m.group(1)) if m else None
-    return n if n is not None and n < 100000 else None
+    if n is None:
+        c = CN_RE.search(t)
+        n = float(cn_num(c.group(1))) if c else None
+    return n if n is not None and 0 < n < 100000 or n == 0 and m else None
 
 
 def url_num(href):
@@ -305,18 +325,32 @@ def latest_generic(url, contains="", cache=None):
             if not m:
                 continue
             n = to_num(m.group(1))
-            if n is None or n > 100000:
+            if n is None:
                 continue
             key = re.sub(r"\d+", "#", path[:m.start()])          # รูปแบบลิงก์ เช่น /m/chapter-#
             groups.setdefault(key, []).append((n, h, t, pos))
+        all_groups = groups
+        groups = {k: [c for c in v if c[0] <= 100000] for k, v in groups.items()}   # เลขใหญ่ = รหัสภายใน ไม่ใช่เลขตอน
         big = max(groups.values(), key=len) if groups else []
         if len(big) >= 3:
             pick, mode, used = _pick_max(big), "group", big
+            if not CH_RE.search(pick[2]) and text_num(pick[2]) is None:
+                # 5. order: ชื่อตอนไม่มีเลข (เช่น '弱肉强食') → นับลำดับตอนในรายการแทน (ลิงก์ไม่ซ้ำ)
+                uniq = {urllib.parse.urljoin(url, c[1].split("#")[0]) for c in big}
+                pick, mode, used = (float(len(uniq)), pick[1], pick[2], pick[3]), "order", []
+    if not pick:
+        # 5. order (รหัสตอนเป็นเลขใหญ่ เช่น Tencent cid/152887 และชื่อตอนไม่มีเลข) → นับลำดับตอนในรายการ
+        big = max(all_groups.values(), key=len) if all_groups else []
+        if len(big) >= 3:
+            top = _pick_max(big)
+            if not CH_RE.search(top[2]) and text_num(top[2]) is None:
+                uniq = {urllib.parse.urljoin(url, c[1].split("#")[0]) for c in big}
+                pick, mode = (float(len(uniq)), top[1], top[2].strip(" []【】"), top[3]), "order"
     if not pick:
         raise RuntimeError("ไม่พบรายการตอนในหน้านี้ — เว็บอาจโหลดตอนด้วย JavaScript "
                            "(ลองใช้หน้ารายการตอน, ลิงก์ RSS หรือใส่ช่อง 'ลิงก์ต้องมีคำว่า')")
     n, h, t, _ = pick
-    best = {"number": n, "url": urllib.parse.urljoin(url, h), "title": " ".join(t.split())[:80], "mode": mode}
+    best = {"number": n, "url": urllib.parse.urljoin(url, h), "title": " ".join(t.split()).strip("[]【】 ")[:80], "mode": mode}
 
     # ตอนล็อก/ล่วงหน้า: อยู่ในรายการตอนแต่ไม่มีลิงก์ (เช่น 'Chapter 33' ที่ต้องใช้เหรียญ)
     if used:
@@ -334,7 +368,7 @@ def latest_generic(url, contains="", cache=None):
         if extra:
             best.update(number=extra[0], url=url, title=" ".join(extra[1].split())[:80] + " (ล็อก/ล่วงหน้า)", locked=True)
             n = extra[0]
-    best["label"] = fmt(n) if mode in ("text", "count") or best.get("locked") else label_for(n, best["title"])
+    best["label"] = fmt(n) if mode in ("text", "count", "order") or best.get("locked") else label_for(n, best["title"])
     best["cover"] = og_image(text, url)
     return best
 
