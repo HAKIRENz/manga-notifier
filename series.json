@@ -596,5 +596,17 @@
     },
     "by": "boom",
     "added": "2026-10-01T12:31:19Z"
+  },
+  {
+    "id": "kkj86tg3",
+    "name": "จุติเทพนักดาบไร้พ่าย จากอาชีพสุดรั้งท้าย",
+    "url": "https://ac.qq.com/Comic/comicInfo/id/657375",
+    "contains": "",
+    "enabled": true,
+    "sched": {
+      "mode": "peak"
+    },
+    "by": "boom",
+    "added": "2026-10-01T12:31:38Z"
   }
 ]
