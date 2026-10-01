@@ -2,6 +2,15 @@
  "_meta": {
   "heartbeat": "2026-10-01"
  },
+ "bruc3cop": {
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "error": "ไม่พบลิงก์ตอนในหน้านี้ (ลองใส่ช่อง 'ลิงก์ต้องมีคำว่า')",
+  "fails": 1,
+  "tried": "2026-10-01T07:24:15+00:00"
+ },
  "example-1": {
   "blocked_until": "",
   "blocks": 0,
