@@ -2,6 +2,10 @@
   "users": {
     "boom": {
       "series": []
+    },
+    "Admin": {
+      "series": [],
+      "discord": "634739101274472452"
     }
   }
 }
