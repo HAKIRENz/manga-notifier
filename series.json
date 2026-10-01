@@ -24,13 +24,16 @@
   },
   {
     "id": "2zi3grtw",
-    "name": "我的哥哥是恶犬",
+    "name": "พี่ชายของผมคือหมาบ้า",
     "url": "https://ac.qq.com/Comic/comicInfo/id/657728",
     "contains": "",
     "enabled": true,
-    "interval": 180,
     "by": "boom",
-    "added": "2026-10-01T07:54:21Z"
+    "added": "2026-10-01T07:54:21Z",
+    "sched": {
+      "mode": "peak"
+    },
+    "autoslow": true
   },
   {
     "id": "wo8f3lu3",
