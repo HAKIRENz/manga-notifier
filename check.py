@@ -32,7 +32,7 @@ from html.parser import HTMLParser
 
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36"
 NUM = r"(\d+(?:[.\-]\d+)?)"
-CH_RE = re.compile(r"(?:chapter|chap|ch|episode|ep|ตอนที่|ตอน|บทที่|บท)[\s._\-/:]*" + NUM, re.I)
+CH_RE = re.compile(r"(?:(?<![a-z])(?:chapter|chap|ch|episode|ep)|ตอนที่|ตอน|บทที่|บท)[\s._\-/:]*" + NUM, re.I)
 LEAD_RE = re.compile(r"^\s*(?:第\s*)?(\d+(?:\.\d+)?)")
 TAIL_RE = re.compile(r"[/\-_]" + NUM + r"/?$")
 FAIL_NOTIFY_AT = 6
@@ -106,22 +106,37 @@ def fetch(url, accept="text/html,application/xhtml+xml,application/xml;q=0.9,*/*
 
 # ---------- อ่านหน้าเว็บ ----------
 class Links(HTMLParser):
+    """เก็บลิงก์ (href, ข้อความ, ตำแหน่งในข้อความทั้งหน้า) + ข้อความทั้งหน้า + data-num (ธีม WordPress มังงะ)"""
+
     def __init__(self):
         super().__init__()
-        self.links, self._href, self._text = [], None, []
+        self.links, self._href, self._text, self._pos = [], None, [], 0
+        self.plain, self.plen, self.marks, self._skip = [], 0, [], 0
 
     def handle_starttag(self, tag, attrs):
+        d = dict(attrs)
+        if tag in ("script", "style"):
+            self._skip += 1
+        if d.get("data-num"):
+            self.marks.append((self.plen, d["data-num"]))
         if tag == "a":
-            self._href = dict(attrs).get("href")
-            self._text = []
+            self._href, self._text, self._pos = d.get("href"), [], self.plen
+        elif tag in ("li", "div", "p", "br", "tr", "span"):
+            self.handle_data(" ")
 
     def handle_data(self, d):
+        if self._skip:
+            return
+        self.plain.append(d)
+        self.plen += len(d)
         if self._href is not None:
             self._text.append(d)
 
     def handle_endtag(self, tag):
+        if tag in ("script", "style"):
+            self._skip = max(0, self._skip - 1)
         if tag == "a" and self._href is not None:
-            self.links.append((self._href, " ".join("".join(self._text).split())))
+            self.links.append((self._href, " ".join("".join(self._text).split()), self._pos))
             self._href = None
 
 
@@ -151,13 +166,31 @@ def good_img(url, base):
 
 
 def og_image(text, base):
+    """หาปกเรื่อง: og:image ก่อน (ถ้าไม่ใช่โลโก้เว็บ) ไม่งั้นเดาจาก <img> ในหน้า"""
     for m in re.finditer(r"<meta\b[^>]*>", text[:200000], re.I):
         tag = m.group(0)
         if re.search(r"""(?:property|name)\s*=\s*["'](?:og:image|twitter:image)["']""", tag, re.I):
             c = re.search(r"""content\s*=\s*["']([^"']+)["']""", tag, re.I)
-            if c:
+            if c and not re.search(r"logo|favicon|default", c.group(1), re.I):
                 return good_img(c.group(1), base)
-    return ""
+    tm = re.search(r"<title[^>]*>(.*?)</title>", text[:30000], re.S | re.I)
+    page_title = htmllib.unescape(tm.group(1)) if tm else ""
+    best, score = "", 0
+    for m in re.finditer(r"<img\b[^>]*>", text[:400000], re.I):
+        tag = m.group(0)
+        src = re.search(r"""(?:data-original|data-src|src)\s*=\s*["']([^"']+)["']""", tag, re.I)
+        if not src or re.search(r"logo|icon|avatar|favicon|\.gif|\.svg", src.group(1), re.I):
+            continue
+        alt = re.search(r"""alt\s*=\s*["']([^"']*)["']""", tag, re.I)
+        a = htmllib.unescape(alt.group(1)).strip() if alt else ""
+        sc = 100 if re.search(r"cover|vertical|poster", tag, re.I) else 0
+        if len(a) >= 2 and a in page_title:
+            sc += len(a)
+        if sc > score:
+            u = good_img(src.group(1), base)
+            if u:
+                best, score = u, sc
+    return best
 
 
 def latest_feed(text):
@@ -174,31 +207,137 @@ def latest_feed(text):
     if not best:
         raise RuntimeError("ฟีดนี้ไม่มีตอนที่อ่านเลขได้")
     best["label"] = label_for(best["number"], best["title"])
+    best["mode"] = "feed"
     return best
 
 
+YEAR_RE = re.compile(r"^\s*(?:19|20)\d\d\s*[-./年]")
+
+
+def text_num(t):
+    """เลขตอนจากชื่อลิงก์ เช่น 'ตอนที่ 88', 'Chapter 12', '31 排名第十', '第5话' (ไม่นับวันที่)"""
+    if not t or YEAR_RE.match(t):
+        return None
+    m = CH_RE.search(t) or LEAD_RE.search(t)
+    n = to_num(m.group(1)) if m else None
+    return n if n is not None and n < 100000 else None
+
+
+def url_num(href):
+    m = CH_RE.search(urllib.parse.unquote(href)) or TAIL_RE.search(href.split("?")[0])
+    return to_num(m.group(1)) if m else None
+
+
+COUNT_RE = re.compile(r"(?:共|全|ทั้งหมด)\s*(\d{1,5})\s*(?:篇正文|话|話|章|集|回|ตอน)")
+
+
+def _pick_max(cands):
+    best = None
+    for n, h, t in cands:
+        if best is None or n > best[0]:
+            best = (n, h, t)
+    return best
+
+
+def _pick_max(cands):
+    best = None
+    for c in cands:
+        if best is None or c[0] > best[0]:
+            best = c
+    return best
+
+
+LOCKED_AHEAD = 20   # ตอนล็อก (ไม่มีลิงก์) ต้องอยู่ไม่เกินกี่ตอนจากตอนที่มีลิงก์ กันเลขของเรื่องอื่นปน
+
+
 def latest_generic(url, contains="", cache=None):
-    """หาตอนที่เลขมากที่สุด: รองรับทั้งฟีด RSS/Atom (เบาที่สุด) และหน้าเว็บทั่วไป"""
+    """หาตอนล่าสุดจากหน้าเว็บ (หรือฟีด RSS/Atom) — ลองตามลำดับ แล้วใช้วิธีแรกที่ได้ผล
+
+    1. text  : ลิงก์ตอนมีเลขตอนในชื่อ (เช่น '31 排名第十') ≥3 ลิงก์ → ใช้เลขจากชื่อ
+               (แม่นที่สุด บางเว็บใช้รหัสภายในในลิงก์ที่ไม่เรียงตามตอน เช่น Tencent cid/152887)
+    2. word  : ลิงก์/ชื่อมีคำว่า chapter / ep / ตอน ฯลฯ ตามด้วยเลข
+    3. count : หน้าบอกจำนวนตอน เช่น '共14篇正文' (เว็บที่โหลดรายการตอนด้วย JavaScript เช่น 快看漫画)
+    4. group : ลิงก์ที่ลงท้ายด้วยเลข และมีรูปแบบเดียวกัน ≥3 ลิงก์ (กันลิงก์หลงอย่าง /qa1/90227)
+    จากนั้นดู "ตอนล็อก" (ต้องใช้เหรียญ/ล่วงหน้า ไม่มีลิงก์) ในบริเวณรายการตอนเดียวกันด้วย
+    """
     text = fetch(url, cache=cache)
     if re.match(r"\s*(<\?xml[^>]*>\s*)?<(rss|feed)\b", text):
         return latest_feed(text)
     p = Links()
     p.feed(text)
-    best = None
-    for href, t in p.links:
+    plain = "".join(p.plain)
+    links = []
+    for href, t, pos in p.links:
         if not href or href.startswith(("#", "javascript:", "mailto:")):
             continue
         if contains and contains not in href:
             continue
-        m = CH_RE.search(urllib.parse.unquote(href)) or CH_RE.search(t) or TAIL_RE.search(href.split("?")[0])
-        n = to_num(m.group(1)) if m else None
-        if n is None or n > 100000:
-            continue
-        if best is None or n > best["number"]:
-            best = {"number": n, "url": urllib.parse.urljoin(url, href), "title": t[:80]}
-    if not best:
-        raise RuntimeError("ไม่พบลิงก์ตอนในหน้านี้ (ลองใส่ช่อง 'ลิงก์ต้องมีคำว่า')")
-    best["label"] = label_for(best["number"], best["title"])
+        links.append((href, t, pos))
+    if not contains:
+        # กันลิงก์ของเรื่องอื่นในหน้า (เช่น แถบ "เรื่องยอดนิยม" ข้าง ๆ): ถ้าลิงก์ตอน ≥3 ลิงก์มีชื่อเรื่องจาก URL อยู่ ใช้เฉพาะพวกนั้น
+        segs = [x for x in urllib.parse.urlparse(url).path.split("/") if x]
+        slug = urllib.parse.unquote(segs[-1]) if segs else ""
+        if len(slug) >= 5:
+            own = [l for l in links if slug in urllib.parse.unquote(l[0])]
+            if len(own) >= 3:
+                links = own
+
+    pick, mode, used = None, None, []
+    text_c = [(text_num(t), h, t, pos) for h, t, pos in links if url_num(h) is not None]
+    text_c = [c for c in text_c if c[0] is not None]
+    if len(text_c) >= 3:
+        pick, mode, used = _pick_max(text_c), "text", text_c
+    if not pick:
+        word_c = []
+        for h, t, pos in links:
+            m = CH_RE.search(urllib.parse.unquote(h)) or CH_RE.search(t)
+            n = to_num(m.group(1)) if m else None
+            if n is not None and n < 100000:
+                word_c.append((n, h, t, pos))
+        if word_c:
+            pick, mode, used = _pick_max(word_c), "url", word_c
+    if not pick:
+        cm = COUNT_RE.search(plain)
+        if cm:
+            pick, mode = (float(cm.group(1)), url, cm.group(0), 0), "count"
+    if not pick:
+        groups = {}
+        for h, t, pos in links:
+            path = h.split("?")[0].split("#")[0]
+            m = TAIL_RE.search(path)
+            if not m:
+                continue
+            n = to_num(m.group(1))
+            if n is None or n > 100000:
+                continue
+            key = re.sub(r"\d+", "#", path[:m.start()])          # รูปแบบลิงก์ เช่น /m/chapter-#
+            groups.setdefault(key, []).append((n, h, t, pos))
+        big = max(groups.values(), key=len) if groups else []
+        if len(big) >= 3:
+            pick, mode, used = _pick_max(big), "group", big
+    if not pick:
+        raise RuntimeError("ไม่พบรายการตอนในหน้านี้ — เว็บอาจโหลดตอนด้วย JavaScript "
+                           "(ลองใช้หน้ารายการตอน, ลิงก์ RSS หรือใส่ช่อง 'ลิงก์ต้องมีคำว่า')")
+    n, h, t, _ = pick
+    best = {"number": n, "url": urllib.parse.urljoin(url, h), "title": " ".join(t.split())[:80], "mode": mode}
+
+    # ตอนล็อก/ล่วงหน้า: อยู่ในรายการตอนแต่ไม่มีลิงก์ (เช่น 'Chapter 33' ที่ต้องใช้เหรียญ)
+    if used:
+        lo = max(0, min(c[3] for c in used) - 3000)
+        hi = max(c[3] for c in used) + 3000
+        extra = None
+        for m in CH_RE.finditer(plain[lo:hi]):
+            x = to_num(m.group(1))
+            if x is not None and n < x <= n + LOCKED_AHEAD and (extra is None or x > extra[0]):
+                extra = (x, m.group(0))
+        for pos, dn in p.marks:
+            x = to_num(dn) if re.fullmatch(r"\d+(?:\.\d+)?", dn or "") else None
+            if lo <= pos <= hi and x is not None and n < x <= n + LOCKED_AHEAD and (extra is None or x > extra[0]):
+                extra = (x, "ตอน " + fmt(x))
+        if extra:
+            best.update(number=extra[0], url=url, title=" ".join(extra[1].split())[:80] + " (ล็อก/ล่วงหน้า)", locked=True)
+            n = extra[0]
+    best["label"] = fmt(n) if mode in ("text", "count") or best.get("locked") else label_for(n, best["title"])
     best["cover"] = og_image(text, url)
     return best
 
@@ -214,7 +353,7 @@ def latest_mangadex(url, need_cover):
     a = d[0]["attributes"]
     n = to_num(a.get("chapter") or "0") or 0
     out = {"number": n, "url": "https://mangadex.org/chapter/" + d[0]["id"],
-           "title": a.get("title") or "", "label": fmt(n)}
+           "title": a.get("title") or "", "label": fmt(n), "mode": "mangadex"}
     if need_cover:
         try:
             info = json.loads(fetch("https://api.mangadex.org/manga/%s?includes[]=cover_art" % mid,
@@ -464,6 +603,12 @@ def main():
         if cur.get("cover"):
             st["cover"] = cur["cover"]
         old = st.get("number")
+        if old is not None and st.get("mode") != cur.get("mode"):
+            # วิธีอ่านเลขตอนเปลี่ยน (อัปเดตระบบ) → ตั้งค่าเริ่มใหม่เงียบ ๆ ไม่แจ้งเตือนผิด
+            print("ปรับวิธีอ่านเลขตอน", s["name"], st.get("label"), "→", cur["label"])
+            st.update(number=cur["number"], label=cur["label"], url=cur["url"], title=cur["title"], mode=cur.get("mode"))
+            continue
+        st["mode"] = cur.get("mode")
         if old is None:
             print("เริ่มติดตาม", s["name"], "ตอนล่าสุด", cur["label"])
             st.update(number=cur["number"], label=cur["label"], url=cur["url"], title=cur["title"],

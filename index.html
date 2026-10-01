@@ -552,7 +552,7 @@ async function preview(url){
   try{
     const p=await api("/api/preview",{method:"POST",body:{url}});if(my!==pvSeq||!$("#aPv"))return;
     if(p.name&&!$("#aName").value)$("#aName").value=p.name;
-    $("#aPv").innerHTML='<div class="pv"><div class="cvw">'+cover(p.cover,p.name||host(url))+'</div><div style="min-width:0"><div class="b">'+esc(p.name||"(ไม่พบชื่อเรื่อง)")+'</div><div class="meta">'+esc(p.host)+(p.kind==="mangadex"?" · MangaDex API":p.kind==="rss"?" · RSS":"")+"</div>"+
+    $("#aPv").innerHTML='<div class="pv"><div class="cvw">'+cover(p.cover,p.name||host(url))+'</div><div style="min-width:0"><div class="b">'+esc(p.name||"(ไม่พบชื่อเรื่อง)")+'</div><div class="meta">'+esc(p.host)+(p.kind==="mangadex"?" · MangaDex API":p.kind==="rss"?" · RSS":p.kind==="count"?" · นับจากจำนวนตอนที่เว็บแสดง (ไม่มีชื่อตอน)":"")+"</div>"+
       (p.label!=null?'<div class="latest"><span class="lb">ตอนล่าสุดที่เจอ</span><b>'+esc(p.label)+'</b></div><div class="small mut">'+esc(p.chapterTitle||"")+(p.count?" · พบลิงก์ตอน "+p.count+" ลิงก์":"")+'</div><div class="hint ok">✓ อ่านเว็บนี้ได้ พร้อมเพิ่ม</div>':'<div class="hint warn">⚠ '+esc(p.warn||"ไม่พบตอน")+"</div>")+"</div></div>";
   }catch(e){if(my!==pvSeq||!$("#aPv"))return;$("#aPv").innerHTML='<div class="hint warn">⚠ ดูตัวอย่างไม่ได้: '+esc(e.message)+" — ยังเพิ่มได้ ระบบจะลองตรวจจาก GitHub อีกที</div>"}
 }
