@@ -343,6 +343,7 @@ section.sec{margin-top:22px}
 .rbars a{flex:1;max-width:18px;border-radius:3px;min-height:6px;transition:opacity .2s}.rbars a:hover{opacity:.7}
 .rbars .ok{background:var(--ok)}.rbars .bad{background:var(--bad)}.rbars .skip{background:var(--line)}.rbars .run{background:var(--pri);animation:blink 1s infinite}
 .health[hidden]{display:none}
+.line.stack{flex-direction:column;align-items:stretch;gap:6px}.line.stack .seg{display:flex}.line.stack .seg button{flex:1;white-space:nowrap}
 .gate{max-width:560px;margin:28px auto 40px;display:grid;gap:16px}
 .gate-hero{text-align:center;padding:30px 22px;position:relative;overflow:hidden}
 .gate-hero::before{content:"";position:absolute;inset:0;background:radial-gradient(500px 200px at 50% 0%,var(--priS),transparent 70%);pointer-events:none}
@@ -582,7 +583,9 @@ async function pullRead(){if(!canSync())return;RSYNC.last=Date.now();
 async function pushRead(){if(!canSync()||!RSYNC.dirty.size)return;if(RSYNC.busy)return schedulePush();RSYNC.busy=true;
   const ids=[...RSYNC.dirty];RSYNC.dirty.clear();const read={};for(const id of ids)if(R[id]!=null)read[id]={l:String(R[id]),t:RT[id]||1};
   try{const r=await api("/api/read",{method:"PUT",body:{read}});if(applyServer(r.read))render()}catch(e){ids.forEach(i=>RSYNC.dirty.add(i))}finally{RSYNC.busy=false}}
-const P=Object.assign({tab:"home",view:"list",sort:"recent",theme:"auto",notify:false},LS.get("mw_prefs",{}));
+const APP_VER="5.3";                             // เลขเวอร์ชันหน้าเว็บ (เปลี่ยนทุกครั้งที่ออกตัวใหม่)
+const P=Object.assign({tab:"home",view:"list",sort:"recent",theme:"auto",notify:false,start:"home",wsort:"behind"},LS.get("mw_prefs",{}));
+P.tab=P.start==="library"?"library":"home";      // เปิดแอปมาเจอหน้าที่เลือกไว้
 const UI={sys:"status",lastLoad:0,filter:"all",q:"",feed:"all",pending:new Set(),loaded:false,sheetId:null,installEvt:null};
 const savePrefs=()=>LS.set("mw_prefs",P);
 const rank=()=>API?({member:1,mod:2,owner:3}[S&&S.user&&S.user.role]||0):0;   // ไม่มีหลังบ้าน = ดูอย่างเดียว
@@ -633,7 +636,7 @@ async function enablePush(btn){
     PUSH=Object.assign(PUSH,await api("/api/push/subscribe",{method:"POST",body:{sub:sub.toJSON(),ua:deviceName()}}));
     PD.sub=sub;LS.set("mw_push_banner","x");render();
     toast("📲 เปิดแจ้งเตือนแล้ว — ส่งข้อความทดสอบไปที่เครื่องนี้","ok",6000);
-    api("/api/push/test",{method:"POST",body:{endpoint:sub.endpoint}}).catch(x=>toast("ส่งทดสอบไม่สำเร็จ: "+x.message,"bad"));
+    setTimeout(()=>runPushTest(null,sub.endpoint),400);
   });
 }
 async function disablePush(btn){
@@ -651,6 +654,44 @@ function togglePushSeries(sid){
   if(PUSH.mode==="some")PUSH.pick=on?PUSH.pick.filter(x=>x!==sid):[...PUSH.pick,sid];else PUSH.mute=on?[...PUSH.mute,sid]:PUSH.mute.filter(x=>x!==sid);
   savePushPrefs();buzz();refreshAfter([sid]);
   toast((on?"🔕 ปิดแจ้งเตือน “":"🔔 เปิดแจ้งเตือน “")+(SER(sid)||{}).name+"”","ok",5000,{label:"↩ ย้อนกลับ",fn:()=>{PUSH.mute=before.mute;PUSH.pick=before.pick;savePushPrefs();refreshAfter([sid])}});
+}
+/** ส่งทดสอบ + ตรวจผลทีละเครื่อง และรอดูว่าเครื่องนี้ได้รับจริงไหม */
+const PUSH_WHY=r=>r.result==="ok"?"":r.result==="gone"?"เครื่องนี้ยกเลิกการรับไปแล้ว (เอาออกให้แล้ว) — เปิดแจ้งเตือนใหม่บนเครื่องนั้น":
+  r.status===403||r.status===401?"กุญแจไม่ตรง — บนเครื่องนั้นกดปิดแล้วเปิดแจ้งเตือนใหม่":r.status===0?"ติดต่อบริการแจ้งเตือนไม่ได้ ลองใหม่":"บริการแจ้งเตือนตอบ "+r.status;
+async function runPushTest(btn,endpoint){
+  const go=async()=>{
+    let got=false;const onMsg=e=>{if(e.data&&String(e.data.pushed||"").startsWith("mw-test"))got=true};
+    if(navigator.serviceWorker)navigator.serviceWorker.addEventListener("message",onMsg);
+    const r=await api("/api/push/test",{method:"POST",body:endpoint?{endpoint}:{}});
+    if(r.devices)PUSH=Object.assign(PUSH||{},{devices:r.devices});
+    const mine=PD.sub&&r.results.find(x=>PD.sub.endpoint.endsWith(x.ep));
+    if(mine&&mine.result==="ok")for(let i=0;i<24&&!got;i++)await sleep(500);
+    if(navigator.serviceWorker)navigator.serviceWorker.removeEventListener("message",onMsg);
+    const row=x=>{const me=mine&&x.ep===mine.ep;let st;
+      if(x.result!=="ok")st='<span class="pill err">✗ ส่งไม่ถึง</span><div class="small mut">'+esc(PUSH_WHY(x))+(x.detail?' · <code>'+esc(x.detail.slice(0,80))+"</code>":"")+"</div>";
+      else if(me)st=got?'<span class="pill ok">✓ เครื่องนี้ได้รับแล้ว</span><div class="small mut">ถ้าไม่เห็นเด้ง ให้เปิดการแจ้งเตือนของเบราว์เซอร์ในตั้งค่าเครื่อง และปิดโหมดห้ามรบกวน/Focus assist</div>':'<span class="pill err">⚠ ส่งออกแล้ว แต่เครื่องนี้ยังไม่ได้รับ</span><div class="small mut">ลองรีเฟรชหน้า (Ctrl+F5) แล้วกดปิด–เปิดแจ้งเตือนใหม่</div>';
+      else st='<span class="pill ok">✓ ส่งถึงบริการแล้ว</span><div class="small mut">ควรเด้งที่เครื่องนั้นภายในไม่กี่วินาที'+(/apple/.test(x.host)?" (iPhone: ต้องเปิดจากไอคอนหน้าจอโฮม และเปิดแจ้งเตือนใน ตั้งค่า → การแจ้งเตือน → Manga Watch)":"")+"</div>";
+      return'<li><span>'+(me?"📍":"📱")+'</span><span class="grow"><b>'+esc(x.ua)+"</b>"+(me?' <span class="pill pri">เครื่องนี้</span>':"")+"<div>"+st+"</div></span></li>"};
+    openSheet('<div class="pad"><h2 style="margin:0 0 4px">🔔 ผลการส่งทดสอบ</h2><p class="mut small" style="margin:0 0 8px">ส่งไป '+r.results.length+" เครื่อง · ส่งถึงบริการแจ้งเตือน "+r.sent+' เครื่อง</p><ul class="rows">'+r.results.map(row).join("")+'</ul><div class="acts"><button class="btn" data-act="close">ปิด</button></div></div>',null,"pushtest");
+    render();
+  };
+  return btn?busy(btn,go):go().catch(e=>toast("ส่งทดสอบไม่สำเร็จ: "+e.message,"bad"));
+}
+/* ---------- เวอร์ชัน / อัปเดตแอป ---------- */
+async function checkVersion(){
+  try{const t=await(await fetch("index.html?v="+Date.now(),{cache:"no-store"})).text();const m=/const APP_VER="([^"]+)"/.exec(t);
+    UI.verChecked=true;if(m&&m[1]!==APP_VER){UI.newVer=m[1];if(!UI.verToast){UI.verToast=1;toast("✨ มีเวอร์ชันใหม่ v"+m[1],"info",9000,{label:"🔄 อัปเดต",fn:()=>updateApp()})}}
+    if(P.tab==="system")render()}catch(e){}
+}
+async function updateApp(btn){
+  const go=async()=>{
+    toast("กำลังโหลดเวอร์ชันล่าสุด…","info",3000);
+    await Promise.all(["./","index.html","sw.js","manifest.webmanifest"].map(u=>fetch(u,{cache:"reload"}).catch(()=>{})));
+    try{const reg=navigator.serviceWorker&&await navigator.serviceWorker.getRegistration();if(reg)await reg.update()}catch(e){}
+    try{for(const k of await caches.keys())await caches.delete(k)}catch(e){}
+    location.reload();
+  };
+  return btn?busy(btn,go):go();
 }
 function openIosGuide(){
   openSheet('<div class="pad"><h2 style="margin:0 0 4px">📲 เปิดแจ้งเตือนบน iPhone</h2><p class="mut small" style="margin:0 0 12px">Apple ให้เว็บส่งแจ้งเตือนได้เฉพาะเมื่อเพิ่มไว้ที่หน้าจอโฮม (iOS 16.4 ขึ้นไป) ทำครั้งเดียว</p>'+
@@ -874,7 +915,8 @@ function renderLibrary(v){
 }
 /* ================================================================ home (ภาพรวม) */
 function renderHome(v){
-  const work=D.series.filter(s=>behind(s.id)>0).sort((a,b)=>behind(b.id)-behind(a.id)||T(ST(b.id).updated)-T(ST(a.id).updated));
+  const upd=s=>T(ST(s.id).updated);
+  const work=D.series.filter(s=>behind(s.id)>0).sort(P.wsort==="recent"?(a,b)=>upd(b)-upd(a):P.wsort==="name"?(a,b)=>a.name.localeCompare(b.name,"th"):(a,b)=>behind(b.id)-behind(a.id)||upd(b)-upd(a));
   const fresh=D.series.filter(s=>T(ST(s.id).updated)>Date.now()-48*36e5).sort((a,b)=>T(ST(b.id).updated)-T(ST(a.id).updated));
   const bad=D.series.filter(s=>s.enabled!==false&&ST(s.id).error),hl=health();
   let nx=null;for(const s of D.series){if(s.enabled===false)continue;const t=nextCheck(s,ST(s.id));if(t&&(!nx||t<nx.t))nx={t,s}}
@@ -891,10 +933,6 @@ function renderHome(v){
   // งานค้างแปล
   h+='<section class="sec"><div class="sech"><h2>🔥 งานค้างแปล <span class="cnt'+(work.length?"":" soft")+'">'+work.length+'</span></h2>'+(work.length>1?'<button class="btn t sm" data-act="readall">✓ แปลทันทั้งหมด</button>':"")+"</div>";
   h+=work.length?'<div class="wlist">'+work.map(workRow).join("")+"</div>":'<div class="card done-all"><div class="big">🎉</div><b>แปลทันทุกเรื่องแล้ว</b><div class="small mut">พอต้นฉบับออกตอนใหม่ งานจะขึ้นที่นี่ และบอทแจ้งเข้า Discord</div></div>';
-  h+="</section>";
-  // ออกใหม่ล่าสุด
-  h+='<section class="sec"><div class="sech"><h2>🆕 ต้นฉบับออกใหม่ <span class="small mut" style="font-weight:500">48 ชม.</span></h2><button class="btn t sm" data-act="tab" data-tab="feed">ดูทั้งหมด →</button></div>';
-  h+=fresh.length?'<div class="strip">'+fresh.slice(0,16).map(s=>{const st=ST(s.id),b=behind(s.id);return'<button class="mini" data-act="open" data-id="'+esc(s.id)+'"><div class="cvw">'+cover(st.cover,s.name)+(b?'<span class="ribbon">ค้าง '+b+"</span>":'<span class="ribbon ok">✓</span>')+'<span class="mch">ตอน '+esc(st.label)+'</span></div><div class="n">'+esc(s.name)+'</div><div class="t">'+ago(st.updated)+"</div></button>"}).join("")+"</div>":'<p class="mut small" style="margin:4px 2px">ยังไม่มีตอนใหม่ใน 48 ชม.</p>';
   h+="</section>";
   if(bad.length)h+='<section class="sec"><div class="sech"><h2>⚠️ ต้องดูแล <span class="cnt">'+bad.length+'</span></h2></div><div class="card box" style="padding:6px 14px"><ul class="rows">'+bad.map(s=>'<li><span class="grow"><b>'+esc(s.name)+'</b><br><span class="small mut">'+esc(ST(s.id).error)+'</span></span><button class="btn g sm" data-act="open" data-id="'+esc(s.id)+'">ดู</button></li>').join("")+"</ul></div></section>";
   v.innerHTML=h;
@@ -1132,8 +1170,13 @@ function renderSystem(v){
       '<div class="hint">บอทแท็กคุณ '+((ME&&ME.series)||[]).length+' เรื่อง — เลือกได้ที่ปุ่ม 🔔 แท็กฉันด้วย ในหน้ารายละเอียดเรื่อง</div><div class="acts"><button class="btn g danger" data-act="logout">ออกจากระบบ</button></div></div>';
   }
   h+=pushCard();
+  const seg=(act,cur,opts)=>'<div class="seg" role="group">'+opts.map(([v,t])=>'<button data-act="'+act+'" data-v="'+v+'" aria-pressed="'+(cur===v)+'">'+t+"</button>").join("")+"</div>";
+  const nv=UI.newVer&&UI.newVer!==APP_VER?UI.newVer:"";
   h+='<div class="card box"><h3>📱 แอปบนเครื่องนี้</h3>'+
-    '<div class="line"><div>ธีม</div><div class="seg">'+[["auto","อัตโนมัติ"],["light","สว่าง"],["dark","มืด"]].map(([k,t])=>'<button data-act="theme" data-v="'+k+'" aria-pressed="'+(P.theme===k)+'">'+t+"</button>").join("")+"</div></div>"+
+    '<div class="line"><div>เวอร์ชัน <b>v'+APP_VER+'</b><div class="small '+(nv?"":"mut")+'" style="'+(nv?"color:var(--pri);font-weight:600":"")+'">'+(nv?"✨ มีเวอร์ชันใหม่ v"+esc(nv):UI.verChecked?"✓ ล่าสุดแล้ว":"กำลังเช็กเวอร์ชัน…")+'</div></div><button class="btn sm'+(nv?"":" g")+'" data-act="updateapp">🔄 '+(nv?"อัปเดตเลย":"โหลดใหม่")+"</button></div>"+
+    '<div class="line stack"><div>หน้าแรกเมื่อเปิดแอป</div>'+seg("startpage",P.start,[["home","ภาพรวม"],["library","การ์ตูนทั้งหมด"]])+"</div>"+
+    '<div class="line stack"><div>เรียงงานค้างแปล</div>'+seg("wsort",P.wsort,[["behind","ค้างมากสุด"],["recent","ออกล่าสุด"],["name","ชื่อ"]])+"</div>"+
+
     (UI.installEvt?'<div class="line"><div>ติดตั้งเป็นแอป</div><button class="btn sm" data-act="install">ติดตั้ง</button></div>':'<div class="hint">ติดตั้งเป็นแอป: Android/Chrome กดเมนู ⋮ → ติดตั้งแอป · iPhone กดแชร์ → เพิ่มไปยังหน้าจอโฮม</div>')+
     (API?"":'<div class="hint warn" style="margin-top:10px">ยังไม่ได้ตั้งค่าหลังบ้าน (Worker) — ตอนนี้ดูได้อย่างเดียว ล็อกอินไม่ได้</div>')+"</div>";
   h+="</div>";
@@ -1256,6 +1299,9 @@ const ACT={
   setread:el=>{const v=$("#readIn").value.trim();if(!v)return;progress([el.dataset.id],v,"บันทึกว่าแปลถึงตอน "+v)},
   gofilter:el=>{UI.filter=el.dataset.f;P.tab="library";savePrefs();render();window.scrollTo({top:0});buzz()},
   pushon:el=>enablePush(el),
+  startpage:el=>{P.start=el.dataset.v;savePrefs();buzz();render();toast("เปิดแอปครั้งหน้าจะเจอหน้า "+(P.start==="library"?"การ์ตูนทั้งหมด":"ภาพรวม"),"ok",2500)},
+  wsort:el=>{P.wsort=el.dataset.v;savePrefs();buzz();render();toast("เรียงงานค้างแปลตาม"+({behind:"ค้างมากสุด",recent:"ออกล่าสุด",name:"ชื่อ"}[P.wsort]),"ok",2000)},
+  updateapp:el=>updateApp(el),
   reqagain:()=>{UI.reqSent=false;render();setTimeout(()=>$("#qName")&&$("#qName").focus(),50)},
   pushlater:()=>{LS.set("mw_push_banner","later");render();toast("เปิดได้ทีหลังที่ ระบบ → ฉัน","info",3000)},
   iosguide:()=>openIosGuide(),
@@ -1264,7 +1310,7 @@ const ACT={
     if(m==="some"&&!PUSH.pick.length)PUSH.pick=D.series.filter(s=>!PUSH.mute.includes(s.id)).map(s=>s.id);
     if(m==="all"&&!PUSH.mute.length)PUSH.mute=D.series.filter(s=>!PUSH.pick.includes(s.id)).map(s=>s.id);
     PUSH.mode=m;savePushPrefs();buzz();render();toast(m==="some"?"รับเฉพาะเรื่องที่เลือก (เลือกจากการตั้งค่าเดิมให้แล้ว)":"รับทุกเรื่อง ยกเว้นที่ปิดไว้","ok",3500)},
-  pushtest:el=>busy(el,async()=>{const r=await api("/api/push/test",{method:"POST",body:{}});toast("ส่งทดสอบไป "+r.sent+" เครื่องแล้ว — ดูที่หน้าจอโทรศัพท์","ok")}),
+  pushtest:el=>runPushTest(el),
   pushrm:el=>arm(el,"ยืนยัน?",()=>busy(el,async()=>{const d=PUSH.devices.find(x=>x.id===el.dataset.v);
     if(d&&PD.sub&&PD.sub.endpoint.endsWith(d.ep))return disablePush(el);
     PUSH=Object.assign(PUSH,await api("/api/push/unsubscribe",{method:"POST",body:{id:el.dataset.v}}));render();toast("เอาเครื่องออกแล้ว","ok")})),
@@ -1385,7 +1431,7 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();UI.installE
   render();
   if(!API){const c=await staticJson("config.json",{});if(c&&c.worker_url)API=String(c.worker_url).trim().replace(/\/+$/,"")}
   loadR();pullRead();
-  await loadData();loadStatus();loadMe();loadPush();
+  await loadData();loadStatus();loadMe();loadPush();setTimeout(checkVersion,4000);
   const openId=new URLSearchParams(location.search).get("open");   // กดจากแจ้งเตือน → เปิดเรื่องนั้น
   if(openId){history.replaceState(null,"",location.pathname);if(SER(openId))openDetail(openId)}
   if(isMod())loadReqs();
@@ -1394,9 +1440,10 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();UI.installE
   setInterval(()=>{if(!document.hidden&&(P.tab==="system"||Date.now()-(UI.lastStatus||0)>600000))loadStatus()},300000);
   setInterval(()=>{if(!document.hidden)renderHealth()},30000);
   setInterval(()=>{if(!document.hidden&&Date.now()-RSYNC.last>240000)pullRead()},300000);
+  setInterval(()=>{if(!document.hidden)checkVersion()},30*6e4);
   document.addEventListener("visibilitychange",()=>{if(document.hidden){if(RSYNC.dirty.size){clearTimeout(RSYNC.timer);pushRead()}return}if(Date.now()-RSYNC.last>60000)pullRead();if(!document.hidden){if(Date.now()-UI.lastLoad>60000)loadData(true);if(Date.now()-(UI.lastStatus||0)>180000)loadStatus()}});
   if("serviceWorker"in navigator&&(location.protocol==="https:"||location.hostname==="localhost")){
-    navigator.serviceWorker.register("sw.js").catch(()=>{});
+    navigator.serviceWorker.register("sw.js").then(r=>r.update()).catch(()=>{});   // บังคับเช็ก sw.js ตัวใหม่ทุกครั้งที่เปิด
     navigator.serviceWorker.addEventListener("message",e=>{try{const id=new URL(e.data.open).searchParams.get("open");if(id&&SER(id))openDetail(id)}catch(x){}});
   }
 })();
