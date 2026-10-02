@@ -442,7 +442,30 @@ let API=(new URLSearchParams(location.search).get("api")||LS.get("mw_api","")||"
 let S=LS.get("mw_session",null);              // {token,user:{name,role}}
 let D={series:[],state:{},log:[],followers:{},config:{},pending:0};
 let STATUS=null,ME=null,REQS=null,AUDIT=null,USERS=null,PREV=null,SUBS=null,CFG=null;
-let R=LS.get("mw_read",{});                     // อ่านถึงตอนไหน (เก็บในเครื่องนี้)
+/* อ่านถึงตอนไหน: เก็บในเครื่อง + ล็อกอินแล้วซิงก์กับบัญชี (ทุกเครื่องเห็นเหมือนกัน) */
+let R={},RT={};                                  // R[id]=ตอนที่อ่านถึง, RT[id]=เวลาที่กด (1 = ระบบเดาให้)
+const rKey=()=>S&&S.user&&API?"mw_read_u:"+String(S.user.name).toLowerCase():"mw_read";
+function loadR(){const k=rKey();let r=LS.get(k,null),t=LS.get(k+":t",null);
+  if(r==null){r=Object.assign({},LS.get("mw_read",{}));t={}}   // บัญชีนี้เพิ่งใช้เครื่องนี้: เริ่มจากของเครื่อง
+  R=r||{};RT=t||{};RSYNC.dirty.clear()}
+const saveR=()=>{const k=rKey();LS.set(k,R);LS.set(k+":t",RT)};
+const RSYNC={dirty:new Set(),timer:0,busy:false,last:0};
+function markRead(ids,label){const now=Date.now();
+  for(const id of ids){const l=typeof label==="function"?label(id):label;if(l==null)continue;R[id]=String(l);RT[id]=now;RSYNC.dirty.add(id)}
+  saveR();schedulePush()}
+const canSync=()=>!!(S&&S.user&&API);
+function schedulePush(){if(!canSync())return;clearTimeout(RSYNC.timer);RSYNC.timer=setTimeout(pushRead,2500)}
+function betterRead(a,b){if(!a)return b;if(!b)return a;if(a.t!==b.t)return a.t>b.t?a:b;const x=num(a.l),y=num(b.l);return x!=null&&y!=null&&y<x?b:a}
+function applyServer(map){map=map||{};let ch=false;
+  for(const[id,e]of Object.entries(map)){const mine=R[id]!=null?{l:String(R[id]),t:RT[id]||1}:null,w=betterRead(mine,e);
+    if(w!==mine){R[id]=String(e.l);RT[id]=e.t;ch=true}else if(mine.t!==e.t||mine.l!==String(e.l))RSYNC.dirty.add(id)}
+  for(const id in R)if(!map[id])RSYNC.dirty.add(id);
+  if(ch)saveR();return ch}
+async function pullRead(){if(!canSync())return;RSYNC.last=Date.now();
+  try{const r=await api("/api/read");if(applyServer(r.read))render();if(RSYNC.dirty.size)schedulePush()}catch(e){}}
+async function pushRead(){if(!canSync()||!RSYNC.dirty.size)return;if(RSYNC.busy)return schedulePush();RSYNC.busy=true;
+  const ids=[...RSYNC.dirty];RSYNC.dirty.clear();const read={};for(const id of ids)if(R[id]!=null)read[id]={l:String(R[id]),t:RT[id]||1};
+  try{const r=await api("/api/read",{method:"PUT",body:{read}});if(applyServer(r.read))render()}catch(e){ids.forEach(i=>RSYNC.dirty.add(i))}finally{RSYNC.busy=false}}
 const P=Object.assign({tab:"library",view:"list",sort:"recent",theme:"auto",notify:false},LS.get("mw_prefs",{}));
 const UI={lastLoad:0,filter:"all",q:"",feed:"all",pending:new Set(),loaded:false,sheetId:null,installEvt:null};
 const savePrefs=()=>LS.set("mw_prefs",P);
@@ -523,8 +546,8 @@ function runMsg(c){
 function initRead(){
   const old=LS.get("mn_seen",null);let ch=false;
   for(const s of D.series){const st=ST(s.id);if(st.label==null||R[s.id]!=null)continue;
-    R[s.id]=old&&old[s.id]!=null&&old[s.id]<st.number?(st.prev_label||st.label):st.label;ch=true}
-  if(ch)LS.set("mw_read",R);
+    R[s.id]=String(old&&old[s.id]!=null&&old[s.id]<st.number?(st.prev_label||st.label):st.label);RT[s.id]=1;RSYNC.dirty.add(s.id);ch=true}
+  if(ch){saveR();schedulePush()}
 }
 function behind(id){
   const st=ST(id);if(st.label==null||R[id]==null)return 0;
@@ -532,7 +555,7 @@ function behind(id){
   if(a!=null&&b!=null)return a>b?Math.max(1,Math.round(a-b)):0;
   return String(st.label)===String(R[id])?0:1;
 }
-function setRead(id,label){R[id]=String(label);LS.set("mw_read",R);render();if(UI.sheetId===id&&!$("#sheet").hidden)openDetail(id,true)}
+function setRead(id,label){markRead([id],label);render();if(UI.sheetId===id&&!$("#sheet").hidden)openDetail(id,true)}
 
 /* ================================================================ health */
 /** เรื่องที่ถึงเวลาตรวจมาเกิน 30 นาทีแล้วแต่ยังไม่ถูกตรวจ = ระบบสั่งตรวจไม่ทำงาน */
@@ -672,7 +695,7 @@ function openDetail(id,keep){
   h+='<div class="stat"><div><b>'+esc(st.label??"-")+'</b><span>ตอนล่าสุด</span></div><div><b>'+esc(R[id]??"-")+'</b><span>อ่านถึง</span></div><div><b style="color:'+(b?"var(--bad)":"var(--ok)")+'">'+(st.label==null?"-":b?b:"✓")+"</b><span>"+(b?"ค้างอ่าน":"ทันแล้ว")+"</span></div></div>";
   if(st.label!=null){
     h+='<div class="acts" style="margin-top:0"><a class="btn" data-act="readlink" data-id="'+eid+'" href="'+esc(safeUrl(st.url)||s.url)+'" target="_blank" rel="noopener">อ่านตอน '+esc(st.label)+" ↗</a>"+(b?'<button class="btn g" data-act="caught" data-id="'+eid+'">✓ อ่านทันแล้ว</button>':"")+"</div>";
-    h+='<div class="f"><label for="readIn">อ่านถึงตอน (จำไว้ในเครื่องนี้)</label><div class="row"><input type="text" id="readIn" inputmode="decimal" value="'+esc(R[id]??"")+'"><button class="btn g" data-act="setread" data-id="'+eid+'" style="flex:0 0 auto">บันทึก</button></div></div>';
+    h+='<div class="f"><label for="readIn">อ่านถึงตอน '+(canSync()?"(ซิงก์กับบัญชี ทุกเครื่องเห็นเหมือนกัน)":"(จำไว้ในเครื่องนี้ — ล็อกอินเพื่อซิงก์ทุกเครื่อง)")+'</label><div class="row"><input type="text" id="readIn" inputmode="decimal" value="'+esc(R[id]??"")+'"><button class="btn g" data-act="setread" data-id="'+eid+'" style="flex:0 0 auto">บันทึก</button></div></div>';
     if(st.title)h+='<p class="small mut" style="margin:10px 0 0">ชื่อตอนล่าสุด: '+esc(st.title)+"</p>";
   }
   h+='<div class="facts">'+
@@ -906,12 +929,12 @@ async function doLogin(btn){
   if(!name||!password)return toast("กรอกชื่อและรหัสผ่าน","bad");
   await busy(btn,async()=>{
     const r=await api("/api/login",{method:"POST",body:{name,password}});
-    S=r;LS.set("mw_session",S);closeSheet();USERS=AUDIT=REQS=null;
+    S=r;LS.set("mw_session",S);closeSheet();USERS=AUDIT=REQS=null;loadR();initRead();pullRead();
     toast("ยินดีต้อนรับ "+r.user.name+" ("+ROLE_TH[r.user.role]+")","ok");
     render();await loadMe();if(isMod())loadReqs();
   });
 }
-function logout(reason){S=null;ME=null;USERS=AUDIT=REQS=SUBS=CFG=null;LS.del("mw_session");if(UI.filter==="mine")UI.filter="all";render();toast(typeof reason==="string"?reason:"ออกจากระบบแล้ว","info",6000)}
+function logout(reason){clearTimeout(RSYNC.timer);if(RSYNC.dirty.size)pushRead();S=null;ME=null;USERS=AUDIT=REQS=SUBS=CFG=null;LS.del("mw_session");loadR();initRead();if(UI.filter==="mine")UI.filter="all";render();toast(typeof reason==="string"?reason:"ออกจากระบบแล้ว","info",6000)}
 
 /* ================================================================ actions */
 function arm(btn,label,fn){
@@ -946,9 +969,9 @@ const ACT={
   dorequest:el=>doRequest(el),
   login:el=>doLogin(el),
   logout:()=>logout(false),
-  readlink:el=>{const id=el.dataset.id,st=ST(id);if(st.label!=null){R[id]=st.label;LS.set("mw_read",R)}setTimeout(()=>{render();if(UI.sheetId===id)openDetail(id,true)},60)},
+  readlink:el=>{const id=el.dataset.id,st=ST(id);if(st.label!=null)markRead([id],st.label);setTimeout(()=>{render();if(UI.sheetId===id)openDetail(id,true)},60)},
   caught:el=>{const id=el.dataset.id;setRead(id,ST(id).label);toast("อ่านทัน “"+SER(id).name+"” แล้ว ✓","ok",2000)},
-  readall:()=>{for(const s of D.series)if(ST(s.id).label!=null)R[s.id]=ST(s.id).label;LS.set("mw_read",R);render();toast("ทำเครื่องหมายอ่านทันทั้งหมดแล้ว","ok",2200)},
+  readall:()=>{markRead(D.series.filter(s=>ST(s.id).label!=null&&behind(s.id)>0).map(s=>s.id),id=>ST(id).label);render();toast("ทำเครื่องหมายอ่านทันทั้งหมดแล้ว","ok",2200)},
   setread:el=>{const v=$("#readIn").value.trim();if(!v)return;setRead(el.dataset.id,v);toast("บันทึกว่าอ่านถึงตอน "+v,"ok",2000)},
   follow:async el=>{
     const id=el.dataset.id,on=!(ME&&(ME.series||[]).includes(id)),me=S.user.name;
@@ -1062,13 +1085,15 @@ window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();UI.installE
 (async()=>{
   render();
   if(!API){const c=await staticJson("config.json",{});if(c&&c.worker_url)API=String(c.worker_url).trim().replace(/\/+$/,"")}
+  loadR();pullRead();
   await loadData();loadStatus();loadMe();
   if(isMod())loadReqs();
   // ประหยัดโควตา Cloudflare: ดึงข้อมูลทุก 2 นาที / สถานะทุก 5 นาที เฉพาะตอนเปิดหน้านี้อยู่ (แท็บที่ซ่อนไว้ไม่ดึง)
   setInterval(()=>{if(!document.hidden&&!document.querySelector(".btn.busy")&&Date.now()-UI.lastLoad>100000)loadData(true)},120000);
   setInterval(()=>{if(!document.hidden&&(P.tab==="system"||Date.now()-(UI.lastStatus||0)>600000))loadStatus()},300000);
   setInterval(()=>{if(!document.hidden)renderHealth()},30000);
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden){if(Date.now()-UI.lastLoad>60000)loadData(true);if(Date.now()-(UI.lastStatus||0)>180000)loadStatus()}});
+  setInterval(()=>{if(!document.hidden&&Date.now()-RSYNC.last>240000)pullRead()},300000);
+  document.addEventListener("visibilitychange",()=>{if(document.hidden){if(RSYNC.dirty.size){clearTimeout(RSYNC.timer);pushRead()}return}if(Date.now()-RSYNC.last>60000)pullRead();if(!document.hidden){if(Date.now()-UI.lastLoad>60000)loadData(true);if(Date.now()-(UI.lastStatus||0)>180000)loadStatus()}});
   if("serviceWorker"in navigator&&location.protocol==="https:")navigator.serviceWorker.register("sw.js").catch(()=>{});
 })();
 </script>
