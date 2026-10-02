@@ -4,7 +4,7 @@
   "digest": {
     "enabled": true,
     "hour": 6,
-    "send_empty": true
+    "send_empty": false
   },
   "alert": {
     "enabled": true,
