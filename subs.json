@@ -1,7 +1,9 @@
 {
   "users": {
     "boom": {
-      "series": [],
+      "series": [
+        "e07mdnts"
+      ],
       "discord": "343575893156954112"
     },
     "KIKKUK": {
