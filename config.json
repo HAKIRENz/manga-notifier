@@ -2,7 +2,7 @@
   "worker_url": "https://manga-watch-api.boomdoodic.workers.dev",
   "tz_offset": 7,
   "digest": {
-    "enabled": true,
+    "enabled": false,
     "hour": 6,
     "send_empty": false
   },
