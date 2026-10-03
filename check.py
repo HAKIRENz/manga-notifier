@@ -716,6 +716,22 @@ def due_at(p, tried_ts, fails, now_ts):
     return False
 
 
+def due_recently(s, st, now, cfg):
+    """ถึงเวลาตอนนี้ หรือถึงเวลาตั้งแต่รอบปลุก 5 นาทีก่อน ๆ (เผื่อ GitHub เริ่มรันช้า เช่น ช่วงเฝ้าเพิ่งปิด 06:30 แต่รันจริง 06:31)"""
+    if is_due(s, st, now, cfg):
+        return True
+    tick = now.replace(second=0, microsecond=0)
+    tick -= datetime.timedelta(minutes=tick.minute % 5)
+    tried = st.get("tried") or ""
+    for k in range(3):
+        t = tick - datetime.timedelta(minutes=5 * k)
+        if tried and t.isoformat() <= tried:
+            break
+        if is_due(s, st, t, cfg):
+            return True
+    return False
+
+
 def is_due(s, st, now, cfg):
     tried = st.get("tried")
     try:
@@ -829,7 +845,7 @@ def main():
         st = state.setdefault(s["id"], {})
         if st.get("blocked_until") and now.isoformat() < st["blocked_until"] and not only:
             continue                                   # กำลังพักเพราะเว็บบล็อก
-        if not force and not is_due(s, st, now, cfg):
+        if not force and not due_recently(s, st, now, cfg):
             continue                                   # ยังไม่ถึงรอบของเรื่องนี้
         dom = urllib.parse.urlparse(s["url"]).netloc
         wait = last_hit.get(dom, 0) + random.uniform(4, 10) - time.time()

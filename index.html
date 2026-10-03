@@ -583,7 +583,7 @@ async function pullRead(){if(!canSync())return;RSYNC.last=Date.now();
 async function pushRead(){if(!canSync()||!RSYNC.dirty.size)return;if(RSYNC.busy)return schedulePush();RSYNC.busy=true;
   const ids=[...RSYNC.dirty];RSYNC.dirty.clear();const read={};for(const id of ids)if(R[id]!=null)read[id]={l:String(R[id]),t:RT[id]||1};
   try{const r=await api("/api/read",{method:"PUT",body:{read}});if(applyServer(r.read))render()}catch(e){ids.forEach(i=>RSYNC.dirty.add(i))}finally{RSYNC.busy=false}}
-const APP_VER="5.3";                             // เลขเวอร์ชันหน้าเว็บ (เปลี่ยนทุกครั้งที่ออกตัวใหม่)
+const APP_VER="5.4";                             // เลขเวอร์ชันหน้าเว็บ (เปลี่ยนทุกครั้งที่ออกตัวใหม่)
 const P=Object.assign({tab:"home",view:"list",sort:"recent",theme:"auto",notify:false,start:"home",wsort:"behind"},LS.get("mw_prefs",{}));
 P.tab=P.start==="library"?"library":"home";      // เปิดแอปมาเจอหน้าที่เลือกไว้
 const UI={sys:"status",lastLoad:0,filter:"all",q:"",feed:"all",pending:new Set(),loaded:false,sheetId:null,installEvt:null};
@@ -814,6 +814,7 @@ function overdue(){
     if(s.enabled===false)continue;const st=ST(s.id),tr=T(st.tried);
     if(!tr||T(st.blocked_until)>now)continue;
     const p=planOf(s,st,D.config,now);
+    if(!dueAt(p,tr,+st.fails||0,now))continue;    // ตอนนี้ไม่ถึงเวลาแล้ว (เช่น ช่วงเฝ้าเพิ่งปิด) = ไม่ช้า
     for(let t=Math.ceil(tr/TICK)*TICK;t<now-30*6e4;t+=TICK)if(dueAt(p,tr,+st.fails||0,t)){out.push(s);break}
   }
   return out;
