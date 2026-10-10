@@ -1,0 +1,1854 @@
+{
+ "0ahhxsog": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"ef9b5-U+dqE/LapkxWmDxG1WvdXufn8XY\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:37:16+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/230612/tGmiLLXMV.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "206",
+  "history": [
+   {
+    "at": "2026-10-06T21:50:54+00:00",
+    "count": 2,
+    "label": "208",
+    "prev": "206",
+    "title": "共208篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/19109/?cps=undefined"
+   }
+  ],
+  "label": "208",
+  "mode": "count",
+  "notified": "sent",
+  "number": 208.0,
+  "prev_label": "206",
+  "prev_number": 206.0,
+  "since": "2026-10-01T09:54:21+00:00",
+  "title": "共208篇正文",
+  "tried": "2026-10-10T22:37:16+00:00",
+  "updated": "2026-10-06T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/19109/?cps=undefined"
+ },
+ "1in5o6bx": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"99b83-WQ4f+x3LdLyNgZ5BtOfzHIqTWKo\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:58+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/250630/WsjuVuQCv.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "122",
+  "history": [
+   {
+    "at": "2026-10-07T21:50:56+00:00",
+    "label": "124",
+    "prev": "123",
+    "title": "共124篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/25858/?cps=undefined"
+   },
+   {
+    "at": "2026-10-03T21:55:51+00:00",
+    "label": "123",
+    "prev": "122",
+    "title": "共123篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/25858/?cps=undefined"
+   }
+  ],
+  "label": "124",
+  "mode": "count",
+  "notified": "sent",
+  "number": 124.0,
+  "prev_label": "123",
+  "prev_number": 123.0,
+  "since": "2026-10-01T11:51:49+00:00",
+  "title": "共124篇正文",
+  "tried": "2026-10-10T22:41:58+00:00",
+  "updated": "2026-10-07T21:50:56+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/25858/?cps=undefined"
+ },
+ "1oy534xm": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:19+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/09_17_47_34ae7d9bb724d84c004833432e1883aa_1788947237358.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "3",
+  "history": [
+   {
+    "at": "2026-10-09T16:05:52+00:00",
+    "label": "5",
+    "prev": "4",
+    "title": "第五话·穿越类技能！",
+    "url": "https://ac.qq.com/ComicView/index/id/657981/cid/154385"
+   },
+   {
+    "at": "2026-10-02T16:05:55+00:00",
+    "label": "4",
+    "prev": "3",
+    "title": "第四话·猫脸儿",
+    "url": "https://ac.qq.com/ComicView/index/id/657981/cid/153996"
+   }
+  ],
+  "label": "5",
+  "mode": "text",
+  "notified": "sent",
+  "number": 5.0,
+  "prev_label": "4",
+  "prev_number": 4.0,
+  "since": "2026-10-01T12:32:30+00:00",
+  "title": "第五话·穿越类技能！",
+  "tried": "2026-10-10T22:36:19+00:00",
+  "updated": "2026-10-09T16:05:52+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657981/cid/154385"
+ },
+ "2zi3grtw": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:42:00+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/20_10_15_a7f0a4ce1c9b3538bb50a9f82ad51d4b_1787192147538.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "31",
+  "history": [
+   {
+    "at": "2026-10-08T16:05:57+00:00",
+    "label": "35",
+    "prev": "34",
+    "title": "35 李一晗vs金允妍",
+    "url": "https://ac.qq.com/ComicView/index/id/657728/cid/152898"
+   },
+   {
+    "at": "2026-10-05T16:01:16+00:00",
+    "label": "34",
+    "prev": "33",
+    "title": "34 惹错人了",
+    "url": "https://ac.qq.com/ComicView/index/id/657728/cid/152897"
+   },
+   {
+    "at": "2026-10-02T16:05:55+00:00",
+    "label": "33",
+    "prev": "32",
+    "title": "33 叫哥哥",
+    "url": "https://ac.qq.com/ComicView/index/id/657728/cid/152896"
+   },
+   {
+    "at": "2026-10-01T16:00:39+00:00",
+    "label": "32",
+    "prev": "31",
+    "title": "32 决裂",
+    "url": "https://ac.qq.com/ComicView/index/id/657728/cid/152895"
+   }
+  ],
+  "label": "35",
+  "mode": "text",
+  "notified": "sent",
+  "number": 35.0,
+  "prev_label": "34",
+  "prev_number": 34.0,
+  "since": "2026-10-01T09:54:49+00:00",
+  "title": "35 李一晗vs金允妍",
+  "tried": "2026-10-10T22:42:00+00:00",
+  "updated": "2026-10-08T16:05:57+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657728/cid/152898"
+ },
+ "46zx8029": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:18+00:00",
+  "cover": "https://en-thunderscans.com/wp-content/uploads/2026/05/2026-05-16-03-43-28-1778946208186.avif",
+  "error": "",
+  "fails": 0,
+  "first_label": "33",
+  "history": [
+   {
+    "at": "2026-10-03T16:40:54+00:00",
+    "label": "34",
+    "prev": "33",
+    "title": "New Chapter Chapter 34",
+    "url": "https://en-thunderscans.com/the-transcendent-holy-swordsman-regresses-as-the-youngest-son-of-a-magic-swordsman-family-chapter-34/"
+   }
+  ],
+  "label": "34",
+  "mode": "text",
+  "notified": "sent",
+  "number": 34.0,
+  "prev_label": "33",
+  "prev_number": 33.0,
+  "since": "2026-10-01T09:54:49+00:00",
+  "title": "New Chapter Chapter 34",
+  "tried": "2026-10-10T22:41:18+00:00",
+  "updated": "2026-10-03T16:40:54+00:00",
+  "url": "https://en-thunderscans.com/the-transcendent-holy-swordsman-regresses-as-the-youngest-son-of-a-magic-swordsman-family-chapter-34/"
+ },
+ "7dy9caoa": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:35:50+00:00",
+  "cover": "https://en-thunderscans.com/wp-content/uploads/2025/09/2025-09-17-12-05-26-1758067526780.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "59",
+  "history": [
+   {
+    "at": "2026-10-06T21:50:54+00:00",
+    "label": "60",
+    "prev": "59",
+    "title": "New Chapter Chapter 60",
+    "url": "https://en-thunderscans.com/return-of-the-first-generation-the-strongest-in-history-reincarnates-as-his-descendant-1000-years-later-chapter-60/"
+   }
+  ],
+  "label": "60",
+  "mode": "text",
+  "notified": "sent",
+  "number": 60.0,
+  "prev_label": "59",
+  "prev_number": 59.0,
+  "since": "2026-10-01T11:55:41+00:00",
+  "title": "New Chapter Chapter 60",
+  "tried": "2026-10-10T22:35:50+00:00",
+  "updated": "2026-10-06T21:50:54+00:00",
+  "url": "https://en-thunderscans.com/return-of-the-first-generation-the-strongest-in-history-reincarnates-as-his-descendant-1000-years-later-chapter-60/"
+ },
+ "80tc295y": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"f615b-n4ySEcZuYMGhugr/LQb22z4vciQ\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:03+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/250303/pWuJJeMLe.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "123",
+  "history": [
+   {
+    "at": "2026-10-08T21:50:53+00:00",
+    "label": "124",
+    "prev": "123",
+    "title": "共124篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/24760/?cps=undefined"
+   }
+  ],
+  "label": "124",
+  "mode": "count",
+  "notified": "sent",
+  "number": 124.0,
+  "prev_label": "123",
+  "prev_number": 123.0,
+  "since": "2026-10-01T11:47:09+00:00",
+  "title": "共124篇正文",
+  "tried": "2026-10-10T22:41:03+00:00",
+  "updated": "2026-10-08T21:50:53+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/24760/?cps=undefined"
+ },
+ "84aw1jm1": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:14+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/12_17_24_8281d9b664cb7b9d757d475f8f14f625_1786526644278.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "29",
+  "history": [
+   {
+    "at": "2026-10-07T16:01:31+00:00",
+    "label": "30",
+    "prev": "29",
+    "title": "030 意外收获，龙家公会",
+    "url": "https://ac.qq.com/ComicView/index/id/657529/cid/150529"
+   }
+  ],
+  "label": "30",
+  "mode": "text",
+  "notified": "sent",
+  "number": 30.0,
+  "prev_label": "29",
+  "prev_number": 29.0,
+  "since": "2026-10-01T12:00:21+00:00",
+  "title": "030 意外收获，龙家公会",
+  "tried": "2026-10-10T22:36:14+00:00",
+  "updated": "2026-10-07T16:01:31+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657529/cid/150529"
+ },
+ "8bxdkmoi": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"1912e-oTejFpDeuahn69cPoVMqqaDzIvI\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:32:39+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260612/EEnRNnvHt.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "14",
+  "history": [
+   {
+    "at": "2026-10-10T21:50:50+00:00",
+    "label": "19",
+    "prev": "18",
+    "title": "共19篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27818/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A51%3A16%3A438&cps=undefined"
+   },
+   {
+    "at": "2026-10-03T21:55:51+00:00",
+    "count": 4,
+    "label": "18",
+    "prev": "14",
+    "title": "共18篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27818/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A51%3A16%3A438&cps=undefined"
+   }
+  ],
+  "label": "19",
+  "mode": "count",
+  "notified": "sent",
+  "number": 19.0,
+  "prev_label": "18",
+  "prev_number": 18.0,
+  "since": "2026-10-01T12:01:52+00:00",
+  "title": "共19篇正文",
+  "tried": "2026-10-10T22:32:39+00:00",
+  "updated": "2026-10-10T21:50:50+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27818/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A51%3A16%3A438&cps=undefined"
+ },
+ "8phwj2sy": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:42:10+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/12_10_36_16d4c7ed64638158433c635eb24f9522_1786502193485.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "10",
+  "history": [
+   {
+    "at": "2026-10-10T16:05:52+00:00",
+    "label": "12",
+    "prev": "11",
+    "title": "第12话 生死擂台",
+    "url": "https://ac.qq.com/ComicView/index/id/657781/cid/153785"
+   },
+   {
+    "at": "2026-10-03T16:05:51+00:00",
+    "label": "11",
+    "prev": "10",
+    "title": "第11话 英雄",
+    "url": "https://ac.qq.com/ComicView/index/id/657781/cid/153778"
+   }
+  ],
+  "label": "12",
+  "mode": "text",
+  "notified": "sent",
+  "number": 12.0,
+  "prev_label": "11",
+  "prev_number": 11.0,
+  "since": "2026-10-01T12:05:01+00:00",
+  "title": "第12话 生死擂台",
+  "tried": "2026-10-10T22:42:10+00:00",
+  "updated": "2026-10-10T16:05:52+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657781/cid/153785"
+ },
+ "8xv12lfm": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"107255-5snJ7xtwumeXQ6EgK+JaG3yAMhc\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:44+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/250106/ykpZSGPEk.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "146",
+  "history": [
+   {
+    "at": "2026-10-06T21:50:54+00:00",
+    "label": "147",
+    "prev": "146",
+    "title": "共147篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/24719/?cps=undefined"
+   }
+  ],
+  "label": "147",
+  "mode": "count",
+  "notified": "sent",
+  "number": 147.0,
+  "prev_label": "146",
+  "prev_number": 146.0,
+  "since": "2026-10-01T11:45:02+00:00",
+  "title": "共147篇正文",
+  "tried": "2026-10-10T22:41:44+00:00",
+  "updated": "2026-10-06T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/24719/?cps=undefined"
+ },
+ "94tnc06h": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:16+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/07_11_51_348eb726c3bc9148d5251df28feab776_1786074702550.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "17",
+  "history": [
+   {
+    "at": "2026-10-10T16:01:06+00:00",
+    "label": "21",
+    "prev": "20",
+    "title": "21 毁尸灭迹",
+    "url": "https://ac.qq.com/ComicView/index/id/657368/cid/154133"
+   },
+   {
+    "at": "2026-10-08T16:05:57+00:00",
+    "label": "20",
+    "prev": "19",
+    "title": "20 弑神",
+    "url": "https://ac.qq.com/ComicView/index/id/657368/cid/154075"
+   },
+   {
+    "at": "2026-10-04T05:30:52+00:00",
+    "label": "19",
+    "prev": "18",
+    "title": "19 身体是诚实的",
+    "url": "https://ac.qq.com/ComicView/index/id/657368/cid/154049"
+   },
+   {
+    "at": "2026-10-01T16:05:38+00:00",
+    "label": "18",
+    "prev": "17",
+    "title": "18 前世姻缘",
+    "url": "https://ac.qq.com/ComicView/index/id/657368/cid/153422"
+   }
+  ],
+  "label": "21",
+  "mode": "text",
+  "notified": "sent",
+  "number": 21.0,
+  "prev_label": "20",
+  "prev_number": 20.0,
+  "since": "2026-10-01T12:05:14+00:00",
+  "title": "21 毁尸灭迹",
+  "tried": "2026-10-10T22:41:16+00:00",
+  "updated": "2026-10-10T16:01:06+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657368/cid/154133"
+ },
+ "97z3wd1p": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"101b3-pRDNzVTjPD+N8Gph+Epr3LbEMBU\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:04+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260827/MrsyOCgJx.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "1",
+  "history": [
+   {
+    "at": "2026-10-08T21:50:53+00:00",
+    "label": "3",
+    "prev": "2",
+    "title": "共3篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/28211/?cps=undefined"
+   },
+   {
+    "at": "2026-10-01T21:50:42+00:00",
+    "label": "2",
+    "prev": "1",
+    "title": "共2篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/28211/?cps=undefined"
+   }
+  ],
+  "label": "3",
+  "mode": "count",
+  "notified": "sent",
+  "number": 3.0,
+  "prev_label": "2",
+  "prev_number": 2.0,
+  "since": "2026-10-01T12:07:03+00:00",
+  "title": "共3篇正文",
+  "tried": "2026-10-10T22:36:04+00:00",
+  "updated": "2026-10-08T21:50:53+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/28211/?cps=undefined"
+ },
+ "_meta": {
+  "digest": "2026-10-02",
+  "last_auto": "2026-10-10T22:40:52+00:00"
+ },
+ "a2d1xxpa": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:05+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/23_09_20_f4482cb30b4fad3a4e28cf73b328b437_1790126451252.png/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "3",
+  "history": [
+   {
+    "at": "2026-10-10T16:01:06+00:00",
+    "label": "7",
+    "prev": "6",
+    "title": "7",
+    "url": "https://ac.qq.com/ComicView/index/id/657755/cid/152754"
+   },
+   {
+    "at": "2026-10-09T16:01:19+00:00",
+    "label": "6",
+    "prev": "5",
+    "title": "6",
+    "url": "https://ac.qq.com/ComicView/index/id/657755/cid/152753"
+   },
+   {
+    "at": "2026-10-03T16:01:05+00:00",
+    "label": "5",
+    "prev": "4",
+    "title": "5",
+    "url": "https://ac.qq.com/ComicView/index/id/657755/cid/152752"
+   },
+   {
+    "at": "2026-10-02T16:01:19+00:00",
+    "label": "4",
+    "prev": "3",
+    "title": "4",
+    "url": "https://ac.qq.com/ComicView/index/id/657755/cid/152751"
+   }
+  ],
+  "label": "7",
+  "mode": "text",
+  "notified": "sent",
+  "number": 7.0,
+  "prev_label": "6",
+  "prev_number": 6.0,
+  "since": "2026-10-01T12:05:34+00:00",
+  "title": "7",
+  "tried": "2026-10-10T22:36:05+00:00",
+  "updated": "2026-10-10T16:01:06+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657755/cid/152754"
+ },
+ "adbnq9dy": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"8c239-nSQlDPuaFS0SXxl1ZfPNLmnuroc\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:47+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/231221/DThMOaynM.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "138",
+  "history": [
+   {
+    "at": "2026-10-10T11:30:52+00:00",
+    "label": "140",
+    "prev": "139",
+    "title": "共140篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/21809/?cps=undefined"
+   },
+   {
+    "at": "2026-10-03T15:01:03+00:00",
+    "label": "139",
+    "prev": "138",
+    "title": "共139篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/21809/?cps=undefined"
+   }
+  ],
+  "label": "140",
+  "mode": "count",
+  "notified": "sent",
+  "number": 140.0,
+  "prev_label": "139",
+  "prev_number": 139.0,
+  "since": "2026-10-01T11:48:15+00:00",
+  "title": "共140篇正文",
+  "tried": "2026-10-10T22:36:47+00:00",
+  "updated": "2026-10-10T11:30:52+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/21809/?cps=undefined"
+ },
+ "afxbxwrf": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"1397b-F5cJxe3x8mX5jh2Kv+PbJu9JGlg\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:42:16+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260513/usYnQhLQn.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "14",
+  "history": [
+   {
+    "at": "2026-10-04T15:50:51+00:00",
+    "label": "15",
+    "prev": "14",
+    "title": "共15篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27690/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A52%3A25%3A328&cps=undefined"
+   }
+  ],
+  "label": "15",
+  "mode": "count",
+  "notified": "sent",
+  "number": 15.0,
+  "prev_label": "14",
+  "prev_number": 14.0,
+  "since": "2026-10-01T09:54:49+00:00",
+  "title": "共15篇正文",
+  "tried": "2026-10-10T22:42:16+00:00",
+  "updated": "2026-10-04T15:50:51+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27690/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A52%3A25%3A328&cps=undefined"
+ },
+ "b7orhxvi": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"2ab6f-xOJbGtcICkBG/m8guw0EglpNglQ\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:35+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/251013/pWzPSGtET.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "55",
+  "history": [
+   {
+    "at": "2026-10-05T21:50:54+00:00",
+    "label": "56",
+    "prev": "55",
+    "title": "共56篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/26542/?cps=undefined"
+   }
+  ],
+  "label": "56",
+  "mode": "count",
+  "notified": "sent",
+  "number": 56.0,
+  "prev_label": "55",
+  "prev_number": 55.0,
+  "since": "2026-10-01T11:56:09+00:00",
+  "title": "共56篇正文",
+  "tried": "2026-10-10T22:41:35+00:00",
+  "updated": "2026-10-05T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/26542/?cps=undefined"
+ },
+ "bkkkskss": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:35:50+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/19_17_45_fb1ca090a90dec298f3447856fb552dd_1787132734284.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "41",
+  "history": [
+   {
+    "at": "2026-10-09T16:01:19+00:00",
+    "label": "43",
+    "prev": "42",
+    "title": "第43话 复仇",
+    "url": "https://ac.qq.com/ComicView/index/id/657151/cid/149904"
+   },
+   {
+    "at": "2026-10-02T16:01:19+00:00",
+    "label": "42",
+    "prev": "41",
+    "title": "第42话 独狼",
+    "url": "https://ac.qq.com/ComicView/index/id/657151/cid/149292"
+   }
+  ],
+  "label": "43",
+  "mode": "text",
+  "notified": "sent",
+  "number": 43.0,
+  "prev_label": "42",
+  "prev_number": 42.0,
+  "since": "2026-10-01T11:58:14+00:00",
+  "title": "第43话 复仇",
+  "tried": "2026-10-10T22:35:50+00:00",
+  "updated": "2026-10-09T16:01:19+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657151/cid/149904"
+ },
+ "cgzbo5g5": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"c8b5b-NI+eA+5x52VZB0CDKUtGRrqPG30\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:27+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260910/puuzpvXvD.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "53",
+  "history": [
+   {
+    "at": "2026-10-09T21:50:55+00:00",
+    "label": "54",
+    "prev": "53",
+    "title": "共54篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/25837/?cps=undefined"
+   }
+  ],
+  "label": "54",
+  "mode": "count",
+  "notified": "sent",
+  "number": 54.0,
+  "prev_label": "53",
+  "prev_number": 53.0,
+  "since": "2026-10-01T11:53:43+00:00",
+  "title": "共54篇正文",
+  "tried": "2026-10-10T22:41:27+00:00",
+  "updated": "2026-10-09T21:50:55+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/25837/?cps=undefined"
+ },
+ "drgsqxj2": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:09+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/01_16_17_631016a0841a349f22a86aff41391dc4_1711959471145.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "268",
+  "history": [
+   {
+    "at": "2026-10-10T16:01:06+00:00",
+    "label": "272",
+    "prev": "271",
+    "title": "第272话 不死之身？",
+    "url": "https://ac.qq.com/ComicView/index/id/655278/cid/154449"
+   },
+   {
+    "at": "2026-10-09T11:31:04+00:00",
+    "label": "271",
+    "prev": "270",
+    "title": "第271话 雪原之主",
+    "url": "https://ac.qq.com/ComicView/index/id/655278/cid/154361"
+   },
+   {
+    "at": "2026-10-03T16:05:51+00:00",
+    "label": "270",
+    "prev": "269",
+    "title": "第270话 …它在说什么？",
+    "url": "https://ac.qq.com/ComicView/index/id/655278/cid/153783"
+   },
+   {
+    "at": "2026-10-01T16:00:39+00:00",
+    "label": "269",
+    "prev": "268",
+    "title": "第269话 弱点标记？！",
+    "url": "https://ac.qq.com/ComicView/index/id/655278/cid/153681"
+   }
+  ],
+  "label": "272",
+  "mode": "text",
+  "notified": "sent",
+  "number": 272.0,
+  "prev_label": "271",
+  "prev_number": 271.0,
+  "since": "2026-10-01T11:46:47+00:00",
+  "title": "第272话 不死之身？",
+  "tried": "2026-10-10T22:41:09+00:00",
+  "updated": "2026-10-10T16:01:06+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/655278/cid/154449"
+ },
+ "dttu0ehc": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:03+00:00",
+  "cover": "https://en-thunderscans.com/wp-content/uploads/2025/12/2025-12-26-08-39-09-1766781549518.png",
+  "error": "",
+  "fails": 0,
+  "first_label": "59",
+  "history": [
+   {
+    "at": "2026-10-09T15:50:55+00:00",
+    "label": "61",
+    "prev": "60",
+    "title": "New Chapter Chapter 61",
+    "url": "https://en-thunderscans.com/the-clans-failure-is-a-former-continental-champion-chapter-61/"
+   },
+   {
+    "at": "2026-10-02T16:10:59+00:00",
+    "label": "60",
+    "prev": "59",
+    "title": "New Chapter Chapter 60",
+    "url": "https://en-thunderscans.com/the-clans-failure-is-a-former-continental-champion-chapter-60/"
+   }
+  ],
+  "label": "61",
+  "mode": "text",
+  "notified": "sent",
+  "number": 61.0,
+  "prev_label": "60",
+  "prev_number": 60.0,
+  "since": "2026-10-01T11:57:28+00:00",
+  "title": "New Chapter Chapter 61",
+  "tried": "2026-10-10T22:41:03+00:00",
+  "updated": "2026-10-09T15:50:55+00:00",
+  "url": "https://en-thunderscans.com/the-clans-failure-is-a-former-continental-champion-chapter-61/"
+ },
+ "e07mdnts": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"1f8e1-7yMO2Ynl3IRqaXPNLp9OAei2uMo\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:42:25+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260521/DSgFPQXUk.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "20",
+  "history": [
+   {
+    "at": "2026-10-08T21:50:53+00:00",
+    "label": "22",
+    "prev": "21",
+    "title": "共22篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27711/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-05-31%2001%3A28%3A04%3A210&cps=undefined"
+   },
+   {
+    "at": "2026-10-01T21:50:42+00:00",
+    "label": "21",
+    "prev": "20",
+    "title": "共21篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27711/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-05-31%2001%3A28%3A04%3A210&cps=undefined"
+   }
+  ],
+  "label": "22",
+  "mode": "count",
+  "notified": "sent",
+  "number": 22.0,
+  "prev_label": "21",
+  "prev_number": 21.0,
+  "since": "2026-10-01T11:59:22+00:00",
+  "title": "共22篇正文",
+  "tried": "2026-10-10T22:42:25+00:00",
+  "updated": "2026-10-08T21:50:53+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27711/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-05-31%2001%3A28%3A04%3A210&cps=undefined"
+ },
+ "egon7x0q": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"1142ff-Os0kG4ncOGktTeZYEYE7C2olJPE\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:37:25+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/220812/GsMvswmZY.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "237",
+  "history": [
+   {
+    "at": "2026-10-06T21:50:54+00:00",
+    "label": "238",
+    "prev": "237",
+    "title": "共238篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/16315/?cps=undefined"
+   }
+  ],
+  "label": "238",
+  "mode": "count",
+  "notified": "sent",
+  "number": 238.0,
+  "prev_label": "237",
+  "prev_number": 237.0,
+  "since": "2026-10-01T11:45:37+00:00",
+  "title": "共238篇正文",
+  "tried": "2026-10-10T22:37:25+00:00",
+  "updated": "2026-10-06T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/16315/?cps=undefined"
+ },
+ "esccjghs": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"6377f-rtfyxuhPYeSaIn+i/QifPBXiJqo\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:32:31+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260306/6iUF00ENQ.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "31",
+  "label": "31",
+  "mode": "count",
+  "number": 31.0,
+  "since": "2026-10-01T11:58:03+00:00",
+  "title": "共31篇正文",
+  "tried": "2026-10-10T22:32:31+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27325/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-03-14%2012%3A52%3A35%3A180&cps=undefined"
+ },
+ "fqxby98w": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"102814-dnPyKWwJowlI+8sntgxiC8cgtjw\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:52+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/240528/YWMKiGVlE.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "123",
+  "history": [
+   {
+    "at": "2026-10-06T21:50:54+00:00",
+    "label": "124",
+    "prev": "123",
+    "title": "共124篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/17649/?cps=undefined"
+   }
+  ],
+  "label": "124",
+  "mode": "count",
+  "notified": "sent",
+  "number": 124.0,
+  "prev_label": "123",
+  "prev_number": 123.0,
+  "since": "2026-10-01T11:45:50+00:00",
+  "title": "共124篇正文",
+  "tried": "2026-10-10T22:41:52+00:00",
+  "updated": "2026-10-06T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/17649/?cps=undefined"
+ },
+ "fs66atke": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"179a9-9vaSr7ME7SM1ldSejh2C1TGFXqo\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:19+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/250703/6RDhR4ZZg.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "67",
+  "history": [
+   {
+    "at": "2026-10-01T16:00:39+00:00",
+    "label": "68",
+    "prev": "67",
+    "title": "共68篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/25871/?cps=undefined"
+   }
+  ],
+  "label": "68",
+  "mode": "count",
+  "notified": "sent",
+  "number": 68.0,
+  "prev_label": "67",
+  "prev_number": 67.0,
+  "since": "2026-10-01T11:52:38+00:00",
+  "title": "共68篇正文",
+  "tried": "2026-10-10T22:41:19+00:00",
+  "updated": "2026-10-01T16:00:39+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/25871/?cps=undefined"
+ },
+ "goyn01vj": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"1ee68-6/czglp3/fIaT1luOnndzz3MmKQ\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:42:07+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260408/rJFJJiTTt.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "29",
+  "history": [
+   {
+    "at": "2026-10-05T21:50:54+00:00",
+    "count": 2,
+    "label": "31",
+    "prev": "29",
+    "title": "共31篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27455/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-04-21%2008%3A44%3A18%3A153&cps=undefined"
+   }
+  ],
+  "label": "31",
+  "mode": "count",
+  "notified": "sent",
+  "number": 31.0,
+  "prev_label": "29",
+  "prev_number": 29.0,
+  "since": "2026-10-01T11:58:39+00:00",
+  "title": "共31篇正文",
+  "tried": "2026-10-10T22:42:07+00:00",
+  "updated": "2026-10-05T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27455/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-04-21%2008%3A44%3A18%3A153&cps=undefined"
+ },
+ "ienhj2sv": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"159c9-7OEUmp8GvUubLSdBviga+48t4fY\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:37:03+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260511/LhPxNHGsb.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "22",
+  "history": [
+   {
+    "at": "2026-10-07T22:05:51+00:00",
+    "label": "23",
+    "prev": "22",
+    "title": "共23篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27683/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-05-27%2008%3A46%3A31%3A267&cps=undefined"
+   }
+  ],
+  "label": "23",
+  "mode": "count",
+  "notified": "sent",
+  "number": 23.0,
+  "prev_label": "22",
+  "prev_number": 22.0,
+  "since": "2026-10-01T11:59:06+00:00",
+  "title": "共23篇正文",
+  "tried": "2026-10-10T22:37:03+00:00",
+  "updated": "2026-10-07T22:05:51+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27683/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-05-27%2008%3A46%3A31%3A267&cps=undefined"
+ },
+ "iyto4pxu": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:46+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/26_21_05_69b79350471aaf1e82f7ca04dbb86bea_1758891914732.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "51",
+  "history": [
+   {
+    "at": "2026-10-02T16:01:19+00:00",
+    "label": "52",
+    "prev": "51",
+    "title": "第52话：谢老祖~",
+    "url": "https://ac.qq.com/ComicView/index/id/657044/cid/153989"
+   }
+  ],
+  "label": "52",
+  "mode": "text",
+  "notified": "sent",
+  "number": 52.0,
+  "prev_label": "51",
+  "prev_number": 51.0,
+  "since": "2026-10-01T11:55:18+00:00",
+  "title": "第52话：谢老祖~",
+  "tried": "2026-10-10T22:36:46+00:00",
+  "updated": "2026-10-02T16:01:19+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657044/cid/153989"
+ },
+ "kkj86tg3": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:42:05+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/03_11_56_606b20971f236a612863f1ea4167c90a_1770091016138.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "25",
+  "history": [
+   {
+    "at": "2026-10-06T16:05:55+00:00",
+    "label": "26",
+    "prev": "25",
+    "title": "第二十六话 死亡矿坑",
+    "url": "https://ac.qq.com/ComicView/index/id/657375/cid/150568"
+   }
+  ],
+  "label": "26",
+  "mode": "text",
+  "notified": "sent",
+  "number": 26.0,
+  "prev_label": "25",
+  "prev_number": 25.0,
+  "since": "2026-10-01T12:31:53+00:00",
+  "title": "第二十六话 死亡矿坑",
+  "tried": "2026-10-10T22:42:05+00:00",
+  "updated": "2026-10-06T16:05:55+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657375/cid/150568"
+ },
+ "lpudt8vk": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"df95-ibWgpej/3ymyBpUb9/LP8ewfc38\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:37:11+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260706/xUeCWZWHP.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "4",
+  "history": [
+   {
+    "at": "2026-10-06T21:50:54+00:00",
+    "label": "5",
+    "prev": "4",
+    "title": "共5篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27689/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-21%2023%3A14%3A28%3A182&cps=undefined"
+   }
+  ],
+  "label": "5",
+  "mode": "count",
+  "notified": "sent",
+  "number": 5.0,
+  "prev_label": "4",
+  "prev_number": 4.0,
+  "since": "2026-10-01T12:03:20+00:00",
+  "title": "共5篇正文",
+  "tried": "2026-10-10T22:37:11+00:00",
+  "updated": "2026-10-06T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27689/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-21%2023%3A14%3A28%3A182&cps=undefined"
+ },
+ "lx6drooh": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"121e9-8mpNvlyMRGMQ2pCU44qwEO7QgX4\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:42:37+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260513/rPsoatZoT.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "11",
+  "history": [
+   {
+    "at": "2026-10-05T21:50:54+00:00",
+    "label": "12",
+    "prev": "11",
+    "title": "共12篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27688/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A51%3A54%3A019&cps=undefined"
+   }
+  ],
+  "label": "12",
+  "mode": "count",
+  "notified": "sent",
+  "number": 12.0,
+  "prev_label": "11",
+  "prev_number": 11.0,
+  "since": "2026-10-01T12:02:04+00:00",
+  "title": "共12篇正文",
+  "tried": "2026-10-10T22:42:37+00:00",
+  "updated": "2026-10-05T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27688/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A51%3A54%3A019&cps=undefined"
+ },
+ "mqc5qgwc": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:35:59+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/27_16_57_a9edfe3623eff1fd1ef1f4df6c2eb96c_1779872241323.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "27",
+  "history": [
+   {
+    "at": "2026-10-07T16:01:31+00:00",
+    "label": "28",
+    "prev": "27",
+    "title": "第28话 我想要你死",
+    "url": "https://ac.qq.com/ComicView/index/id/657544/cid/150291"
+   }
+  ],
+  "label": "28",
+  "mode": "text",
+  "notified": "sent",
+  "number": 28.0,
+  "prev_label": "27",
+  "prev_number": 27.0,
+  "since": "2026-10-01T11:59:39+00:00",
+  "title": "第28话 我想要你死",
+  "tried": "2026-10-10T22:35:59+00:00",
+  "updated": "2026-10-07T16:01:31+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657544/cid/150291"
+ },
+ "o5rbbnyn": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:37:04+00:00",
+  "cover": "https://en-thunderscans.com/wp-content/uploads/2025/12/2026-08-15-08-00-04-1786824004610.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "66",
+  "history": [
+   {
+    "at": "2026-10-10T17:10:51+00:00",
+    "label": "68",
+    "prev": "67",
+    "title": "New Chapter Chapter 68",
+    "url": "https://en-thunderscans.com/reincarnated-streamer-chapter-68/"
+   },
+   {
+    "at": "2026-10-03T16:25:49+00:00",
+    "label": "67",
+    "prev": "66",
+    "title": "New Chapter Chapter 67",
+    "url": "https://en-thunderscans.com/reincarnated-streamer-chapter-67/"
+   }
+  ],
+  "label": "68",
+  "mode": "text",
+  "notified": "sent",
+  "number": 68.0,
+  "prev_label": "67",
+  "prev_number": 67.0,
+  "since": "2026-10-01T11:57:12+00:00",
+  "title": "New Chapter Chapter 68",
+  "tried": "2026-10-10T22:37:04+00:00",
+  "updated": "2026-10-10T17:10:51+00:00",
+  "url": "https://en-thunderscans.com/reincarnated-streamer-chapter-68/"
+ },
+ "pbcu9bq0": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"d55a-I4j3UC5XO6ArEuT2h1jWeZbO/XU\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:30+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260706/RwaCiqHoj.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "1",
+  "history": [
+   {
+    "at": "2026-10-06T21:50:54+00:00",
+    "label": "2",
+    "prev": "1",
+    "title": "共2篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27677/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A49%3A33%3A868&cps=undefined"
+   }
+  ],
+  "label": "2",
+  "mode": "count",
+  "notified": "sent",
+  "number": 2.0,
+  "prev_label": "1",
+  "prev_number": 1.0,
+  "since": "2026-10-01T12:01:15+00:00",
+  "title": "共2篇正文",
+  "tried": "2026-10-10T22:36:30+00:00",
+  "updated": "2026-10-06T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27677/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A49%3A33%3A868&cps=undefined"
+ },
+ "pj2gv2jt": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:40:55+00:00",
+  "cover": "https://en-thunderscans.com/wp-content/uploads/2025/11/2026-05-03-07-44-11-1777837451259.webp",
+  "error": "",
+  "fails": 0,
+  "first_label": "118",
+  "history": [
+   {
+    "at": "2026-10-04T21:50:51+00:00",
+    "count": 3,
+    "label": "121",
+    "prev": "118",
+    "title": "New Chapter Chapter 121",
+    "url": "https://en-thunderscans.com/i-became-a-genius-at-the-academy-in-a-world-where-magic-reigns-supreme-chapter-121/"
+   }
+  ],
+  "label": "121",
+  "mode": "text",
+  "notified": "sent",
+  "number": 121.0,
+  "prev_label": "118",
+  "prev_number": 118.0,
+  "since": "2026-10-01T11:56:46+00:00",
+  "title": "New Chapter Chapter 121",
+  "tried": "2026-10-10T22:40:55+00:00",
+  "updated": "2026-10-04T21:50:51+00:00",
+  "url": "https://en-thunderscans.com/i-became-a-genius-at-the-academy-in-a-world-where-magic-reigns-supreme-chapter-121/"
+ },
+ "sc1wq5b8": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"fa32-C2nZllpabUzJugEwlpEThUzCPyw\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:35:52+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260824/pDLicydaX.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "4",
+  "history": [
+   {
+    "at": "2026-10-06T21:50:54+00:00",
+    "label": "5",
+    "prev": "4",
+    "title": "共5篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27865/?cps=undefined"
+   }
+  ],
+  "label": "5",
+  "mode": "count",
+  "notified": "sent",
+  "number": 5.0,
+  "prev_label": "4",
+  "prev_number": 4.0,
+  "since": "2026-10-01T12:06:38+00:00",
+  "title": "共5篇正文",
+  "tried": "2026-10-10T22:35:52+00:00",
+  "updated": "2026-10-06T21:50:54+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27865/?cps=undefined"
+ },
+ "sekdqu18": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"9ba63-2CtzZidhh8WUCjQNlC+I7LHSmok\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:35:57+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/241205/IrcBSEZRv.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "107",
+  "history": [
+   {
+    "at": "2026-10-09T16:01:19+00:00",
+    "label": "109",
+    "prev": "108",
+    "title": "共109篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/24602/?cps=undefined"
+   },
+   {
+    "at": "2026-10-06T16:01:13+00:00",
+    "label": "108",
+    "prev": "107",
+    "title": "共108篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/24602/?cps=undefined"
+   }
+  ],
+  "label": "109",
+  "mode": "count",
+  "notified": "sent",
+  "number": 109.0,
+  "prev_label": "108",
+  "prev_number": 108.0,
+  "since": "2026-10-01T11:49:20+00:00",
+  "title": "共109篇正文",
+  "tried": "2026-10-10T22:35:57+00:00",
+  "updated": "2026-10-09T16:01:19+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/24602/?cps=undefined"
+ },
+ "sfzds7bk": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:37:00+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/15_21_54_59f7e4aa90d07b8cc862dfc1d3273088_1773582841745.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "29",
+  "history": [
+   {
+    "at": "2026-10-08T16:05:57+00:00",
+    "label": "31",
+    "prev": "30",
+    "title": "031 舍命修改，乌神降雷",
+    "url": "https://ac.qq.com/ComicView/index/id/657528/cid/150571"
+   },
+   {
+    "at": "2026-10-01T16:00:39+00:00",
+    "label": "30",
+    "prev": "29",
+    "title": "030 毒雷魔兽，恐怖如斯",
+    "url": "https://ac.qq.com/ComicView/index/id/657528/cid/150483"
+   }
+  ],
+  "label": "31",
+  "mode": "text",
+  "notified": "sent",
+  "number": 31.0,
+  "prev_label": "30",
+  "prev_number": 30.0,
+  "since": "2026-10-01T12:00:07+00:00",
+  "title": "031 舍命修改，乌神降雷",
+  "tried": "2026-10-10T22:37:00+00:00",
+  "updated": "2026-10-08T16:05:57+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657528/cid/150571"
+ },
+ "susczonp": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:29+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/05_18_12_3a9e434b624dddda32ea25c954d21224_1785924730982.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "14",
+  "history": [
+   {
+    "at": "2026-10-09T16:01:19+00:00",
+    "label": "16",
+    "prev": "15",
+    "title": "016揍一顿就好了",
+    "url": "https://ac.qq.com/ComicView/index/id/657666/cid/149064"
+   },
+   {
+    "at": "2026-10-02T16:01:19+00:00",
+    "label": "15",
+    "prev": "14",
+    "title": "015赚翻了",
+    "url": "https://ac.qq.com/ComicView/index/id/657666/cid/149063"
+   }
+  ],
+  "label": "16",
+  "mode": "text",
+  "notified": "sent",
+  "number": 16.0,
+  "prev_label": "15",
+  "prev_number": 15.0,
+  "since": "2026-10-01T12:04:43+00:00",
+  "title": "016揍一顿就好了",
+  "tried": "2026-10-10T22:36:29+00:00",
+  "updated": "2026-10-09T16:01:19+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657666/cid/149064"
+ },
+ "tfvuvize": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"42c94-QKYSvhP7MtHo71Y3pNBcw4nFbOs\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:32:25+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/251219/cGVpJpCog.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "40",
+  "label": "40",
+  "mode": "count",
+  "number": 40.0,
+  "since": "2026-10-01T11:57:43+00:00",
+  "title": "共40篇正文",
+  "tried": "2026-10-10T22:32:25+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27125/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2568-12-29%2002%3A33%3A10%3A572&cps=undefined"
+ },
+ "tq32a94y": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:42+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/04_16_07_b1d726ccbb9827eea21ba5b9277f79fd_1767514051460.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "116",
+  "history": [
+   {
+    "at": "2026-10-01T16:05:38+00:00",
+    "count": 2,
+    "label": "120",
+    "prev": "118",
+    "title": "第120话 “安全”仓库",
+    "url": "https://ac.qq.com/ComicView/index/id/656737/cid/153964"
+   },
+   {
+    "at": "2026-10-01T12:09:01+00:00",
+    "count": 2,
+    "label": "118",
+    "prev": "116",
+    "title": "第118话 控场",
+    "url": "https://ac.qq.com/ComicView/index/id/656737/cid/153961"
+   }
+  ],
+  "label": "120",
+  "mode": "text",
+  "notified": "sent",
+  "number": 120.0,
+  "prev_label": "118",
+  "prev_number": 118.0,
+  "since": "2026-10-01T11:51:26+00:00",
+  "title": "第120话 “安全”仓库",
+  "tried": "2026-10-10T22:41:42+00:00",
+  "updated": "2026-10-01T16:05:38+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/656737/cid/153964"
+ },
+ "turkyr24": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"8390b-hhb5EfhXVFB9KKmC9Q7iz4r7mJU\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:39+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/240717/SEWAPwEvx.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "145",
+  "history": [
+   {
+    "at": "2026-10-06T22:15:55+00:00",
+    "label": "146",
+    "prev": "145",
+    "title": "共146篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/21720/?cps=undefined"
+   }
+  ],
+  "label": "146",
+  "mode": "count",
+  "notified": "sent",
+  "number": 146.0,
+  "prev_label": "145",
+  "prev_number": 145.0,
+  "since": "2026-10-01T11:46:05+00:00",
+  "title": "共146篇正文",
+  "tried": "2026-10-10T22:36:39+00:00",
+  "updated": "2026-10-06T22:15:55+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/21720/?cps=undefined"
+ },
+ "u201sani": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"1278e-6/tbm8vBX3KC9hPqV9D8Q6P9SWo\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:42:31+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260624/mRhNkNfqh.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "0",
+  "label": "0",
+  "mode": "count",
+  "number": 0.0,
+  "since": "2026-10-01T12:01:39+00:00",
+  "title": "共0篇正文",
+  "tried": "2026-10-10T22:42:31+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27899/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A50%3A12%3A958&cps=undefined"
+ },
+ "w3xwwtyu": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:36+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/15_15_06_8c1da8932cb7de4fa4f29f8863b007a1_1786777571324.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "11",
+  "history": [
+   {
+    "at": "2026-10-08T16:01:31+00:00",
+    "label": "14",
+    "prev": "13",
+    "title": "14 意料之中",
+    "url": "https://ac.qq.com/ComicView/index/id/657540/cid/149662"
+   },
+   {
+    "at": "2026-10-05T16:05:52+00:00",
+    "label": "13",
+    "prev": "12",
+    "title": "13 倾尽法力",
+    "url": "https://ac.qq.com/ComicView/index/id/657540/cid/149661"
+   },
+   {
+    "at": "2026-10-01T16:00:39+00:00",
+    "label": "12",
+    "prev": "11",
+    "title": "12 苍熊坡",
+    "url": "https://ac.qq.com/ComicView/index/id/657540/cid/149660"
+   }
+  ],
+  "label": "14",
+  "mode": "text",
+  "notified": "sent",
+  "number": 14.0,
+  "prev_label": "13",
+  "prev_number": 13.0,
+  "since": "2026-10-01T12:04:18+00:00",
+  "title": "14 意料之中",
+  "tried": "2026-10-10T22:41:36+00:00",
+  "updated": "2026-10-08T16:01:31+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657540/cid/149662"
+ },
+ "w5sbh9ym": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:38+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/02_10_07_1bd9d108101acc40aa0ccc7120b12903_1769998052151.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "69",
+  "history": [
+   {
+    "at": "2026-10-08T16:01:31+00:00",
+    "label": "71",
+    "prev": "70",
+    "title": "弱肉强食",
+    "url": "https://ac.qq.com/ComicView/index/id/656779/cid/152685"
+   },
+   {
+    "at": "2026-10-01T16:00:39+00:00",
+    "label": "70",
+    "prev": "69",
+    "title": "弱肉强食",
+    "url": "https://ac.qq.com/ComicView/index/id/656779/cid/152685"
+   }
+  ],
+  "label": "71",
+  "mode": "order",
+  "notified": "sent",
+  "number": 71.0,
+  "prev_label": "70",
+  "prev_number": 70.0,
+  "since": "2026-10-01T12:31:31+00:00",
+  "title": "弱肉强食",
+  "tried": "2026-10-10T22:36:38+00:00",
+  "updated": "2026-10-08T16:01:31+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/656779/cid/152685"
+ },
+ "wmpw0d20": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"fd20-TtwURsJLbwDOmNIsvCsiee0xwn0\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:12+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/260611/NOjLtsQkc.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "4",
+  "history": [
+   {
+    "at": "2026-10-09T21:50:55+00:00",
+    "label": "6",
+    "prev": "5",
+    "title": "共6篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27816/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A52%3A10%3A275&cps=undefined"
+   },
+   {
+    "at": "2026-10-02T21:50:56+00:00",
+    "label": "5",
+    "prev": "4",
+    "title": "共5篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/27816/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A52%3A10%3A275&cps=undefined"
+   }
+  ],
+  "label": "6",
+  "mode": "count",
+  "notified": "sent",
+  "number": 6.0,
+  "prev_label": "5",
+  "prev_number": 5.0,
+  "since": "2026-10-01T12:02:19+00:00",
+  "title": "共6篇正文",
+  "tried": "2026-10-10T22:41:12+00:00",
+  "updated": "2026-10-09T21:50:55+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/27816/?ServiceType=1&ServiceName=12&Source=6&TimeStamp=2569-07-12%2022%3A52%3A10%3A275&cps=undefined"
+ },
+ "wo8f3lu3": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": "\"11f1d2-URO28yq3jkyM/KmaxNDqdUrxz0g\"",
+   "lm": null
+  },
+  "checked": "2026-10-10T22:36:56+00:00",
+  "cover": "https://tn1-f2.kkmh.com/image/210928/XXkfelelu.webp-w750.jpg",
+  "error": "",
+  "fails": 0,
+  "first_label": "360",
+  "history": [
+   {
+    "at": "2026-10-05T22:35:51+00:00",
+    "label": "362",
+    "prev": "361",
+    "title": "共362篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/12602/?cps=undefined"
+   },
+   {
+    "at": "2026-10-04T21:50:51+00:00",
+    "label": "361",
+    "prev": "360",
+    "title": "共361篇正文",
+    "url": "https://www.kuaikanmanhua.com/web/topic/12602/?cps=undefined"
+   }
+  ],
+  "label": "362",
+  "mode": "count",
+  "notified": "sent",
+  "number": 362.0,
+  "prev_label": "361",
+  "prev_number": 361.0,
+  "since": "2026-10-01T09:54:49+00:00",
+  "title": "共362篇正文",
+  "tried": "2026-10-10T22:36:56+00:00",
+  "updated": "2026-10-05T22:35:51+00:00",
+  "url": "https://www.kuaikanmanhua.com/web/topic/12602/?cps=undefined"
+ },
+ "xe2m9nzb": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:41:01+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/07_15_56_7d3b6d4d1799444c72b659dcffd06ffa_1786089382595.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "20",
+  "history": [
+   {
+    "at": "2026-10-07T16:05:59+00:00",
+    "label": "22",
+    "prev": "21",
+    "title": "第22话 时空宝珠显神威！（下集",
+    "url": "https://ac.qq.com/ComicView/index/id/657631/cid/150242"
+   },
+   {
+    "at": "2026-10-06T16:01:13+00:00",
+    "label": "21",
+    "prev": "20",
+    "title": "第21话 时空宝珠显神威！（上集",
+    "url": "https://ac.qq.com/ComicView/index/id/657631/cid/150241"
+   }
+  ],
+  "label": "22",
+  "mode": "text",
+  "notified": "sent",
+  "number": 22.0,
+  "prev_label": "21",
+  "prev_number": 21.0,
+  "since": "2026-10-01T12:03:46+00:00",
+  "title": "第22话 时空宝珠显神威！（下集",
+  "tried": "2026-10-10T22:41:01+00:00",
+  "updated": "2026-10-07T16:05:59+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/657631/cid/150242"
+ },
+ "ze6hxifw": {
+  "blocked_until": "",
+  "blocks": 0,
+  "cache": {
+   "etag": null,
+   "lm": null
+  },
+  "checked": "2026-10-10T22:40:52+00:00",
+  "cover": "https://manhua.acimg.cn/vertical/0/15_15_39_d468d1f51496f7a0dad7b2e370610a6c_1786779559516.jpg/420",
+  "error": "",
+  "fails": 0,
+  "first_label": "96",
+  "history": [
+   {
+    "at": "2026-10-06T15:50:54+00:00",
+    "label": "98",
+    "prev": "97",
+    "title": "98 找当今官家有事",
+    "url": "https://ac.qq.com/ComicView/index/id/656856/cid/154118"
+   },
+   {
+    "at": "2026-10-03T02:55:45+00:00",
+    "label": "97",
+    "prev": "96",
+    "title": "97 向往的生活",
+    "url": "https://ac.qq.com/ComicView/index/id/656856/cid/154014"
+   }
+  ],
+  "label": "98",
+  "mode": "text",
+  "notified": "sent",
+  "number": 98.0,
+  "prev_label": "97",
+  "prev_number": 97.0,
+  "since": "2026-10-01T11:56:58+00:00",
+  "title": "98 找当今官家有事",
+  "tried": "2026-10-10T22:40:52+00:00",
+  "updated": "2026-10-06T15:50:54+00:00",
+  "url": "https://ac.qq.com/ComicView/index/id/656856/cid/154118"
+ }
+}
